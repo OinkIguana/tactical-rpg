@@ -1,2 +1,2 @@
 # tactical-rpg (Name TBD)
-An online multiplayer competitive tactical role playing game
+An online multiplayer story-driven tactical role playing game
