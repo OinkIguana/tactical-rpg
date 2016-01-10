@@ -10,5 +10,6 @@ app.use('/', express.static('./public_html'));
 let io = socket_io(server);
 
 io.on('connection', (socket) => {
-
+    // Error catch
+    socket.on('error', console.error);
 });
