@@ -5,7 +5,16 @@ import {PORT} from './config';
 
 let app = express();
 let server = app.listen(PORT, () => { console.log(`Server started at ${PORT}`); });
-app.use('/', express.static('./public_html'));
+
+//Run files through ejs
+app.set('view engine', 'ejs');
+app.set('views', '');
+
+app.use('/', express.static('public_html'));
+//There is only 1 page, no need for 404
+app.use('/', (req, res) => {
+    res.render('public_html/index.html.ejs');
+});
 
 let io = socket_io(server);
 

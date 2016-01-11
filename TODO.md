@@ -134,6 +134,7 @@
     * Turns
     * Units lost per side
     * EXP/Money awarded
+* Final results (end of game)
 * Continue button
 
 ### Back end
