@@ -9,7 +9,7 @@ module.exports = {
     module: {
         loaders: [
             { test: /\.scss$/, loader: ExtractTextPlugin.extract('style', 'css!autoprefixer!sass') },
-            { test: /\.js$/, loader: 'babel' },
+            { test: /\.js$/, exclude: /node_modules.*\.js/, loader: 'babel' },
             { test: /test.*\.js$/, loader: 'mocha!babel'},
             { test: /\.(otf|ttf)$/, loader: 'url' },
             { test: /\.(svg|png|jpe?g)$/, loader: 'image-webpack' }
