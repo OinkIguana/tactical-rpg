@@ -1,5 +1,5 @@
 /*
-    Set up the canvas
+    Set up/provide access to the canvas
 */
 'use strict';
 import $ from 'jquery';
@@ -19,5 +19,4 @@ export const setCanvas = (id) => {
         canvas = context = undefined;
     }
 };
-
 export default {canvas, context, setCanvas};

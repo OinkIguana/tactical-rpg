@@ -4,8 +4,6 @@
 'use strict';
 import {canvas, context, setCanvas} from './canvas';
 import {pad, range} from './util';
-setCanvas('game');
-console.log(canvas);
 
 const [GENERATE, STACK, IMAGE_DATA] = [Symbol('GENERATE'), Symbol('STACK'), Symbol('IMAGE_DATA')];
 
@@ -226,24 +224,51 @@ export const PixelData = class {
     get height() { return this[IMAGE_DATA].height; }
     get data() {
         // Provide 2D array style access to the 1D array
-        return new Proxy(this, {
-            get(target, x) {
-                x = parseInt(x);
-                return new Proxy(target, {
-                    get(target, y) {
-                        const ind = 4 * (y * target[IMAGE_DATA].width + x);
-                        return [...target[IMAGE_DATA].data.slice(ind, ind + 4)];
-                    },
-                    set(target, y, value) {
-                        const ind = 4 * (y * target[IMAGE_DATA].width + x);
-                        [target[IMAGE_DATA].data[ind], target[IMAGE_DATA].data[ind + 1],
-                         target[IMAGE_DATA].data[ind + 2], target[IMAGE_DATA].data[ind + 3]] = value;
-                        return true;
+        if(window.Proxy !== undefined) {
+            return new Proxy(this, {
+                get(target, x) {
+                    x = parseInt(x);
+                    return new Proxy(target, {
+                        get(target, y) {
+                            const ind = 4 * (y * target[IMAGE_DATA].width + x);
+                            return [...target[IMAGE_DATA].data.slice(ind, ind + 4)];
+                        },
+                        set(target, y, value) {
+                            const ind = 4 * (y * target[IMAGE_DATA].width + x);
+                            [target[IMAGE_DATA].data[ind], target[IMAGE_DATA].data[ind + 1],
+                             target[IMAGE_DATA].data[ind + 2], target[IMAGE_DATA].data[ind + 3]] = value;
+                            return true;
+                        }
+                    });
+                },
+                set() { throw new TypeError('Cannot set pixel with only one coordinate'); }
+            });
+        } else {
+            // Fallback for browsers without Proxy (Everything but Firefox...)
+            const obj = {};
+            for(let x = 0; x < this[IMAGE_DATA].width; x++) {
+                Object.defineProperty(obj, x, {
+                    get() {
+                        const obj = {};
+                        for(let y = 0; y < this[IMAGE_DATA].height; y++) {
+                            const ind = 4 * (y * this[IMAGE_DATA].width + x);
+                            Object.defineProperty(obj, y, {
+                                get() { return [...this[IMAGE_DATA].data.slice(ind, ind + 4)]; },
+                                set(value) {
+                                    [this[IMAGE_DATA].data[ind], this[IMAGE_DATA].data[ind + 1],
+                                     this[IMAGE_DATA].data[ind + 2], this[IMAGE_DATA].data[ind + 3]] = value;
+                                    return true;
+                                }
+                            });
+                        }
+                        return obj; },
+                    set(value) {
+                        throw new TypeError('Cannot set pixel with only one coordinate');
                     }
                 });
-            },
-            set() { throw new TypeError('Cannot set pixel with only one coordinate'); }
-        });
+            }
+            return obj;
+        }
     }
 
     draw(x, y) {
