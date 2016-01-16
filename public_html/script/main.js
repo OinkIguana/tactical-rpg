@@ -23621,9 +23621,9 @@
 	            stroke: (0, _sinon.stub)(_canvas.context, 'stroke'),
 	            clip: (0, _sinon.stub)(_canvas.context, 'clip'),
 	            drawImage: (0, _sinon.stub)(_canvas.context, 'drawImage'),
-	            getImageData: (0, _sinon.stub)(_canvas.context, 'getImageData'),
+	            getImageData: (0, _sinon.spy)(_canvas.context, 'getImageData'),
 	            putImageData: (0, _sinon.stub)(_canvas.context, 'putImageData'),
-	            createImageData: (0, _sinon.stub)(_canvas.context, 'createImageData'),
+	            createImageData: (0, _sinon.spy)(_canvas.context, 'createImageData'),
 	            save: (0, _sinon.stub)(_canvas.context, 'save'),
 	            scale: (0, _sinon.stub)(_canvas.context, 'scale'),
 	            rotate: (0, _sinon.stub)(_canvas.context, 'rotate'),
@@ -33452,6 +33452,8 @@
 	*/
 	'use strict';
 	
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+	
 	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -33962,6 +33964,8 @@
 	    }, {
 	        key: 'data',
 	        get: function get() {
+	            var _this5 = this;
+	
 	            // Provide 2D array style access to the 1D array
 	            if (window.Proxy !== undefined) {
 	                return new Proxy(this, {
@@ -33991,50 +33995,55 @@
 	                    }
 	                });
 	            } else {
-	                // Fallback for browsers without Proxy (Everything but Firefox...)
-	                var obj = {};
+	                var _ret = function () {
+	                    // Fallback for browsers without Proxy (Everything but Firefox...)
+	                    var obj = {},
+	                        that = _this5;
 	
-	                var _loop = function _loop(x) {
-	                    Object.defineProperty(obj, x, {
-	                        get: function get() {
-	                            var _this5 = this;
+	                    var _loop = function _loop(x) {
+	                        Object.defineProperty(obj, x, {
+	                            get: function get() {
+	                                var obj = {};
 	
-	                            var obj = {};
+	                                var _loop2 = function _loop2(y) {
+	                                    var ind = 4 * (y * that[IMAGE_DATA].width + x);
+	                                    Object.defineProperty(obj, y, {
+	                                        get: function get() {
+	                                            return [that[IMAGE_DATA].data[ind], that[IMAGE_DATA].data[ind + 1], that[IMAGE_DATA].data[ind + 2], that[IMAGE_DATA].data[ind + 3]];
+	                                        },
+	                                        set: function set(value) {
+	                                            var _value2 = _slicedToArray(value, 4);
 	
-	                            var _loop2 = function _loop2(y) {
-	                                var ind = 4 * (y * _this5[IMAGE_DATA].width + x);
-	                                Object.defineProperty(obj, y, {
-	                                    get: function get() {
-	                                        return [].concat(_toConsumableArray(this[IMAGE_DATA].data.slice(ind, ind + 4)));
-	                                    },
-	                                    set: function set(value) {
-	                                        var _value2 = _slicedToArray(value, 4);
+	                                            that[IMAGE_DATA].data[ind] = _value2[0];
+	                                            that[IMAGE_DATA].data[ind + 1] = _value2[1];
+	                                            that[IMAGE_DATA].data[ind + 2] = _value2[2];
+	                                            that[IMAGE_DATA].data[ind + 3] = _value2[3];
 	
-	                                        this[IMAGE_DATA].data[ind] = _value2[0];
-	                                        this[IMAGE_DATA].data[ind + 1] = _value2[1];
-	                                        this[IMAGE_DATA].data[ind + 2] = _value2[2];
-	                                        this[IMAGE_DATA].data[ind + 3] = _value2[3];
+	                                            return true;
+	                                        }
+	                                    });
+	                                };
 	
-	                                        return true;
-	                                    }
-	                                });
-	                            };
-	
-	                            for (var y = 0; y < this[IMAGE_DATA].height; y++) {
-	                                _loop2(y);
+	                                for (var y = 0; y < that[IMAGE_DATA].height; y++) {
+	                                    _loop2(y);
+	                                }
+	                                return obj;
+	                            },
+	                            set: function set() {
+	                                throw new TypeError('Cannot set pixel with only one coordinate');
 	                            }
-	                            return obj;
-	                        },
-	                        set: function set(value) {
-	                            throw new TypeError('Cannot set pixel with only one coordinate');
-	                        }
-	                    });
-	                };
+	                        });
+	                    };
 	
-	                for (var x = 0; x < this[IMAGE_DATA].width; x++) {
-	                    _loop(x);
-	                }
-	                return obj;
+	                    for (var x = 0; x < _this5[IMAGE_DATA].width; x++) {
+	                        _loop(x);
+	                    }
+	                    return {
+	                        v: obj
+	                    };
+	                }();
+	
+	                if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
 	            }
 	        }
 	    }]);

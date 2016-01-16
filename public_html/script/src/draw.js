@@ -245,26 +245,32 @@ export const PixelData = class {
             });
         } else {
             // Fallback for browsers without Proxy (Everything but Firefox...)
-            const obj = {};
+            const obj = {}, that = this;
             for(let x = 0; x < this[IMAGE_DATA].width; x++) {
                 Object.defineProperty(obj, x, {
                     get() {
                         const obj = {};
-                        for(let y = 0; y < this[IMAGE_DATA].height; y++) {
-                            const ind = 4 * (y * this[IMAGE_DATA].width + x);
+                        for(let y = 0; y < that[IMAGE_DATA].height; y++) {
+                            const ind = 4 * (y * that[IMAGE_DATA].width + x);
                             Object.defineProperty(obj, y, {
-                                get() { return [...this[IMAGE_DATA].data.slice(ind, ind + 4)]; },
+                                get() {
+                                    return [
+                                        that[IMAGE_DATA].data[ind],
+                                        that[IMAGE_DATA].data[ind + 1],
+                                        that[IMAGE_DATA].data[ind + 2],
+                                        that[IMAGE_DATA].data[ind + 3]
+                                    ];
+                                },
                                 set(value) {
-                                    [this[IMAGE_DATA].data[ind], this[IMAGE_DATA].data[ind + 1],
-                                     this[IMAGE_DATA].data[ind + 2], this[IMAGE_DATA].data[ind + 3]] = value;
+                                    [that[IMAGE_DATA].data[ind], that[IMAGE_DATA].data[ind + 1],
+                                     that[IMAGE_DATA].data[ind + 2], that[IMAGE_DATA].data[ind + 3]] = value;
                                     return true;
                                 }
                             });
                         }
-                        return obj; },
-                    set(value) {
-                        throw new TypeError('Cannot set pixel with only one coordinate');
-                    }
+                        return obj;
+                    },
+                    set() { throw new TypeError('Cannot set pixel with only one coordinate'); }
                 });
             }
             return obj;
