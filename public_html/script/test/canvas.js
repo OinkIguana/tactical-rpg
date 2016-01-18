@@ -3,14 +3,14 @@
 import {expect} from 'chai';
 import $ from 'jquery';
 
-import {canvas, context, setCanvas} from '../../public_html/script/src/canvas.js';
+import {canvas, context, setCanvas} from '../src/canvas.js';
 
 describe('canvas.js', () => {
     beforeEach(() => setCanvas('game'));
     describe('#setCanvas(id)', () => {
         it('should set the currently active canvas to the one with the given id', () => {
-            setCanvas('story');
-            expect(canvas.attr('id')).to.equal('story');
+            setCanvas('shop');
+            expect(canvas.attr('id')).to.equal('shop');
             setCanvas('game');
             expect(canvas.attr('id')).to.equal('game');
         });
