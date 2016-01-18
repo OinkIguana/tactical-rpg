@@ -2,7 +2,7 @@
 
 import {expect} from 'chai';
 
-import util from '../../public_html/script/src/util.js';
+import util from '../src/util.js';
 
 describe('util.js', () => {
     describe('Sequence', () => {

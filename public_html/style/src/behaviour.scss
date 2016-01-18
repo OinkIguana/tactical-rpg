@@ -1,0 +1,8 @@
+.toggleable {
+    pointer-events: none;
+    visibility: hidden;
+    &.active {
+        pointer-events: auto;
+        visibility: visible;
+    }
+}

@@ -64,4 +64,11 @@ canvas {
   width: 100%;
   height: 100%; }
 
+.toggleable {
+  pointer-events: none;
+  visibility: hidden; }
+  .toggleable.active {
+    pointer-events: auto;
+    visibility: visible; }
+
 /*# sourceMappingURL=main.css.map*/

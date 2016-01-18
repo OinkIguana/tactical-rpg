@@ -1,10 +1,13 @@
 'use strict';
 import express from 'express';
 import socket_io from 'socket.io';
+
 import {PORT} from './config';
 
-let app = express();
-let server = app.listen(PORT, () => { console.log(`Server started at ${PORT}`); });
+import login from './login';
+
+const app = express();
+const server = app.listen(PORT, () => { console.log(`Server started at ${PORT}`); });
 
 //Run files through ejs
 app.set('view engine', 'ejs');
@@ -16,9 +19,10 @@ app.use('/', (req, res) => {
     res.render('public_html/index.html.ejs');
 });
 
-let io = socket_io(server);
+const io = socket_io(server);
 
 io.on('connection', (socket) => {
     // Error catch
     socket.on('error', console.error);
+    login(socket);
 });

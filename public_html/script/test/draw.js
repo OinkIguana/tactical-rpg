@@ -3,8 +3,8 @@
 import {expect} from 'chai';
 import {spy, stub} from 'sinon';
 
-import {setCanvas, canvas, context} from '../../public_html/script/src/canvas.js';
-import draw from '../../public_html/script/src/draw.js';
+import {setCanvas, canvas, context} from '../src/canvas.js';
+import draw from '../src/draw.js';
 // import {Sprite} from '../../../script/src/sprite';
 
 describe('draw.js', () => {
