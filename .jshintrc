@@ -14,7 +14,8 @@
         "Element": false,
         "RegExp": false,
         "Image": false,
-        
+        "AssertionError": false,
+
         "setTimeout": false,
 
         "describe": false,

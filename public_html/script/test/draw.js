@@ -1,6 +1,7 @@
 'use strict';
 
-import {expect} from 'chai';
+import {should as should_} from 'chai';
+let should = should_();
 import {spy, stub} from 'sinon';
 
 import {setCanvas, canvas, context} from '../src/canvas.js';
@@ -62,59 +63,59 @@ describe('draw.js', () => {
     describe('rect(x, y, w, h, stroke = false)', () => {
         it('should fill a rectangle with a falsey 5th parameter', () => {
             draw.rect(0, 0, 100, 100);
-            expect(ctx.fillRect).to.have.been.calledWith(0, 0, 100, 100);
-            expect(ctx.strokeRect).to.have.not.been.called;
+            ctx.fillRect.should.have.been.calledWith(0, 0, 100, 100);
+            ctx.strokeRect.should.have.not.been.called;
         });
         it('should stroke a rectangle with a truthy 5th parameter', () => {
             draw.rect(0, 0, 100, 100, true);
-            expect(ctx.fillRect).to.have.not.been.called;
-            expect(ctx.strokeRect).to.have.been.calledWith(0, 0, 100, 100);
+            ctx.fillRect.should.have.not.been.called;
+            ctx.strokeRect.should.have.been.calledWith(0, 0, 100, 100);
         });
     });
     describe('point(x, y)', () => {
         it('should fill a 1x1 px rectangle', () => {
             draw.point(0, 0);
-            expect(ctx.fillRect).to.have.been.calledWith(0, 0, 1, 1);
+            ctx.fillRect.should.have.been.calledWith(0, 0, 1, 1);
         });
     });
     describe('circle(x, y, r, stroke = false)', () => {
         it('should fill a circle with a falsey 5th parameter', () => {
             draw.circle(0, 0, 5);
-            expect(ctx.beginPath).to.have.been.calledOnce;
-            expect(ctx.arc).to.have.been.calledWith(0, 0, 5);
-            expect(ctx.fill).to.have.been.calledOnce;
-            expect(ctx.stroke).to.have.not.been.called;
+            ctx.beginPath.should.have.been.calledOnce;
+            ctx.arc.should.have.been.calledWith(0, 0, 5);
+            ctx.fill.should.have.been.calledOnce;
+            ctx.stroke.should.have.not.been.called;
         });
         it('should stroke a circle with a truthy 5th parameter', () => {
             draw.circle(0, 0, 5, true);
-            expect(ctx.beginPath).to.have.been.calledOnce;
-            expect(ctx.arc).to.have.been.calledWith(0, 0, 5);
-            expect(ctx.fill).to.have.not.been.called;
-            expect(ctx.stroke).to.have.been.calledOnce;
+            ctx.beginPath.should.have.been.calledOnce;
+            ctx.arc.should.have.been.calledWith(0, 0, 5);
+            ctx.fill.should.have.not.been.called;
+            ctx.stroke.should.have.been.calledOnce;
         });
     });
     describe('text(str, x, y, stroke = false)', () => {
         it('should fill the text with a falsey 5th parameter', () => {
             draw.text('Hello World', 0, 0);
-            expect(ctx.fillText).to.have.been.calledWith('Hello World', 0, 0);
-            expect(ctx.strokeText).to.have.not.been.called;
+            ctx.fillText.should.have.been.calledWith('Hello World', 0, 0);
+            ctx.strokeText.should.have.not.been.called;
         });
         it('should stroke the text with a truthy 5th parameter', () => {
             draw.text('Hello World', 0, 0, true);
-            expect(ctx.fillText).to.have.not.been.called;
-            expect(ctx.strokeText).to.have.been.calledWith('Hello World', 0, 0);
+            ctx.fillText.should.have.not.been.called;
+            ctx.strokeText.should.have.been.calledWith('Hello World', 0, 0);
         });
     });
     describe('textWidth(text)', () => {
         it('should not draw any text', () => {
             draw.textWidth('Hello World');
-            expect(ctx.measureText).to.have.been.calledWith('Hello World');
-            expect(ctx.fillText).to.have.not.been.called;
-            expect(ctx.strokeText).to.have.not.been.called;
+            ctx.measureText.should.have.been.calledWith('Hello World');
+            ctx.fillText.should.have.not.been.called;
+            ctx.strokeText.should.have.not.been.called;
         });
         it('return a number (the width of the text)', () => {
             draw.text('Hello World');
-            expect(draw.textWidth('Hello World')).to.be.a('number');
+            draw.textWidth('Hello World').should.be.a('number');
         });
     });
     describe('image(image[, sx, sy, sw, sh], x, y[, w, h])', () => {
@@ -123,10 +124,10 @@ describe('draw.js', () => {
             draw.image(img, 0, 0, 32, 32, 0, 0, 32, 32);
             draw.image(img, 0, 0, 32, 32);
             draw.image(img, 0, 0);
-            expect(ctx.drawImage).to.have.been.calledThrice;
-            expect(ctx.drawImage).to.have.been.calledWith(img, 0, 0, 32, 32, 0, 0, 32, 32);
-            expect(ctx.drawImage).to.have.been.calledWith(img, 0, 0, 32, 32);
-            expect(ctx.drawImage).to.have.been.calledWith(img, 0, 0);
+            ctx.drawImage.should.have.been.calledThrice;
+            ctx.drawImage.should.have.been.calledWith(img, 0, 0, 32, 32, 0, 0, 32, 32);
+            ctx.drawImage.should.have.been.calledWith(img, 0, 0, 32, 32);
+            ctx.drawImage.should.have.been.calledWith(img, 0, 0);
         });
     });
     // describe('sprite(spr, subimage, x, y[, w, h])', () => {
@@ -135,19 +136,19 @@ describe('draw.js', () => {
     //         const spr = new Sprite(img, 32, 32, [[0,0], [32, 0]]);
     //         draw.sprite(spr, 1, 0, 0);
     //         draw.sprite(spr, 0, 0, 0);
-    //         expect(ctx.drawImage).to.have.been.calledWith(img, 0, 0, 32, 32, 0, 0, 32, 32);
-    //         expect(ctx.drawImage).to.have.been.calledWith(img, 32, 0, 32, 32, 0, 0, 32, 32);
+    //         ctx.drawImage.should.have.been.calledWith(img, 0, 0, 32, 32, 0, 0, 32, 32);
+    //         ctx.drawImage.should.have.been.calledWith(img, 32, 0, 32, 32, 0, 0, 32, 32);
     //     });
     //     it('should not draw if the sprite has no image', () => {
     //         const spr = new Sprite();
     //         draw.sprite(spr, 1, 0, 0);
-    //         expect(ctx.drawImage).to.have.not.been.called;
+    //         ctx.drawImage.should.have.not.been.called;
     //     });
     //     it('should draw the image stretched if dimensions are passed', () => {
     //         const img = new Image();
     //         const spr = new Sprite(img, 32, 32, [[0,0], [32, 0]]);
     //         draw.sprite(spr, 1, 0, 0, 64, 64);
-    //         expect(ctx.drawImage).to.have.been.calledWith(img, 32, 0, 32, 32, 0, 0, 64, 64);
+    //         ctx.drawImage.should.have.been.calledWith(img, 32, 0, 32, 32, 0, 0, 64, 64);
     //     });
     // });
     describe('pixelData(pd, x, y)', () => {
@@ -155,159 +156,159 @@ describe('draw.js', () => {
             const pd = new draw.PixelData(32, 32);
             const fn = stub(pd, 'draw');
             draw.pixelData(pd, 32, 32);
-            expect(fn).to.have.been.calledWith(32, 32);
+            fn.should.have.been.calledWith(32, 32);
             fn.restore();
         });
     });
     describe('clear()', () => {
         it('should clear the entire canvas', () => {
             draw.clear();
-            expect(ctx.clearRect).to.have.been.calledWith(0, 0, canvas.width(), canvas.height());
+            ctx.clearRect.should.have.been.calledWith(0, 0, canvas.width(), canvas.height());
         });
     });
     describe('setColor(color)', () => {
         it('should set both stroke and fill colors', () => {
             draw.setColor('#ff0000');
-            expect(context.fillStyle).to.equal('#ff0000');
-            expect(context.strokeStyle).to.equal('#ff0000');
+            context.fillStyle.should.equal('#ff0000');
+            context.strokeStyle.should.equal('#ff0000');
             draw.setColor('#0000ff');
-            expect(context.fillStyle).to.equal('#0000ff');
-            expect(context.strokeStyle).to.equal('#0000ff');
+            context.fillStyle.should.equal('#0000ff');
+            context.strokeStyle.should.equal('#0000ff');
         });
         it('should accept numbers and convert them to strings', () => {
             draw.setColor(0xff0000);
-            expect(context.fillStyle).to.equal('#ff0000');
-            expect(context.strokeStyle).to.equal('#ff0000');
+            context.fillStyle.should.equal('#ff0000');
+            context.strokeStyle.should.equal('#ff0000');
             draw.setColor(0x0000ff);
-            expect(context.fillStyle).to.equal('#0000ff');
-            expect(context.strokeStyle).to.equal('#0000ff');
+            context.fillStyle.should.equal('#0000ff');
+            context.strokeStyle.should.equal('#0000ff');
         });
     });
     describe('setAlpha(alpha)', () => {
         it('should set the global alpha', () => {
             draw.setAlpha(0.5);
-            expect(context.globalAlpha).to.equal(0.5);
+            context.globalAlpha.should.equal(0.5);
             draw.setAlpha(1);
-            expect(context.globalAlpha).to.equal(1);
+            context.globalAlpha.should.equal(1);
         });
         it('should constrain alpha to range [0, 1]', () => {
             draw.setAlpha(-2);
-            expect(context.globalAlpha).to.equal(0);
+            context.globalAlpha.should.equal(0);
             draw.setAlpha(3);
-            expect(context.globalAlpha).to.equal(1);
+            context.globalAlpha.should.equal(1);
         });
     });
     describe('setComposite(composite)', () => {
         it('should set the global composite operation', () => {
             draw.setComposite('source-atop');
-            expect(context.globalCompositeOperation).to.equal('source-atop');
+            context.globalCompositeOperation.should.equal('source-atop');
             draw.setComposite('source-over');
-            expect(context.globalCompositeOperation).to.equal('source-over');
+            context.globalCompositeOperation.should.equal('source-over');
         });
     });
     describe('setLine({cap, join, width, miter, reset = false})', () => {
         it('should set the appropriate line properties', () => {
             draw.setLine({cap: 'round'});
-            expect(context.lineCap).to.equal('round');
+            context.lineCap.should.equal('round');
 
             draw.setLine({width: 15});
-            expect(context.lineCap).to.equal('round');
-            expect(context.lineWidth).to.equal(15);
+            context.lineCap.should.equal('round');
+            context.lineWidth.should.equal(15);
 
             draw.setLine({join: 'bevel'});
-            expect(context.lineCap).to.equal('round');
-            expect(context.lineWidth).to.equal(15);
-            expect(context.lineJoin).to.equal('bevel');
+            context.lineCap.should.equal('round');
+            context.lineWidth.should.equal(15);
+            context.lineJoin.should.equal('bevel');
 
             draw.setLine({miter: 15});
-            expect(context.lineCap).to.equal('round');
-            expect(context.lineWidth).to.equal(15);
-            expect(context.lineJoin).to.equal('bevel');
-            expect(context.miterLimit).to.equal(15);
+            context.lineCap.should.equal('round');
+            context.lineWidth.should.equal(15);
+            context.lineJoin.should.equal('bevel');
+            context.miterLimit.should.equal(15);
 
             draw.setLine({cap: 'butt', width: 1, join: 'miter', miter: 10});
-            expect(context.lineCap).to.equal('butt');
-            expect(context.lineWidth).to.equal(1);
-            expect(context.lineJoin).to.equal('miter');
-            expect(context.miterLimit).to.equal(10);
+            context.lineCap.should.equal('butt');
+            context.lineWidth.should.equal(1);
+            context.lineJoin.should.equal('miter');
+            context.miterLimit.should.equal(10);
         });
         it('should ignore other values if reset is true', () => {
             draw.setLine({reset: true, cap: 'round', width: 10});
-            expect(context.lineCap).to.equal('butt');
-            expect(context.lineWidth).to.equal(1);
-            expect(context.lineJoin).to.equal('miter');
-            expect(context.miterLimit).to.equal(10);
+            context.lineCap.should.equal('butt');
+            context.lineWidth.should.equal(1);
+            context.lineJoin.should.equal('miter');
+            context.miterLimit.should.equal(10);
         });
     });
 
     describe('setShadow({x, y, blur, color, reset = false})', () => {
         it('should set the appropriate shadow properties', () => {
             draw.setShadow({x: 5});
-            expect(context.shadowOffsetX).to.equal(5);
+            context.shadowOffsetX.should.equal(5);
 
             draw.setShadow({y: 10});
-            expect(context.shadowOffsetX).to.equal(5);
-            expect(context.shadowOffsetY).to.equal(10);
+            context.shadowOffsetX.should.equal(5);
+            context.shadowOffsetY.should.equal(10);
 
             draw.setShadow({blur: 15});
-            expect(context.shadowOffsetX).to.equal(5);
-            expect(context.shadowOffsetY).to.equal(10);
-            expect(context.shadowBlur).to.equal(15);
+            context.shadowOffsetX.should.equal(5);
+            context.shadowOffsetY.should.equal(10);
+            context.shadowBlur.should.equal(15);
 
             draw.setShadow({color: 0xff0000});
-            expect(context.shadowOffsetX).to.equal(5);
-            expect(context.shadowOffsetY).to.equal(10);
-            expect(context.shadowBlur).to.equal(15);
-            expect(context.shadowColor).to.equal('#ff0000');
+            context.shadowOffsetX.should.equal(5);
+            context.shadowOffsetY.should.equal(10);
+            context.shadowBlur.should.equal(15);
+            context.shadowColor.should.equal('#ff0000');
 
             draw.setShadow({color: '#0000ff'});
-            expect(context.shadowOffsetX).to.equal(5);
-            expect(context.shadowOffsetY).to.equal(10);
-            expect(context.shadowBlur).to.equal(15);
-            expect(context.shadowColor).to.equal('#0000ff');
+            context.shadowOffsetX.should.equal(5);
+            context.shadowOffsetY.should.equal(10);
+            context.shadowBlur.should.equal(15);
+            context.shadowColor.should.equal('#0000ff');
 
             draw.setShadow({x: 0, y: 0, blur: 0, color: '#000000'});
-            expect(context.shadowOffsetX).to.equal(0);
-            expect(context.shadowOffsetY).to.equal(0);
-            expect(context.shadowBlur).to.equal(0);
-            expect(context.shadowColor).to.equal('#000000');
+            context.shadowOffsetX.should.equal(0);
+            context.shadowOffsetY.should.equal(0);
+            context.shadowBlur.should.equal(0);
+            context.shadowColor.should.equal('#000000');
         });
         it('should ignore other values if reset is passed', () => {
             draw.setShadow({x: 5, y: 5, blur: 3, color: '#00FF00', reset: true});
-            expect(context.shadowOffsetX).to.equal(0);
-            expect(context.shadowOffsetY).to.equal(0);
-            expect(context.shadowBlur).to.equal(0);
-            expect(context.shadowColor).to.equal('#000000');
+            context.shadowOffsetX.should.equal(0);
+            context.shadowOffsetY.should.equal(0);
+            context.shadowBlur.should.equal(0);
+            context.shadowColor.should.equal('#000000');
         });
     });
 
     describe('setFont({family, size, align, baseline, reset = false})', () => {
         it('should set the appropriate font properties', () => {
             draw.setFont({size: 15});
-            expect(context.font).to.equal('15px sans-serif');
+            context.font.should.equal('15px sans-serif');
 
             draw.setFont({family: 'serif'});
-            expect(context.font).to.equal('15px serif');
+            context.font.should.equal('15px serif');
 
             draw.setFont({align: 'center'});
-            expect(context.font).to.equal('15px serif');
-            expect(context.textAlign).to.equal('center');
+            context.font.should.equal('15px serif');
+            context.textAlign.should.equal('center');
 
             draw.setFont({baseline: 'top'});
-            expect(context.font).to.equal('15px serif');
-            expect(context.textAlign).to.equal('center');
-            expect(context.textBaseline).to.equal('top');
+            context.font.should.equal('15px serif');
+            context.textAlign.should.equal('center');
+            context.textBaseline.should.equal('top');
 
             draw.setFont({family: 'sans-serif', size: 10, align: 'start', baseline: 'alphabetic'});
-            expect(context.font).to.equal('10px sans-serif');
-            expect(context.textAlign).to.equal('start');
-            expect(context.textBaseline).to.equal('alphabetic');
+            context.font.should.equal('10px sans-serif');
+            context.textAlign.should.equal('start');
+            context.textBaseline.should.equal('alphabetic');
         });
         it('should ignore other values if reset is passed', () => {
             draw.setFont({family: 'serif', size: 15, align: 'top', baseline: 'middle', reset: true});
-            expect(context.font).to.equal('10px sans-serif');
-            expect(context.textAlign).to.equal('start');
-            expect(context.textBaseline).to.equal('alphabetic');
+            context.font.should.equal('10px sans-serif');
+            context.textAlign.should.equal('start');
+            context.textBaseline.should.equal('alphabetic');
         });
     });
 
@@ -315,151 +316,151 @@ describe('draw.js', () => {
         it('should context.save() at the beginning, context.restore() at the end, and other functions inbetween', () => {
             const cb = spy();
             draw.transformed({scale: {x: 2, y: 2}, rotate: 50, translate: {x: 15, y: 30}, transform: [1, 0, 0, 1, 0, 0]}, cb);
-            expect(ctx.save).to.have.been.calledBefore(ctx.scale);
-            expect(ctx.scale).to.have.been.calledBefore(ctx.rotate);
-            expect(ctx.rotate).to.have.been.calledBefore(ctx.translate);
-            expect(ctx.translate).to.have.been.calledBefore(ctx.transform);
-            expect(ctx.transform).to.have.been.calledBefore(cb);
-            expect(cb).to.have.been.calledOnce;
-            expect(ctx.restore).to.have.been.calledAfter(cb);
+            ctx.save.should.have.been.calledBefore(ctx.scale);
+            ctx.scale.should.have.been.calledBefore(ctx.rotate);
+            ctx.rotate.should.have.been.calledBefore(ctx.translate);
+            ctx.translate.should.have.been.calledBefore(ctx.transform);
+            ctx.transform.should.have.been.calledBefore(cb);
+            cb.should.have.been.calledOnce;
+            ctx.restore.should.have.been.calledAfter(cb);
         });
         it('should call all functions passed in order', () => {
             const cbs = [spy(), spy(), spy()];
             draw.transformed({}, ...cbs);
-            expect(cbs[0]).to.have.been.calledOnce;
-            expect(cbs[0]).to.have.been.calledBefore(cbs[1]);
-            expect(cbs[1]).to.have.been.calledOnce;
-            expect(cbs[1]).to.have.been.calledBefore(cbs[2]);
-            expect(cbs[2]).to.have.been.calledOnce;
+            cbs[0].should.have.been.calledOnce;
+            cbs[0].should.have.been.calledBefore(cbs[1]);
+            cbs[1].should.have.been.calledOnce;
+            cbs[1].should.have.been.calledBefore(cbs[2]);
+            cbs[2].should.have.been.calledOnce;
         });
     });
 
     describe('Path', () => {
         it('should be constructed with new Path()', () => {
-            expect(new draw.Path()).to.be.an.instanceof(draw.Path);
-            expect(() => draw.Path()).to.throw(TypeError);
-            expect(ctx.beginPath).to.not.have.been.called;
+            new draw.Path().should.be.an.instanceof(draw.Path);
+            (() => draw.Path()).should.throw(TypeError);
+            ctx.beginPath.should.not.have.been.called;
         });
         describe('#length', () => {
             it('should return the number of actions in the stack', () => {
-                expect(new draw.Path().move().line().length).to.equal(2);
+                new draw.Path().move().line().length.should.equal(2);
             });
             it('should not include the initial beginPath call', () => {
-                expect(new draw.Path().length).to.equal(0);
+                new draw.Path().length.should.equal(0);
             });
         });
         describe('#move(x, y)', () => {
             it('should add context.moveTo(x, y) to the stack', () => {
                 const p = new draw.Path().move(32, 32);
-                expect(p.length).to.equal(1);
+                p.length.should.equal(1);
                 p.stroke();
-                expect(ctx.moveTo).to.have.been.calledWith(32, 32);
+                ctx.moveTo.should.have.been.calledWith(32, 32);
             });
             it('should not call context.moveTo(x, y)', () => {
                 new draw.Path().move(32, 32);
-                expect(ctx.moveTo).to.not.have.been.called;
+                ctx.moveTo.should.not.have.been.called;
             });
             it('should be chainable', () => {
-                expect(() => new draw.Path().move(32, 32).move(16, 16)).to.not.throw();
+                (() => new draw.Path().move(32, 32).move(16, 16)).should.not.throw();
             });
         });
         describe('#line(x, y)', () => {
             it('should add context.lineTo(x, y) to the stack', () => {
                 const p = new draw.Path().line(32, 32);
-                expect(p.length).to.equal(1);
+                p.length.should.equal(1);
                 p.stroke();
-                expect(ctx.lineTo).to.have.been.calledWith(32, 32);
+                ctx.lineTo.should.have.been.calledWith(32, 32);
             });
             it('should not call context.lineTo(x, y)', () => {
                 new draw.Path().line(32, 32);
-                expect(ctx.lineTo).to.not.have.been.called;
+                ctx.lineTo.should.not.have.been.called;
             });
             it('should be chainable', () => {
-                expect(() => new draw.Path().line(32, 32).line(16, 16)).to.not.throw();
+                (() => new draw.Path().line(32, 32).line(16, 16)).should.not.throw();
             });
         });
         describe('#rect(x, y, w, h)', () => {
             it('should add context.rect(x, y, w, h) to the stack', () => {
                 const p = new draw.Path().rect(16, 16, 32, 32);
-                expect(p.length).to.equal(1);
+                p.length.should.equal(1);
                 p.stroke();
-                expect(ctx.rect).to.have.been.calledWith(16, 16, 32, 32);
+                ctx.rect.should.have.been.calledWith(16, 16, 32, 32);
             });
             it('should not call context.rect(x, y)', () => {
                 new draw.Path().rect(32, 32, 16, 16);
-                expect(ctx.rect).to.not.have.been.called;
+                ctx.rect.should.not.have.been.called;
             });
             it('should be chainable', () => {
-                expect(() => new draw.Path().rect(16, 16, 32, 32).rect(32, 32, 16, 16)).to.not.throw();
+                (() => new draw.Path().rect(16, 16, 32, 32).rect(32, 32, 16, 16)).should.not.throw();
             });
         });
         describe('#arc(x, y, r, start, end[, ccw])', () => {
             it('should add context.arc(x, y, r, start, end[, ccw]) to the stack', () => {
                 const p = new draw.Path().arc(32, 32, 32, 0, Math.PI, false);
-                expect(p.length).to.equal(1);
+                p.length.should.equal(1);
                 p.stroke();
-                expect(ctx.arc).to.have.been.calledWith(32, 32, 32, 0, Math.PI, false);
+                ctx.arc.should.have.been.calledWith(32, 32, 32, 0, Math.PI, false);
             });
             it('should not call context.arc(x, y, r, start, end[, ccw])', () => {
                 new draw.Path().arc(32, 32, 32, 0, Math.PI, false);
-                expect(ctx.arc).to.not.have.been.called;
+                ctx.arc.should.not.have.been.called;
             });
             it('should be chainable', () => {
-                expect(() => new draw.Path().arc(32, 32, 32, 0, Math.PI, false).arc(32, 32, 32, 0, Math.PI, false)).to.not.throw();
+                (() => new draw.Path().arc(32, 32, 32, 0, Math.PI, false).arc(32, 32, 32, 0, Math.PI, false)).should.not.throw();
             });
         });
         describe('#curve(x1, y1, x2, y2, r)', () => {
             it('should add context.arcTo(x1, y1, x2, y2, r) to the stack', () => {
                 const p = new draw.Path().curve(32, 32, 32, 64, 32);
-                expect(p.length).to.equal(1);
+                p.length.should.equal(1);
                 p.stroke();
-                expect(ctx.arcTo).to.have.been.calledWith(32, 32, 32, 64, 32);
+                ctx.arcTo.should.have.been.calledWith(32, 32, 32, 64, 32);
             });
             it('should not call context.arcTo(x1, y1, x2, y2, r)', () => {
                 new draw.Path().curve(32, 32, 32, 64, 32);
-                expect(ctx.arcTo).to.not.have.been.called;
+                ctx.arcTo.should.not.have.been.called;
             });
             it('should be chainable', () => {
-                expect(() => new draw.Path().curve(32, 32, 32, 64, 32).curve(32, 96, 64, 96, 32)).to.not.throw();
+                (() => new draw.Path().curve(32, 32, 32, 64, 32).curve(32, 96, 64, 96, 32)).should.not.throw();
             });
         });
 
         describe('#bezier(x1, y1, x2, y2[, x3, y3])', () => {
             it('should add context.quadraticCurveTo(x1, y1, x2, y2) to the stack when called with 4 arguments', () => {
                 const p = new draw.Path().bezier(32, 32, 32, 64);
-                expect(p.length).to.equal(1);
+                p.length.should.equal(1);
                 p.stroke();
-                expect(ctx.quadraticCurveTo).to.have.been.calledWith(32, 32, 32, 64);
+                ctx.quadraticCurveTo.should.have.been.calledWith(32, 32, 32, 64);
             });
             it('should add context.bezierCurveTo(x1, y1, x2, y2, x3, y3) to the stack when called with 6 arguments', () => {
                 const p = new draw.Path().bezier(32, 32, 32, 64, 64, 64);
-                expect(p.length).to.equal(1);
+                p.length.should.equal(1);
                 p.stroke();
-                expect(ctx.bezierCurveTo).to.have.been.calledWith(32, 32, 32, 64, 64, 64);
+                ctx.bezierCurveTo.should.have.been.calledWith(32, 32, 32, 64, 64, 64);
             });
             it('should not call context.quadraticCurveTo(x1, y1, x2, y2) or context.bezierCurveTo(x1, y1, x2, y2, x3, y3)', () => {
                 new draw.Path().bezier(32, 32, 32, 64).bezier(32, 32, 32, 64, 64, 64);
-                expect(ctx.quadraticCurveTo).to.not.have.been.called;
-                expect(ctx.bezierCurveTo).to.not.have.been.called;
+                ctx.quadraticCurveTo.should.not.have.been.called;
+                ctx.bezierCurveTo.should.not.have.been.called;
             });
             it('should be chainable', () => {
-                expect(() => new draw.Path().bezier(32, 32, 32, 64).bezier(32, 32, 32, 64, 64, 64).move(32, 32)).to.not.throw();
+                (() => new draw.Path().bezier(32, 32, 32, 64).bezier(32, 32, 32, 64, 64, 64).move(32, 32)).should.not.throw();
             });
         });
 
         describe('#close()', () => {
             it('should add context.closePath() to the stack', () => {
                 const p = new draw.Path().close();
-                expect(p.length).to.equal(1);
+                p.length.should.equal(1);
                 p.stroke();
-                expect(ctx.closePath).to.have.been.calledOnce;
+                ctx.closePath.should.have.been.calledOnce;
             });
             it('should not call context.close', () => {
                 new draw.Path().close();
-                expect(ctx.closePath).to.not.have.been.called;
+                ctx.closePath.should.not.have.been.called;
             });
             it('should be chainable', () => {
-                expect(() => new draw.Path().close().close()).to.not.throw();
+                (() => new draw.Path().close().close()).should.not.throw();
             });
         });
 
@@ -467,32 +468,32 @@ describe('draw.js', () => {
             it('should add a given fn to the stack', () => {
                 const cb = spy();
                 const p = new draw.Path().do(cb);
-                expect(p.length).to.equal(1);
+                p.length.should.equal(1);
                 p.stroke();
-                expect(cb).to.have.been.calledOnce;
+                cb.should.have.been.calledOnce;
             });
             it('should not call fn', () => {
                 const cb = spy();
                 const p = new draw.Path().do(cb);
-                expect(cb).to.not.have.been.called;
+                cb.should.not.have.been.called;
             });
             it('should be chainable', () => {
-                expect(() => new draw.Path().do(() => {}).do(() => {})).to.not.throw();
+                (() => new draw.Path().do(() => {}).do(() => {})).should.not.throw();
             });
         });
 
         describe('#fill({color, shadow, transform})', () => {
             it('should call context.save() at the beginning, context.restore() at the end, and context.fill() in the middle', () => {
                 new draw.Path().move(32, 32).line(64, 64).fill();
-                expect(ctx.save).to.have.been.calledBefore(ctx.fill);
-                expect(ctx.fill).to.have.been.calledBefore(ctx.restore);
-                expect(ctx.restore).to.have.been.called;
+                ctx.save.should.have.been.calledBefore(ctx.fill);
+                ctx.fill.should.have.been.calledBefore(ctx.restore);
+                ctx.restore.should.have.been.called;
             });
             it('should set the color, shadow, and transform if they are specified', () => {
                 new draw.Path().move(32, 32).do(() => {
-                    expect(context.fillStyle).to.equal('#ff0000');
-                    expect(context.shadowBlur).to.equal(5);
-                    expect(ctx.translate).to.have.been.calledWith(5, 0);
+                    context.fillStyle.should.equal('#ff0000');
+                    context.shadowBlur.should.equal(5);
+                    ctx.translate.should.have.been.calledWith(5, 0);
                 }).line(64, 64).fill({
                     color: 0xff0000,
                     shadow: {
@@ -507,29 +508,29 @@ describe('draw.js', () => {
             });
             it('should call the entire stack in order', () => {
                 new draw.Path().move(32, 32).line(64, 64).arc(32, 32, 0, 0, 3).rect(32, 32, 32, 32).fill();
-                expect(ctx.beginPath).to.have.been.calledBefore(ctx.moveTo);
-                expect(ctx.moveTo).to.have.been.calledBefore(ctx.lineTo);
-                expect(ctx.lineTo).to.have.been.calledBefore(ctx.arc);
-                expect(ctx.arc).to.have.been.calledBefore(ctx.rect);
-                expect(ctx.rect).to.have.been.calledBefore(ctx.fill);
+                ctx.beginPath.should.have.been.calledBefore(ctx.moveTo);
+                ctx.moveTo.should.have.been.calledBefore(ctx.lineTo);
+                ctx.lineTo.should.have.been.calledBefore(ctx.arc);
+                ctx.arc.should.have.been.calledBefore(ctx.rect);
+                ctx.rect.should.have.been.calledBefore(ctx.fill);
             });
             it('should be chainable', () => {
-                expect(() => new draw.Path().fill().fill({transform: {}, shadow: {}, color: 0x000000})).to.not.throw();
+                (() => new draw.Path().fill().fill({transform: {}, shadow: {}, color: 0x000000})).should.not.throw();
             });
         });
 
         describe('#stroke({color, line, transform})', () => {
             it('should call context.save() at the beginning, context.restore() at the end, and context.stroke() in the middle', () => {
                 new draw.Path().move(32, 32).line(64, 64).stroke();
-                expect(ctx.save).to.have.been.calledBefore(ctx.stroke);
-                expect(ctx.stroke).to.have.been.calledBefore(ctx.restore);
-                expect(ctx.restore).to.have.been.called;
+                ctx.save.should.have.been.calledBefore(ctx.stroke);
+                ctx.stroke.should.have.been.calledBefore(ctx.restore);
+                ctx.restore.should.have.been.called;
             });
             it('should set the color, line, and transform if they are specified', () => {
                 new draw.Path().move(32, 32).do(() => {
-                    expect(context.strokeStyle).to.equal('#ff0000');
-                    expect(context.lineWidth).to.equal(5);
-                    expect(ctx.translate).to.have.been.calledWith(5, 0);
+                    context.strokeStyle.should.equal('#ff0000');
+                    context.lineWidth.should.equal(5);
+                    ctx.translate.should.have.been.calledWith(5, 0);
                 }).line(64, 64).stroke({
                     color: 0xff0000,
                     line: {
@@ -544,23 +545,23 @@ describe('draw.js', () => {
             });
             it('should call the entire stack in order', () => {
                 new draw.Path().move(32, 32).line(64, 64).arc(32, 32, 0, 0, 3).rect(32, 32, 32, 32).stroke();
-                expect(ctx.beginPath).to.have.been.calledBefore(ctx.moveTo);
-                expect(ctx.moveTo).to.have.been.calledBefore(ctx.lineTo);
-                expect(ctx.lineTo).to.have.been.calledBefore(ctx.arc);
-                expect(ctx.arc).to.have.been.calledBefore(ctx.rect);
-                expect(ctx.rect).to.have.been.calledBefore(ctx.stroke);
+                ctx.beginPath.should.have.been.calledBefore(ctx.moveTo);
+                ctx.moveTo.should.have.been.calledBefore(ctx.lineTo);
+                ctx.lineTo.should.have.been.calledBefore(ctx.arc);
+                ctx.arc.should.have.been.calledBefore(ctx.rect);
+                ctx.rect.should.have.been.calledBefore(ctx.stroke);
             });
             it('should be chainable', () => {
-                expect(() => new draw.Path().stroke().stroke({transform: {}, line: '', color: 0x000000}).stroke()).to.not.throw();
+                (() => new draw.Path().stroke().stroke({transform: {}, line: '', color: 0x000000})).stroke().should.not.throw();
             });
         });
 
         describe('#doInside([{transform},] ...todo)', () => {
             it('should call context.save() at the beginning, context.restore() at the end, and context.clip() in the middle', () => {
                 new draw.Path().rect(32, 32, 64, 64).doInside(() => {});
-                expect(ctx.save).to.have.been.calledBefore(ctx.clip);
-                expect(ctx.clip).to.have.been.calledBefore(ctx.restore);
-                expect(ctx.restore).to.have.been.called;
+                ctx.save.should.have.been.calledBefore(ctx.clip);
+                ctx.clip.should.have.been.calledBefore(ctx.restore);
+                ctx.restore.should.have.been.called;
             });
             it('should set the transform if given', () => {
                 new draw.Path().rect(32, 32, 64, 64).doInside({
@@ -568,29 +569,29 @@ describe('draw.js', () => {
                         x: 5
                     }
                 }, () => {
-                    expect(ctx.translate).to.have.been.called;
+                    ctx.translate.should.have.been.called;
                 });
             });
             it('should call the entire stack in order', () => {
                 new draw.Path().move(32, 32).line(64, 64).arc(32, 32, 0, 0, 3).rect(32, 32, 32, 32).doInside();
-                expect(ctx.beginPath).to.have.been.calledBefore(ctx.moveTo);
-                expect(ctx.moveTo).to.have.been.calledBefore(ctx.lineTo);
-                expect(ctx.lineTo).to.have.been.calledBefore(ctx.arc);
-                expect(ctx.arc).to.have.been.calledBefore(ctx.rect);
-                expect(ctx.rect).to.have.been.calledBefore(ctx.clip);
+                ctx.beginPath.should.have.been.calledBefore(ctx.moveTo);
+                ctx.moveTo.should.have.been.calledBefore(ctx.lineTo);
+                ctx.lineTo.should.have.been.calledBefore(ctx.arc);
+                ctx.arc.should.have.been.calledBefore(ctx.rect);
+                ctx.rect.should.have.been.calledBefore(ctx.clip);
             });
             it('should call all items in todo in order, after clipping', () => {
                 const cbs = [spy(), spy(), spy()];
                 new draw.Path().rect(32, 32, 64, 64).doInside(...cbs);
-                expect(ctx.clip).to.have.been.calledBefore(cbs[0]);
-                expect(cbs[0]).to.have.been.calledOnce;
-                expect(cbs[0]).to.have.been.calledBefore(cbs[1]);
-                expect(cbs[1]).to.have.been.calledOnce;
-                expect(cbs[1]).to.have.been.calledBefore(cbs[2]);
-                expect(cbs[2]).to.have.been.calledOnce;
+                ctx.clip.should.have.been.calledBefore(cbs[0]);
+                cbs[0].should.have.been.calledOnce;
+                cbs[0].should.have.been.calledBefore(cbs[1]);
+                cbs[1].should.have.been.calledOnce;
+                cbs[1].should.have.been.calledBefore(cbs[2]);
+                cbs[2].should.have.been.calledOnce;
             });
             it('should be chainable', () => {
-                expect(() => new draw.Path().doInside({}, () => {}).doInside(() => {}).doInside()).to.not.throw();
+                (() => new draw.Path().doInside({}, () => {}).doInside(() => {}).doInside()).should.not.throw();
             });
         });
 
@@ -598,28 +599,28 @@ describe('draw.js', () => {
             it('should make an identical Path', () => {
                 const p = new draw.Path().move(32, 32).line(64, 64);
                 const c = p.copy();
-                expect(c).to.be.an.instanceof(draw.Path);
-                expect(c.length).to.deep.equal(p.length);
+                c.should.be.an.instanceof(draw.Path);
+                c.length.should.deep.equal(p.length);
             });
             it('should not modify the original when the copy is changed used', () => {
                 const p = new draw.Path().move(32, 32).line(64, 64);
                 const c = p.copy().arc(64, 64, 32, 0, Math.PI * 2);
-                expect(p.length).to.not.equal(c.length);
+                p.length.should.not.equal(c.length);
             });
         });
 
         describe('#contains([offx, offy,] x, y)', () => {
             it('should be true if the point is within the path', () => {
-                expect(new draw.Path().move(0, 32).line(32, 32).contains(16, 32)).to.be.true;
-                expect(new draw.Path().move(0, 32).line(32, 32).line(32, 64).contains(30, 34)).to.be.true;
+                new draw.Path().move(0, 32).line(32, 32).contains(16, 32).should.be.true;
+                new draw.Path().move(0, 32).line(32, 32).line(32, 64).contains(30, 34).should.be.true;
             });
             it('should be true if the point is not within the path', () => {
-                expect(new draw.Path().move(0, 32).line(32, 32).contains(48, 32)).to.be.false;
-                expect(new draw.Path().move(0, 32).line(32, 32).contains(16, 16)).to.be.false;
+                new draw.Path().move(0, 32).line(32, 32).contains(48, 32).should.be.false;
+                new draw.Path().move(0, 32).line(32, 32).contains(16, 16).should.be.false;
             });
             it('should allow offsets to be specified', () => {
-                expect(new draw.Path().move(0, 32).line(32, 32).line(32, 64).contains(130, 134)).to.be.false;
-                expect(new draw.Path().move(0, 32).line(32, 32).line(32, 64).contains(100, 100, 130, 134)).to.be.true;
+                new draw.Path().move(0, 32).line(32, 32).line(32, 64).contains(130, 134).should.be.false;
+                new draw.Path().move(0, 32).line(32, 32).line(32, 64).contains(100, 100, 130, 134).should.be.true;
             });
         });
     });
@@ -630,54 +631,54 @@ describe('draw.js', () => {
         before(() => pd = new draw.PixelData(width, height));
 
         it('should be constructed with new PixelData([x, y,] w, h)', () => {
-            expect(new draw.PixelData(32, 32)).to.be.an.instanceof(draw.PixelData);
-            expect(new draw.PixelData(16, 16, 16, 16)).to.be.an.instanceof(draw.PixelData);
-            expect(ctx.createImageData).to.have.been.calledWith(32, 32);
-            expect(ctx.getImageData).to.have.been.calledWith(16, 16, 16, 16);
-            expect(() => draw.PixelData(32, 32)).to.throw(TypeError);
+            new draw.PixelData(32, 32).should.be.an.instanceof(draw.PixelData);
+            new draw.PixelData(16, 16, 16, 16).should.be.an.instanceof(draw.PixelData);
+            ctx.createImageData.should.have.been.calledWith(32, 32);
+            ctx.getImageData.should.have.been.calledWith(16, 16, 16, 16);
+            (() => draw.PixelData(32, 32)).should.throw(TypeError);
         });
 
         describe('#width', () => {
             it('should return the width of the PixelData', () => {
-                expect(pd.width).to.equal(32);
+                pd.width.should.equal(32);
             });
             it('should be read only', () => {
-                expect(() => pd.width = 16).to.throw(TypeError);
+                (() => pd.width = 16).should.throw(TypeError);
             });
         });
 
         describe('#height', () => {
             it('should return the height of the PixelData', () => {
-                expect(pd.height).to.equal(32);
+                pd.height.should.equal(32);
             });
             it('should be read only', () => {
-                expect(() => pd.height = 16).to.throw(TypeError);
+                (() => pd.height = 16).should.throw(TypeError);
             });
         });
 
         describe('#data[x][y]', () => {
             it('should return a pixel from the ImageData', () => {
-                expect(pd.data[16][16]).to.deep.equal([0, 0, 0, 0]);
+                pd.data[16][16].should.deep.equal([0, 0, 0, 0]);
             });
         });
 
         describe('#data[x][y]=', () => {
             it('should be settable to change the ImageData', () => {
                 pd.data[16][16] = [255, 0, 0, 255];
-                expect(pd.data[16][16]).to.deep.equal([255, 0, 0, 255]);
+                pd.data[16][16].should.deep.equal([255, 0, 0, 255]);
                 pd.data[16][16] = [0, 0, 0, 0];
-                expect(pd.data[16][16]).to.deep.equal([0, 0, 0, 0]);
+                pd.data[16][16].should.deep.equal([0, 0, 0, 0]);
             });
 
             it('should not work with only one index', () => {
-                expect(() => pd.data[16] = [255, 0, 0, 255]).to.deep.throw(TypeError);
+                (() => pd.data[16] = [255, 0, 0, 255]).should.throw(TypeError);
             });
         });
 
         describe('#draw(x, y)', () => {
             it('should draw the PixelData', () => {
                 pd.draw(32, 32);
-                expect(ctx.putImageData).to.have.been.calledOnce;
+                ctx.putImageData.should.have.been.calledOnce;
             });
         });
     });

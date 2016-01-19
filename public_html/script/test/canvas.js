@@ -1,6 +1,8 @@
 'use strict';
 
-import {expect} from 'chai';
+import {should as should_} from 'chai';
+let should = should_();
+
 import $ from 'jquery';
 
 import {canvas, context, setCanvas} from '../src/canvas.js';
@@ -10,19 +12,19 @@ describe('canvas.js', () => {
     describe('#setCanvas(id)', () => {
         it('should set the currently active canvas to the one with the given id', () => {
             setCanvas('shop');
-            expect(canvas.attr('id')).to.equal('shop');
+            canvas.attr('id').should.equal('shop');
             setCanvas('game');
-            expect(canvas.attr('id')).to.equal('game');
+            canvas.attr('id').should.equal('game');
         });
     });
     it('should export canvas (jQuery object)', () => {
-        expect(canvas).to.be.an.instanceof($);
+        canvas.should.be.an.instanceof($);
     });
     it('should export the context (canvas[0].context2d(\'2d\'))', () => {
-        expect(context).to.equal(canvas[0].getContext('2d'));
+        context.should.equal(canvas[0].getContext('2d'));
     });
     it('should set the width and height of canvas', () => {
-        expect(canvas.width()).to.equal($(window).width());
-        expect(canvas.height()).to.equal($(window).height());
+        canvas.width().should.equal($(window).width());
+        canvas.height().should.equal($(window).height());
     });
 });

@@ -7,6 +7,15 @@ import pg from 'pg';
 import {DB_URL, DB_HASHKEY} from './config';
 import generate from './generator';
 
+// Error to represent database errors
+const DatabaseError = class extends Error {
+    constructor(message) {
+        super(message);
+        this.message = message;
+        this.name = 'DatabaseError';
+    }
+};
+
 const connect = () => {
     return new Promise((resolve, reject) => {
         pg.connect(DB_URL, (err, client, close) => {
@@ -20,30 +29,33 @@ const connect = () => {
 };
 
 export default (generator) => {
-    generate(function*() {
+    return generate(function*() {
         let result;
+        const [client, close] = yield connect(); // Errors are handled by generate
         try {
-            const [client, close] = yield connect();
-            try {
-                result = yield* generator((query) => {
-                    return new Promise((resolve, reject) => {
-                        client.query(query, (error, result) => {
-                            if(error) {
-                                reject(error);
+            result = yield* generator((query) => {
+                return new Promise((resolve, reject) => {
+                    client.query(query, (error, result) => {
+                        if(error) {
+                            reject(error);
+                        } else {
+                            if(!result.rowCount) {
+                                reject(new DatabaseError('No rows were matched'));
                             } else {
-                                resolve(result.rows);
+                                if(result.rowCount == 1) {
+                                    resolve(result.rows[0]);
+                                } else {
+                                    resolve(result.rows);
+                                }
                             }
-                        });
+                        }
                     });
                 });
-            } catch(error) {
-                console.error('Generator encountered an unhandled error:', error);
-            } finally {
-                close();
-            }
+            });
         } catch(error) {
-            console.error('Could not connect to PostgreSQL:', error);
+            throw error; // Propagate errors
         } finally {
+            close();
             return result;
         }
     });

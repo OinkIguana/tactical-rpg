@@ -1,6 +1,7 @@
 'use strict';
 
-import {expect} from 'chai';
+import {should as should_} from 'chai';
+let should = should_();
 import {spy, stub} from 'sinon';
 
 import login from '../server/login';
@@ -13,9 +14,25 @@ describe('login', () => {
         'login:login': [{
             args: {username: USER, password: PASS},
             tests(response) {
-                it('should call response with no errors', () => {
-                    expect(response).to.have.been.calledOnce;
-                    expect(response.args[0][0]).to.be.null;
+                it('should call response with no errors when credentials are right', () => {
+                    response.should.have.been.calledOnce;
+                    should.not.exist(response.args[0][0]);
+                });
+            }
+        }, {
+            args: {username: USER, password: BAD_PASS},
+            tests(response) {
+                it('should call response with an error message when the password is wrong', () => {
+                    response.should.have.been.calledOnce;
+                    response.args[0][0].should.be.a('string');
+                });
+            }
+        }, {
+            args: {username: BAD_USER, password: PASS},
+            tests(response) {
+                it('should call response with an error message when the username is wrong', () => {
+                    response.should.have.been.calledOnce;
+                    response.args[0][0].should.be.a('string');
                 });
             }
         }],
@@ -23,8 +40,8 @@ describe('login', () => {
             args: {username: USER, password: PASS, email: EMAIL},
             tests(response) {
                 it('should call response with no errors', () => {
-                    expect(response).to.have.been.calledOnce;
-                    expect(response.args[0][0]).to.be.null;
+                    response.should.have.been.calledOnce;
+                    should.not.exist(response.args[0][0]);
                 });
             }
         }],
@@ -32,8 +49,8 @@ describe('login', () => {
             args: {username: USER, email: EMAIL},
             tests(response) {
                 it('should call response with no errors', () => {
-                    expect(response).to.have.been.calledOnce;
-                    expect(response.args[0][0]).to.be.null;
+                    response.should.have.been.calledOnce;
+                    should.not.exist(response.args[0][0]);
                 });
             }
         }]
@@ -54,12 +71,12 @@ describe('login', () => {
                     tests(response);
 
                     // Run the callback before the tests are run
-                    before(() => {
+                    before((done) => {
                         // Find the corresponding callback
                         for(let i = 0; i < socket.on.callCount; i++) {
                             if(socket.on.args[i][0] === event) {
                                 // And call it
-                                socket.on.args[i][1](args, response);
+                                socket.on.args[i][1](args, (...res) => {response(...res); done();});
                                 break;
                             }
                         }

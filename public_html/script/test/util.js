@@ -1,6 +1,7 @@
 'use strict';
 
-import {expect} from 'chai';
+import {should as should_} from 'chai';
+let should = should_();
 
 import util from '../src/util.js';
 
@@ -10,29 +11,29 @@ describe('util.js', () => {
         const x = new util.Sequence(...list);
 
         it('should be constructed with new Sequence(...elements)', () => {
-            expect(() => util.Sequence()).to.throw(TypeError);
-            expect(new util.Sequence(...list)).to.be.an('object');
+            (() => util.Sequence()).should.throw(TypeError);
+            new util.Sequence(...list).should.be.an('object');
         });
 
         it('should be an iterator', () => {
-            expect(x.next().value).to.equal(list[0]);
-            expect(x.next().value).to.equal(list[1]);
-            expect(x.next().value).to.equal(list[2]);
-            expect(x.next().value).to.equal(list[3]);
+            x.next().value.should.equal(list[0]);
+            x.next().value.should.equal(list[1]);
+            x.next().value.should.equal(list[2]);
+            x.next().value.should.equal(list[3]);
         });
         it('should be iterable', () => {
-            expect([...x]).to.deep.equal(list);
+            [...x].should.deep.equal(list);
         });
 
         describe('#operator[i]', () => {
             if(window.Proxy !== undefined) {
                 it('should allow access to the inner array', () => {
-                    expect(x[3]).to.equal(list[3]);
+                    x[3].should.equal(list[3]);
                 });
                 it('should produce the correct value at any index', () => {
-                    expect(x[3]).to.equal(list[3]);
-                    expect(x[10]).to.equal(list[10 % list.length]);
-                    expect(x[-5]).to.equal(list[list.length - 5]);
+                    x[3].should.equal(list[3]);
+                    x[10].should.equal(list[10 % list.length]);
+                    x[-5].should.equal(list[list.length - 5]);
                 });
             } else { it('this browser does not support Proxy'); }
         });
@@ -40,41 +41,41 @@ describe('util.js', () => {
         describe('#operator[i]=', () => {
             if(window.Proxy !== undefined) {
                 it('should change the inner array', () => {
-                    expect(x[3] = 5).to.equal(5);
-                    expect(x[3]).to.equal(5);
-                    expect(x[3] = 4).to.equal(4);
-                    expect(x[3]).to.equal(4);
+                    (x[3] = 5).should.equal(5);
+                    x[3].should.equal(5);
+                    (x[3] = (4)).should.equal(4);
+                    x[3].should.equal(4);
                 });
             } else { it('this browser does not support Proxy'); }
         });
 
         describe('#current', () => {
             it('should return the current element, without changing it', () => {
-                expect(x.current).to.equal(list[4]);
+                x.current.should.equal(list[4]);
             });
             it('should be read only', () => {
-                expect(() => x.current = 3).to.throw(TypeError);
+                (() => x.current = (3)).should.throw(TypeError);
             });
         });
         describe('#index', () => {
             it('should return the current index (less than length)', () => {
-                expect(x.index).to.equal(4);
+                x.index.should.equal(4);
             });
         });
         describe('#index=', () => {
             it('should change the current index', () => {
-                expect(x.index = 5).to.equal(5);
-                expect(x.index = 10).to.equal(10);
-                expect(x.index).to.equal(10 % x.length);
+                (x.index = 5).should.equal(5);
+                (x.index = 10).should.equal(10);
+                x.index.should.equal(10 % x.length);
             });
         });
 
         describe('#length', () => {
             it('should return the number of items in the sequence', () => {
-                expect(x.length).to.equal(list.length);
+                x.length.should.equal(list.length);
             });
             it('should be read only', () => {
-                expect(() => x.length = 5).to.throw(TypeError);
+                (() => x.length = 5).should.throw(TypeError);
             });
         });
 
@@ -82,7 +83,7 @@ describe('util.js', () => {
             it('should be iterable and never stop', () => {
                 let n = 0;
                 for(let item of x.infinite()) {
-                    expect(item).to.be.a('number');
+                    item.should.be.a('number');
                     n++;
                     if(n > 100) break;
                 }
@@ -100,161 +101,161 @@ describe('util.js', () => {
         ];
 
         it('should be constructed with new Range(min, max, step = 1)', () => {
-            expect(() => util.Range()).to.throw(TypeError);
-            expect(new util.Range(min, max, 2)).to.be.an('object');
+            (() => util.Range()).should.throw(TypeError);
+            new util.Range(min, max, 2).should.be.an('object');
         });
 
         it('should be iterable', () => {
-            expect([...nat]).to.deep.equal([10, 11, 12, 13, 14, 15, 16, 17, 18, 19]);
-            expect([...even]).to.deep.equal([10, 12, 14, 16, 18]);
+            [...nat].should.deep.equal([10, 11, 12, 13, 14, 15, 16, 17, 18, 19]);
+            [...even].should.deep.equal([10, 12, 14, 16, 18]);
         });
 
         it('should not be iterable with step = 0', () => {
-            expect(() => [...all]).to.throw(TypeError);
+            (() => [...all]).should.throw(TypeError);
         });
 
         describe('#operator in', () => {
             if(window.Proxy !== undefined) {
                 it('should include min', () => {
-                    expect(nat.min in nat).to.be.true;
-                    expect(even.min in even).to.be.true;
-                    expect(odd.min in odd).to.be.true;
-                    expect(all.min in all).to.be.true;
+                    (nat.min in nat).should.be.true;
+                    (even.min in even).should.be.true;
+                    (odd.min in odd).should.be.true;
+                    (all.min in all).should.be.true;
                 });
 
                 it('should not include max', () => {
-                    expect(nat.max in nat).to.be.false;
-                    expect(even.max in even).to.be.false;
-                    expect(odd.max in odd).to.be.false;
-                    expect(all.max in all).to.be.false;
+                    (nat.max in nat).should.be.false;
+                    (even.max in even).should.be.false;
+                    (odd.max in odd).should.be.false;
+                    (all.max in all).should.be.false;
                 });
 
                 it('should include intermediate values', () => {
-                    expect(15 in nat).to.be.true;
-                    expect(16 in even).to.be.true;
-                    expect(17 in odd).to.be.true;
-                    expect(10 + Math.PI in all).to.be.true;
+                    (15 in nat).should.be.true;
+                    (16 in even).should.be.true;
+                    (17 in odd).should.be.true;
+                    (10 + Math.PI in all).should.be.true;
                 });
 
                 it('should not include values that are stepped over', () => {
-                    expect(15.5 in nat).to.be.false;
-                    expect(15 in even).to.be.false;
-                    expect(16 in odd).to.be.false;
+                    (15.5 in nat).should.be.false;
+                    (15 in even).should.be.false;
+                    (16 in odd).should.be.false;
                 });
 
                 it('should not include values out of the range', () => {
-                    expect(5 in nat).to.be.false;
-                    expect(6 in even).to.be.false;
-                    expect(5 in odd).to.be.false;
-                    expect(5 in all).to.be.false;
+                    (5 in nat).should.be.false;
+                    (6 in even).should.be.false;
+                    (5 in odd).should.be.false;
+                    (5 in all).should.be.false;
 
-                    expect(25 in nat).to.be.false;
-                    expect(26 in even).to.be.false;
-                    expect(25 in odd).to.be.false;
-                    expect(25 in all).to.be.false;
+                    (25 in nat).should.be.false;
+                    (26 in even).should.be.false;
+                    (25 in odd).should.be.false;
+                    (25 in all).should.be.false;
                 });
             } else { it('this browser does not support Proxy'); }
         });
 
         describe('#min', () => {
             it('should return the minimum value (in the range)', () => {
-                expect(nat.min).to.equal(min);
-                expect(even.min).to.equal(min);
-                expect(odd.min).to.equal(min + 1);
-                expect(all.min).to.equal(min);
+                nat.min.should.equal(min);
+                even.min.should.equal(min);
+                odd.min.should.equal(min + 1);
+                all.min.should.equal(min);
             });
         });
         describe('#min=', () => {
             it('should change the min value', () => {
                 nat.min = 3;
-                expect(nat.min).to.equal(3);
+                nat.min.should.equal(3);
                 nat.min = min;
-                expect(nat.min).to.equal(min);
+                nat.min.should.equal(min);
             });
         });
 
         describe('#max', () => {
             it('should return the maximum value (not in the range)', () => {
-                expect(nat.max).to.equal(max);
-                expect(even.max).to.equal(max);
-                expect(odd.max).to.equal(max);
-                expect(all.max).to.equal(max);
+                nat.max.should.equal(max);
+                even.max.should.equal(max);
+                odd.max.should.equal(max);
+                all.max.should.equal(max);
             });
         });
         describe('#max=', () => {
             it('should change the max value', () => {
                 nat.max = 3;
-                expect(nat.max).to.equal(3);
+                nat.max.should.equal(3);
                 nat.max = max;
-                expect(nat.max).to.equal(max);
+                nat.max.should.equal(max);
             });
         });
 
         describe('#step', () => {
             it('should return the step of the range', () => {
-                expect(nat.step).to.equal(1);
-                expect(even.step).to.equal(2);
-                expect(odd.step).to.equal(2);
-                expect(all.step).to.equal(0);
+                nat.step.should.equal(1);
+                even.step.should.equal(2);
+                odd.step.should.equal(2);
+                all.step.should.equal(0);
             });
         });
         describe('#step=', () => {
             it('should change the step amount', () => {
                 nat.step = 3;
-                expect(nat.step).to.equal(3);
+                nat.step.should.equal(3);
                 nat.step = 1;
-                expect(nat.step).to.equal(1);
+                nat.step.should.equal(1);
             });
         });
 
         describe('#length', () => {
             it('should return the number of elements in the range', () => {
-                expect(nat.length).to.equal(10);
-                expect(even.length).to.equal(5);
-                expect(odd.length).to.equal(5);
-                expect(all.length).to.equal(Infinity);
+                nat.length.should.equal(10);
+                even.length.should.equal(5);
+                odd.length.should.equal(5);
+                all.length.should.equal(Infinity);
             });
 
             it('should be read only', () => {
-                expect(() => nat.length = 15).to.throw(TypeError);
+                (() => nat.length = 15).should.throw(TypeError);
             });
         });
 
         describe('#constrain(x)', () => {
             it('should return x as the nearest element in the range', () => {
-                expect(nat.constrain(15.2)).to.equal(15);
-                expect(even.constrain(15.2)).to.equal(16);
-                expect(odd.constrain(15.2)).to.equal(15);
-                expect(all.constrain(15.2)).to.equal(15.2);
+                nat.constrain(15.2).should.equal(15);
+                even.constrain(15.2).should.equal(16);
+                odd.constrain(15.2).should.equal(15);
+                all.constrain(15.2).should.equal(15.2);
 
-                expect(nat.constrain(30)).to.equal(20);
-                expect(even.constrain(30)).to.equal(20);
-                expect(odd.constrain(30)).to.equal(20);
-                expect(all.constrain(30)).to.equal(20);
+                nat.constrain(30).should.equal(20);
+                even.constrain(30).should.equal(20);
+                odd.constrain(30).should.equal(20);
+                all.constrain(30).should.equal(20);
 
-                expect(nat.constrain(5)).to.equal(10);
-                expect(even.constrain(5)).to.equal(10);
-                expect(odd.constrain(5)).to.equal(11);
-                expect(all.constrain(5)).to.equal(10);
+                nat.constrain(5).should.equal(10);
+                even.constrain(5).should.equal(10);
+                odd.constrain(5).should.equal(11);
+                all.constrain(5).should.equal(10);
             });
         });
     });
 
     describe('range(min, max, step = 0)', () => {
         it('should do the same as new Range(min, max, step = 0)', () => {
-            expect(util.range(0, 10, 2)).to.deep.equal(new util.Range(0, 10, 2));
+            util.range(0, 10, 2).should.deep.equal(new util.Range(0, 10, 2));
         });
     });
 
     describe('pad(str, len, char = \'\')', () => {
         it('should pad str with char at the front up to length len', () => {
-            expect(util.pad('str', 7, 'x')).to.equal('xxxxstr');
-            expect(util.pad('str', 5, 'x')).to.equal('xxstr');
-            expect(util.pad('str', 3, 'x')).to.equal('str');
+            util.pad('str', 7, 'x').should.equal('xxxxstr');
+            util.pad('str', 5, 'x').should.equal('xxstr');
+            util.pad('str', 3, 'x').should.equal('str');
         });
         it('should throw an error if no char is provided', () => {
-            expect(() => util.pad('str', 5)).to.throw(TypeError);
-            expect(() => util.pad('str')).to.throw(TypeError);
+            (() => util.pad('str', 5)).should.throw(TypeError);
+            (() => util.pad('str')).should.throw(TypeError);
         });
     });
 });

@@ -34,6 +34,12 @@ CREATE TABLE accounts (
 CREATE INDEX accounts_user_index ON accounts (user_id);
 CREATE INDEX accounts_username_index ON accounts (username);
 
+-- Testing account
+INSERT INTO accounts
+    (username, password, salt, email) VALUES
+    (':)', 'e56a9225cf72f3f038d95101daab71254d81a35e811043884daae7326aa15ae132bbd16ab68bb3c8e09d71c6f49aa259e9117d8bde800a15e9071617425865e3',
+     'salty', 'a@b.c');
+
 -- Connect friends to be notified of their online status
 CREATE TABLE friends (
     user_a INT NOT NULL REFERENCES accounts (user_id) ON DELETE CASCADE,
@@ -57,5 +63,5 @@ CREATE TABLE game_players (
     game_id INT UNIQUE NOT NULL REFERENCES games (game_id) ON DELETE CASCADE,
     CONSTRAINT cannot_play_against_yourself CHECK (user_a <> user_b) -- No playing against yourself
 );
-CREATE INDEX game_player_user_a_index ON friends (user_a);
-CREATE INDEX game_player_user_b_index ON friends (user_b);
+CREATE INDEX game_player_user_a_index ON game_players (user_a);
+CREATE INDEX game_player_user_b_index ON game_players (user_b);
