@@ -1,7 +1,7 @@
 'use strict';
 
 import {should as should_} from 'chai';
-let should = should_();
+const should = should_();
 
 import $ from 'jquery';
 

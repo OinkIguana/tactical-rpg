@@ -4,7 +4,7 @@
 'use strict';
 import pg from 'pg';
 
-import {DB_URL, DB_HASHKEY} from './config';
+import {DB_URL} from './config';
 import generate from './generator';
 
 // Error to represent database errors
@@ -33,24 +33,40 @@ export default (generator) => {
         let result;
         const [client, close] = yield connect(); // Errors are handled by generate
         try {
-            result = yield* generator((query) => {
-                return new Promise((resolve, reject) => {
-                    client.query(query, (error, result) => {
-                        if(error) {
-                            reject(error);
-                        } else {
-                            if(!result.rowCount) {
-                                reject(new DatabaseError('No rows were matched'));
+            result = yield* generator({
+                query(query) {
+                    return new Promise((resolve, reject) => {
+                        client.query(query, (error, result) => {
+                            if(error) {
+                                reject(error);
                             } else {
-                                if(result.rowCount == 1) {
-                                    resolve(result.rows[0]);
-                                } else {
-                                    resolve(result.rows);
-                                }
+                                resolve(result.rows);
                             }
-                        }
+                        });
                     });
-                });
+                },
+                exists(query) {
+                    return new Promise((resolve, reject) => {
+                        client.query(query, (error, result) => {
+                            if(error) {
+                                reject(error);
+                            } else {
+                                resolve(!!result.rowCount);
+                            }
+                        });
+                    });
+                },
+                count(query) {
+                    return new Promise((resolve, reject) => {
+                        client.query(query, (error, result) => {
+                            if(error) {
+                                reject(error);
+                            } else {
+                                resolve(result.rowCount);
+                            }
+                        });
+                    });
+                }
             });
         } catch(error) {
             throw error; // Propagate errors
