@@ -1,7 +1,7 @@
 'use strict';
 
 import {should as should_} from 'chai';
-let should = should_();
+const should = should_();
 import {spy, stub} from 'sinon';
 
 import {setCanvas, canvas, context} from '../src/canvas.js';
@@ -552,7 +552,7 @@ describe('draw.js', () => {
                 ctx.rect.should.have.been.calledBefore(ctx.stroke);
             });
             it('should be chainable', () => {
-                (() => new draw.Path().stroke().stroke({transform: {}, line: '', color: 0x000000})).stroke().should.not.throw();
+                (() => new draw.Path().stroke().stroke({transform: {}, line: '', color: 0x000000}).stroke()).should.not.throw();
             });
         });
 

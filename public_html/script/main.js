@@ -22775,7 +22775,7 @@
 	__webpack_require__(255);
 	mocha.setup("bdd");
 	__webpack_require__(263);
-	__webpack_require__(309);
+	__webpack_require__(310);
 	if (false) {
 		module.hot.accept();
 		module.hot.dispose(function () {
@@ -23085,21 +23085,21 @@
 	
 	var _chai2 = _interopRequireDefault(_chai);
 	
-	var _chaiAsPromised = __webpack_require__(363);
+	var _chaiAsPromised = __webpack_require__(306);
 	
 	var _chaiAsPromised2 = _interopRequireDefault(_chaiAsPromised);
 	
-	var _sinonChai = __webpack_require__(306);
+	var _sinonChai = __webpack_require__(307);
 	
 	var _sinonChai2 = _interopRequireDefault(_sinonChai);
 	
-	__webpack_require__(307);
+	__webpack_require__(308);
 	
-	__webpack_require__(310);
+	__webpack_require__(311);
 	
-	__webpack_require__(359);
+	__webpack_require__(360);
 	
-	__webpack_require__(361);
+	__webpack_require__(362);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -30923,6 +30923,383 @@
 /* 306 */
 /***/ function(module, exports, __webpack_require__) {
 
+	(function () {
+	    "use strict";
+	
+	    // Module systems magic dance.
+	
+	    /* istanbul ignore else */
+	    if (true) {
+	        // NodeJS
+	        module.exports = chaiAsPromised;
+	    } else if (typeof define === "function" && define.amd) {
+	        // AMD
+	        define(function () {
+	            return chaiAsPromised;
+	        });
+	    } else {
+	        /*global self: false */
+	
+	        // Other environment (usually <script> tag): plug in to global chai instance directly.
+	        chai.use(chaiAsPromised);
+	
+	        // Expose as a property of the global object so that consumers can configure the `transferPromiseness` property.
+	        self.chaiAsPromised = chaiAsPromised;
+	    }
+	
+	    chaiAsPromised.transferPromiseness = function (assertion, promise) {
+	        assertion.then = promise.then.bind(promise);
+	    };
+	
+	    chaiAsPromised.transformAsserterArgs = function (values) {
+	        return values;
+	    };
+	
+	    function chaiAsPromised(chai, utils) {
+	        var Assertion = chai.Assertion;
+	        var assert = chai.assert;
+	
+	        function isJQueryPromise(thenable) {
+	            return typeof thenable.always === "function" &&
+	                   typeof thenable.done === "function" &&
+	                   typeof thenable.fail === "function" &&
+	                   typeof thenable.pipe === "function" &&
+	                   typeof thenable.progress === "function" &&
+	                   typeof thenable.state === "function";
+	        }
+	
+	        function assertIsAboutPromise(assertion) {
+	            if (typeof assertion._obj.then !== "function") {
+	                throw new TypeError(utils.inspect(assertion._obj) + " is not a thenable.");
+	            }
+	            if (isJQueryPromise(assertion._obj)) {
+	                throw new TypeError("Chai as Promised is incompatible with jQuery's thenables, sorry! Please use a " +
+	                                    "Promises/A+ compatible library (see http://promisesaplus.com/).");
+	            }
+	        }
+	
+	        function method(name, asserter) {
+	            utils.addMethod(Assertion.prototype, name, function () {
+	                assertIsAboutPromise(this);
+	                return asserter.apply(this, arguments);
+	            });
+	        }
+	
+	        function property(name, asserter) {
+	            utils.addProperty(Assertion.prototype, name, function () {
+	                assertIsAboutPromise(this);
+	                return asserter.apply(this, arguments);
+	            });
+	        }
+	
+	        function doNotify(promise, done) {
+	            promise.then(function () { done(); }, done);
+	        }
+	
+	        // These are for clarity and to bypass Chai refusing to allow `undefined` as actual when used with `assert`.
+	        function assertIfNegated(assertion, message, extra) {
+	            assertion.assert(true, null, message, extra.expected, extra.actual);
+	        }
+	
+	        function assertIfNotNegated(assertion, message, extra) {
+	            assertion.assert(false, message, null, extra.expected, extra.actual);
+	        }
+	
+	        function getBasePromise(assertion) {
+	            // We need to chain subsequent asserters on top of ones in the chain already (consider
+	            // `eventually.have.property("foo").that.equals("bar")`), only running them after the existing ones pass.
+	            // So the first base-promise is `assertion._obj`, but after that we use the assertions themselves, i.e.
+	            // previously derived promises, to chain off of.
+	            return typeof assertion.then === "function" ? assertion : assertion._obj;
+	        }
+	
+	        // Grab these first, before we modify `Assertion.prototype`.
+	
+	        var propertyNames = Object.getOwnPropertyNames(Assertion.prototype);
+	
+	        var propertyDescs = {};
+	        propertyNames.forEach(function (name) {
+	            propertyDescs[name] = Object.getOwnPropertyDescriptor(Assertion.prototype, name);
+	        });
+	
+	        property("fulfilled", function () {
+	            var that = this;
+	            var derivedPromise = getBasePromise(that).then(
+	                function (value) {
+	                    that._obj = value;
+	                    assertIfNegated(that,
+	                                    "expected promise not to be fulfilled but it was fulfilled with #{act}",
+	                                    { actual: value });
+	                    return value;
+	                },
+	                function (reason) {
+	                    assertIfNotNegated(that,
+	                                       "expected promise to be fulfilled but it was rejected with #{act}",
+	                                       { actual: reason });
+	                }
+	            );
+	
+	            chaiAsPromised.transferPromiseness(that, derivedPromise);
+	        });
+	
+	        property("rejected", function () {
+	            var that = this;
+	            var derivedPromise = getBasePromise(that).then(
+	                function (value) {
+	                    that._obj = value;
+	                    assertIfNotNegated(that,
+	                                       "expected promise to be rejected but it was fulfilled with #{act}",
+	                                       { actual: value });
+	                    return value;
+	                },
+	                function (reason) {
+	                    assertIfNegated(that,
+	                                    "expected promise not to be rejected but it was rejected with #{act}",
+	                                    { actual: reason });
+	
+	                    // Return the reason, transforming this into a fulfillment, to allow further assertions, e.g.
+	                    // `promise.should.be.rejected.and.eventually.equal("reason")`.
+	                    return reason;
+	                }
+	            );
+	
+	            chaiAsPromised.transferPromiseness(that, derivedPromise);
+	        });
+	
+	        method("rejectedWith", function (Constructor, message) {
+	            var desiredReason = null;
+	            var constructorName = null;
+	
+	            if (Constructor instanceof RegExp || typeof Constructor === "string") {
+	                message = Constructor;
+	                Constructor = null;
+	            } else if (Constructor && Constructor instanceof Error) {
+	                desiredReason = Constructor;
+	                Constructor = null;
+	                message = null;
+	            } else if (typeof Constructor === "function") {
+	                constructorName = (new Constructor()).name;
+	            } else {
+	                Constructor = null;
+	            }
+	
+	            var that = this;
+	            var derivedPromise = getBasePromise(that).then(
+	                function (value) {
+	                    var assertionMessage = null;
+	                    var expected = null;
+	
+	                    if (Constructor) {
+	                        assertionMessage = "expected promise to be rejected with #{exp} but it was fulfilled with " +
+	                                           "#{act}";
+	                        expected = constructorName;
+	                    } else if (message) {
+	                        var verb = message instanceof RegExp ? "matching" : "including";
+	                        assertionMessage = "expected promise to be rejected with an error " + verb + " #{exp} but it " +
+	                                           "was fulfilled with #{act}";
+	                        expected = message;
+	                    } else if (desiredReason) {
+	                        assertionMessage = "expected promise to be rejected with #{exp} but it was fulfilled with " +
+	                                           "#{act}";
+	                        expected = desiredReason;
+	                    }
+	
+	                    that._obj = value;
+	
+	                    assertIfNotNegated(that, assertionMessage, { expected: expected, actual: value });
+	                },
+	                function (reason) {
+	                    if (Constructor) {
+	                        that.assert(reason instanceof Constructor,
+	                                    "expected promise to be rejected with #{exp} but it was rejected with #{act}",
+	                                    "expected promise not to be rejected with #{exp} but it was rejected with #{act}",
+	                                    constructorName,
+	                                    reason);
+	                    }
+	
+	                    var reasonMessage = utils.type(reason) === "object" && "message" in reason ?
+	                                            reason.message :
+	                                            "" + reason;
+	                    if (message && reasonMessage !== null && reasonMessage !== undefined) {
+	                        if (message instanceof RegExp) {
+	                            that.assert(message.test(reasonMessage),
+	                                        "expected promise to be rejected with an error matching #{exp} but got #{act}",
+	                                        "expected promise not to be rejected with an error matching #{exp}",
+	                                        message,
+	                                        reasonMessage);
+	                        }
+	                        if (typeof message === "string") {
+	                            that.assert(reasonMessage.indexOf(message) !== -1,
+	                                        "expected promise to be rejected with an error including #{exp} but got #{act}",
+	                                        "expected promise not to be rejected with an error including #{exp}",
+	                                        message,
+	                                        reasonMessage);
+	                        }
+	                    }
+	
+	                    if (desiredReason) {
+	                        that.assert(reason === desiredReason,
+	                                    "expected promise to be rejected with #{exp} but it was rejected with #{act}",
+	                                    "expected promise not to be rejected with #{exp}",
+	                                    desiredReason,
+	                                    reason);
+	                    }
+	                }
+	            );
+	
+	            chaiAsPromised.transferPromiseness(that, derivedPromise);
+	        });
+	
+	        property("eventually", function () {
+	            utils.flag(this, "eventually", true);
+	        });
+	
+	        method("notify", function (done) {
+	            doNotify(getBasePromise(this), done);
+	        });
+	
+	        method("become", function (value, message) {
+	            return this.eventually.deep.equal(value, message);
+	        });
+	
+	        ////////
+	        // `eventually`
+	
+	        // We need to be careful not to trigger any getters, thus `Object.getOwnPropertyDescriptor` usage.
+	        var methodNames = propertyNames.filter(function (name) {
+	            return name !== "assert" && typeof propertyDescs[name].value === "function";
+	        });
+	
+	        methodNames.forEach(function (methodName) {
+	            Assertion.overwriteMethod(methodName, function (originalMethod) {
+	                return function () {
+	                    doAsserterAsyncAndAddThen(originalMethod, this, arguments);
+	                };
+	            });
+	        });
+	
+	        var getterNames = propertyNames.filter(function (name) {
+	            return name !== "_obj" && typeof propertyDescs[name].get === "function";
+	        });
+	
+	        getterNames.forEach(function (getterName) {
+	            // Chainable methods are things like `an`, which can work both for `.should.be.an.instanceOf` and as
+	            // `should.be.an("object")`. We need to handle those specially.
+	            var isChainableMethod = Assertion.prototype.__methods.hasOwnProperty(getterName);
+	
+	            if (isChainableMethod) {
+	                Assertion.overwriteChainableMethod(
+	                    getterName,
+	                    function (originalMethod) {
+	                        return function() {
+	                            doAsserterAsyncAndAddThen(originalMethod, this, arguments);
+	                        };
+	                    },
+	                    function (originalGetter) {
+	                        return function() {
+	                            doAsserterAsyncAndAddThen(originalGetter, this);
+	                        };
+	                    }
+	                );
+	            } else {
+	                Assertion.overwriteProperty(getterName, function (originalGetter) {
+	                    return function () {
+	                        doAsserterAsyncAndAddThen(originalGetter, this);
+	                    };
+	                });
+	            }
+	        });
+	
+	        function doAsserterAsyncAndAddThen(asserter, assertion, args) {
+	            // Since we're intercepting all methods/properties, we need to just pass through if they don't want
+	            // `eventually`, or if we've already fulfilled the promise (see below).
+	            if (!utils.flag(assertion, "eventually")) {
+	                return asserter.apply(assertion, args);
+	            }
+	
+	            var derivedPromise = getBasePromise(assertion).then(function (value) {
+	                // Set up the environment for the asserter to actually run: `_obj` should be the fulfillment value, and
+	                // now that we have the value, we're no longer in "eventually" mode, so we won't run any of this code,
+	                // just the base Chai code that we get to via the short-circuit above.
+	                assertion._obj = value;
+	                utils.flag(assertion, "eventually", false);
+	
+	                return args ? chaiAsPromised.transformAsserterArgs(args) : args;
+	            }).then(function (args) {
+	                asserter.apply(assertion, args);
+	
+	                // Because asserters, for example `property`, can change the value of `_obj` (i.e. change the "object"
+	                // flag), we need to communicate this value change to subsequent chained asserters. Since we build a
+	                // promise chain paralleling the asserter chain, we can use it to communicate such changes.
+	                return assertion._obj;
+	            });
+	
+	            chaiAsPromised.transferPromiseness(assertion, derivedPromise);
+	        }
+	
+	        ///////
+	        // Now use the `Assertion` framework to build an `assert` interface.
+	        var originalAssertMethods = Object.getOwnPropertyNames(assert).filter(function (propName) {
+	            return typeof assert[propName] === "function";
+	        });
+	
+	        assert.isFulfilled = function (promise, message) {
+	            return (new Assertion(promise, message)).to.be.fulfilled;
+	        };
+	
+	        assert.isRejected = function (promise, toTestAgainst, message) {
+	            if (typeof toTestAgainst === "string") {
+	                message = toTestAgainst;
+	                toTestAgainst = undefined;
+	            }
+	
+	            var assertion = (new Assertion(promise, message));
+	            return toTestAgainst !== undefined ? assertion.to.be.rejectedWith(toTestAgainst) : assertion.to.be.rejected;
+	        };
+	
+	        assert.becomes = function (promise, value, message) {
+	            return assert.eventually.deepEqual(promise, value, message);
+	        };
+	
+	        assert.doesNotBecome = function (promise, value, message) {
+	            return assert.eventually.notDeepEqual(promise, value, message);
+	        };
+	
+	        assert.eventually = {};
+	        originalAssertMethods.forEach(function (assertMethodName) {
+	            assert.eventually[assertMethodName] = function (promise) {
+	                var otherArgs = Array.prototype.slice.call(arguments, 1);
+	
+	                var customRejectionHandler;
+	                var message = arguments[assert[assertMethodName].length - 1];
+	                if (typeof message === "string") {
+	                    customRejectionHandler = function (reason) {
+	                        throw new chai.AssertionError(message + "\n\nOriginal reason: " + utils.inspect(reason));
+	                    };
+	                }
+	
+	                var returnedPromise = promise.then(
+	                    function (fulfillmentValue) {
+	                        return assert[assertMethodName].apply(assert, [fulfillmentValue].concat(otherArgs));
+	                    },
+	                    customRejectionHandler
+	                );
+	
+	                returnedPromise.notify = function (done) {
+	                    doNotify(returnedPromise, done);
+	                };
+	
+	                return returnedPromise;
+	            };
+	        });
+	    }
+	}());
+
+
+/***/ },
+/* 307 */
+/***/ function(module, exports, __webpack_require__) {
+
 	(function (sinonChai) {
 	    "use strict";
 	
@@ -31057,15 +31434,15 @@
 
 
 /***/ },
-/* 307 */
+/* 308 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	
 	__webpack_require__(255);
 	mocha.setup("bdd");
-	__webpack_require__(308);
 	__webpack_require__(309);
+	__webpack_require__(310);
 	if (false) {
 		module.hot.accept();
 		module.hot.dispose(function () {
@@ -31078,7 +31455,7 @@
 	}
 
 /***/ },
-/* 308 */
+/* 309 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31120,7 +31497,7 @@
 	});
 
 /***/ },
-/* 309 */
+/* 310 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {process.nextTick(function() {
@@ -31134,15 +31511,15 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(195)))
 
 /***/ },
-/* 310 */
+/* 311 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	
 	__webpack_require__(255);
 	mocha.setup("bdd");
-	__webpack_require__(311);
-	__webpack_require__(309);
+	__webpack_require__(312);
+	__webpack_require__(310);
 	if (false) {
 		module.hot.accept();
 		module.hot.dispose(function () {
@@ -31155,18 +31532,18 @@
 	}
 
 /***/ },
-/* 311 */
+/* 312 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
 	var _chai = __webpack_require__(266);
 	
-	var _sinon = __webpack_require__(312);
+	var _sinon = __webpack_require__(313);
 	
 	var _canvas = __webpack_require__(253);
 	
-	var _draw = __webpack_require__(357);
+	var _draw = __webpack_require__(358);
 	
 	var _draw2 = _interopRequireDefault(_draw);
 	
@@ -31741,8 +32118,8 @@
 	            });
 	            it('should be chainable', function () {
 	                (function () {
-	                    return new _draw2.default.Path().stroke().stroke({ transform: {}, line: '', color: 0x000000 });
-	                }).stroke().should.not.throw();
+	                    return new _draw2.default.Path().stroke().stroke({ transform: {}, line: '', color: 0x000000 }).stroke();
+	                }).should.not.throw();
 	            });
 	        });
 	
@@ -31891,7 +32268,7 @@
 	});
 
 /***/ },
-/* 312 */
+/* 313 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -31904,48 +32281,48 @@
 	 */
 	"use strict";
 	
-	var match = __webpack_require__(313);
+	var match = __webpack_require__(314);
 	
-	module.exports = exports = __webpack_require__(318);
+	module.exports = exports = __webpack_require__(319);
 	
-	exports.assert = __webpack_require__(333);
-	exports.collection = __webpack_require__(334);
-	exports.extend = __webpack_require__(336);
+	exports.assert = __webpack_require__(334);
+	exports.collection = __webpack_require__(335);
+	exports.extend = __webpack_require__(337);
 	exports.match = match;
-	exports.spy = __webpack_require__(335);
-	exports.spyCall = __webpack_require__(337);
-	exports.stub = __webpack_require__(338);
-	exports.mock = __webpack_require__(341);
-	exports.expectation = __webpack_require__(342);
-	exports.createStubInstance = __webpack_require__(338).createStubInstance;
-	exports.typeOf = __webpack_require__(317);
+	exports.spy = __webpack_require__(336);
+	exports.spyCall = __webpack_require__(338);
+	exports.stub = __webpack_require__(339);
+	exports.mock = __webpack_require__(342);
+	exports.expectation = __webpack_require__(343);
+	exports.createStubInstance = __webpack_require__(339).createStubInstance;
+	exports.typeOf = __webpack_require__(318);
 	
 	exports.log = function () {};
-	exports.logError = __webpack_require__(343);
+	exports.logError = __webpack_require__(344);
 	
-	var event = __webpack_require__(344);
+	var event = __webpack_require__(345);
 	exports.Event = event.Event;
 	exports.CustomEvent = event.CustomEvent;
 	exports.ProgressEvent = event.ProgressEvent;
 	exports.EventTarget = event.EventTarget;
 	
-	var fakeTimers = __webpack_require__(345);
+	var fakeTimers = __webpack_require__(346);
 	exports.useFakeTimers = fakeTimers.useFakeTimers;
 	exports.clock = fakeTimers.clock;
 	exports.timers = fakeTimers.timers;
 	
-	var fakeXdr = __webpack_require__(347);
+	var fakeXdr = __webpack_require__(348);
 	exports.xdr = fakeXdr.xdr;
 	exports.FakeXDomainRequest = fakeXdr.FakeXDomainRequest;
 	exports.useFakeXDomainRequest = fakeXdr.useFakeXDomainRequest;
 	
-	var fakeXhr = __webpack_require__(348);
+	var fakeXhr = __webpack_require__(349);
 	exports.xhr = fakeXhr.xhr;
 	exports.FakeXMLHttpRequest = fakeXhr.FakeXMLHttpRequest;
 	exports.useFakeXMLHttpRequest = fakeXhr.useFakeXMLHttpRequest;
 	
-	exports.fakeServer = __webpack_require__(352);
-	exports.fakeServerWithClock = __webpack_require__(353);
+	exports.fakeServer = __webpack_require__(353);
+	exports.fakeServerWithClock = __webpack_require__(354);
 	
 	/*
 	 * allow deepEqual to check equality of matchers through
@@ -31957,11 +32334,11 @@
 	// Modifying exports of another modules is not the right
 	// way to handle exports in CommonJS but this is a minimal
 	// change to how sinon was built before.
-	__webpack_require__(354);
+	__webpack_require__(355);
 
 
 /***/ },
-/* 313 */
+/* 314 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -31974,10 +32351,10 @@
 	 */
 	"use strict";
 	
-	var create = __webpack_require__(314);
-	var deepEqual = __webpack_require__(315).use(match); // eslint-disable-line no-use-before-define
-	var functionName = __webpack_require__(316);
-	var typeOf = __webpack_require__(317);
+	var create = __webpack_require__(315);
+	var deepEqual = __webpack_require__(316).use(match); // eslint-disable-line no-use-before-define
+	var functionName = __webpack_require__(317);
+	var typeOf = __webpack_require__(318);
 	
 	function assertType(value, type, name) {
 	    var actual = typeOf(value);
@@ -32197,7 +32574,7 @@
 
 
 /***/ },
-/* 314 */
+/* 315 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -32211,7 +32588,7 @@
 
 
 /***/ },
-/* 315 */
+/* 316 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -32320,7 +32697,7 @@
 
 
 /***/ },
-/* 316 */
+/* 317 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -32343,7 +32720,7 @@
 
 
 /***/ },
-/* 317 */
+/* 318 */
 /***/ function(module, exports) {
 
 	/**
@@ -32368,7 +32745,7 @@
 
 
 /***/ },
-/* 318 */
+/* 319 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -32381,45 +32758,45 @@
 	 */
 	"use strict";
 	
-	exports.wrapMethod = __webpack_require__(319);
+	exports.wrapMethod = __webpack_require__(320);
 	
-	exports.create = __webpack_require__(314);
+	exports.create = __webpack_require__(315);
 	
-	exports.deepEqual = __webpack_require__(315);
+	exports.deepEqual = __webpack_require__(316);
 	
-	exports.format = __webpack_require__(322);
+	exports.format = __webpack_require__(323);
 	
-	exports.functionName = __webpack_require__(316);
+	exports.functionName = __webpack_require__(317);
 	
-	exports.functionToString = __webpack_require__(325);
+	exports.functionToString = __webpack_require__(326);
 	
-	exports.objectKeys = __webpack_require__(321);
+	exports.objectKeys = __webpack_require__(322);
 	
-	exports.getPropertyDescriptor = __webpack_require__(320);
+	exports.getPropertyDescriptor = __webpack_require__(321);
 	
-	exports.getConfig = __webpack_require__(326);
+	exports.getConfig = __webpack_require__(327);
 	
-	exports.defaultConfig = __webpack_require__(327);
+	exports.defaultConfig = __webpack_require__(328);
 	
-	exports.timesInWords = __webpack_require__(328);
+	exports.timesInWords = __webpack_require__(329);
 	
-	exports.calledInOrder = __webpack_require__(329);
+	exports.calledInOrder = __webpack_require__(330);
 	
-	exports.orderByFirstCall = __webpack_require__(330);
+	exports.orderByFirstCall = __webpack_require__(331);
 	
-	exports.walk = __webpack_require__(331);
+	exports.walk = __webpack_require__(332);
 	
-	exports.restore = __webpack_require__(332);
+	exports.restore = __webpack_require__(333);
 
 
 /***/ },
-/* 319 */
+/* 320 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	
-	var getPropertyDescriptor = __webpack_require__(320);
-	var objectKeys = __webpack_require__(321);
+	var getPropertyDescriptor = __webpack_require__(321);
+	var objectKeys = __webpack_require__(322);
 	
 	var hasOwn = Object.prototype.hasOwnProperty;
 	
@@ -32556,7 +32933,7 @@
 
 
 /***/ },
-/* 320 */
+/* 321 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -32573,7 +32950,7 @@
 
 
 /***/ },
-/* 321 */
+/* 322 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -32598,7 +32975,7 @@
 
 
 /***/ },
-/* 322 */
+/* 323 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -32611,7 +32988,7 @@
 	 */
 	"use strict";
 	
-	var formatio = __webpack_require__(323);
+	var formatio = __webpack_require__(324);
 	
 	var formatter = formatio.configure({
 	    quoteStrings: false,
@@ -32624,13 +33001,13 @@
 
 
 /***/ },
-/* 323 */
+/* 324 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(global) {(("function" === "function" && __webpack_require__(206) && function (m) {
-	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(324)], __WEBPACK_AMD_DEFINE_FACTORY__ = (m), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(325)], __WEBPACK_AMD_DEFINE_FACTORY__ = (m), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 	}) || (typeof module === "object" && function (m) {
-	    module.exports = m(__webpack_require__(324));
+	    module.exports = m(__webpack_require__(325));
 	}) || function (m) { this.formatio = m(this.samsam); }
 	)(function (samsam) {
 	    "use strict";
@@ -32844,7 +33221,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 324 */
+/* 325 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;(("function" === "function" && __webpack_require__(206) && function (m) { !(__WEBPACK_AMD_DEFINE_FACTORY__ = (m), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.call(exports, __webpack_require__, exports, module)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__)); }) ||
@@ -33249,7 +33626,7 @@
 
 
 /***/ },
-/* 325 */
+/* 326 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -33275,12 +33652,12 @@
 
 
 /***/ },
-/* 326 */
+/* 327 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	
-	var defaultConfig = __webpack_require__(327);
+	var defaultConfig = __webpack_require__(328);
 	
 	module.exports = function getConfig(custom) {
 	    var config = {};
@@ -33299,7 +33676,7 @@
 
 
 /***/ },
-/* 327 */
+/* 328 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -33314,7 +33691,7 @@
 
 
 /***/ },
-/* 328 */
+/* 329 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -33327,7 +33704,7 @@
 
 
 /***/ },
-/* 329 */
+/* 330 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -33344,7 +33721,7 @@
 
 
 /***/ },
-/* 330 */
+/* 331 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -33363,7 +33740,7 @@
 
 
 /***/ },
-/* 331 */
+/* 332 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -33414,7 +33791,7 @@
 
 
 /***/ },
-/* 332 */
+/* 333 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -33437,7 +33814,7 @@
 
 
 /***/ },
-/* 333 */
+/* 334 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/**
@@ -33450,11 +33827,11 @@
 	 */
 	"use strict";
 	
-	var calledInOrder = __webpack_require__(329);
-	var orderByFirstCall = __webpack_require__(330);
-	var timesInWords = __webpack_require__(328);
-	var format = __webpack_require__(322);
-	var sinonMatch = __webpack_require__(313);
+	var calledInOrder = __webpack_require__(330);
+	var orderByFirstCall = __webpack_require__(331);
+	var timesInWords = __webpack_require__(329);
+	var format = __webpack_require__(323);
+	var sinonMatch = __webpack_require__(314);
 	
 	var slice = Array.prototype.slice;
 	
@@ -33638,7 +34015,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 334 */
+/* 335 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -33651,8 +34028,8 @@
 	 */
 	"use strict";
 	
-	var sinon = __webpack_require__(318);
-	var sinonSpy = __webpack_require__(335);
+	var sinon = __webpack_require__(319);
+	var sinonSpy = __webpack_require__(336);
 	
 	var push = [].push;
 	var hasOwnProperty = Object.prototype.hasOwnProperty;
@@ -33787,7 +34164,7 @@
 
 
 /***/ },
-/* 335 */
+/* 336 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -33800,15 +34177,15 @@
 	  */
 	"use strict";
 	
-	var extend = __webpack_require__(336);
-	var deepEqual = __webpack_require__(315);
-	var functionName = __webpack_require__(316);
-	var functionToString = __webpack_require__(325);
-	var getPropertyDescriptor = __webpack_require__(320);
-	var sinon = __webpack_require__(318);
-	var spyCall = __webpack_require__(337);
-	var timesInWords = __webpack_require__(328);
-	var wrapMethod = __webpack_require__(319);
+	var extend = __webpack_require__(337);
+	var deepEqual = __webpack_require__(316);
+	var functionName = __webpack_require__(317);
+	var functionToString = __webpack_require__(326);
+	var getPropertyDescriptor = __webpack_require__(321);
+	var sinon = __webpack_require__(319);
+	var spyCall = __webpack_require__(338);
+	var timesInWords = __webpack_require__(329);
+	var wrapMethod = __webpack_require__(320);
 	
 	var push = Array.prototype.push;
 	var slice = Array.prototype.slice;
@@ -34230,7 +34607,7 @@
 
 
 /***/ },
-/* 336 */
+/* 337 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -34312,7 +34689,7 @@
 
 
 /***/ },
-/* 337 */
+/* 338 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -34327,11 +34704,11 @@
 	  */
 	"use strict";
 	
-	var sinon = __webpack_require__(318);
-	var sinonMatch = __webpack_require__(313);
-	var deepEqual = __webpack_require__(315).use(sinonMatch);
-	var functionName = __webpack_require__(316);
-	var createInstance = __webpack_require__(314);
+	var sinon = __webpack_require__(319);
+	var sinonMatch = __webpack_require__(314);
+	var deepEqual = __webpack_require__(316).use(sinonMatch);
+	var functionName = __webpack_require__(317);
+	var createInstance = __webpack_require__(315);
 	var slice = Array.prototype.slice;
 	
 	function throwYieldError(proxy, text, args) {
@@ -34522,7 +34899,7 @@
 
 
 /***/ },
-/* 338 */
+/* 339 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -34535,15 +34912,15 @@
 	 */
 	"use strict";
 	
-	var behavior = __webpack_require__(339);
-	var spy = __webpack_require__(335);
-	var extend = __webpack_require__(336);
-	var walk = __webpack_require__(331);
-	var objectKeys = __webpack_require__(321);
-	var getPropertyDescriptor = __webpack_require__(320);
-	var createInstance = __webpack_require__(314);
-	var functionToString = __webpack_require__(325);
-	var wrapMethod = __webpack_require__(319);
+	var behavior = __webpack_require__(340);
+	var spy = __webpack_require__(336);
+	var extend = __webpack_require__(337);
+	var walk = __webpack_require__(332);
+	var objectKeys = __webpack_require__(322);
+	var getPropertyDescriptor = __webpack_require__(321);
+	var createInstance = __webpack_require__(315);
+	var functionToString = __webpack_require__(326);
+	var wrapMethod = __webpack_require__(320);
 	
 	function stub(object, property, func) {
 	    if (!!func && typeof func !== "function" && typeof func !== "object") {
@@ -34717,7 +35094,7 @@
 
 
 /***/ },
-/* 339 */
+/* 340 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process, setImmediate) {/**
@@ -34731,8 +35108,8 @@
 	 */
 	"use strict";
 	
-	var extend = __webpack_require__(336);
-	var functionName = __webpack_require__(316);
+	var extend = __webpack_require__(337);
+	var functionName = __webpack_require__(317);
 	
 	var slice = Array.prototype.slice;
 	var join = Array.prototype.join;
@@ -35047,10 +35424,10 @@
 	
 	module.exports = proto;
 	
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(195), __webpack_require__(340).setImmediate))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(195), __webpack_require__(341).setImmediate))
 
 /***/ },
-/* 340 */
+/* 341 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(setImmediate, clearImmediate) {var nextTick = __webpack_require__(195).nextTick;
@@ -35129,10 +35506,10 @@
 	exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate : function(id) {
 	  delete immediateIds[id];
 	};
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(340).setImmediate, __webpack_require__(340).clearImmediate))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(341).setImmediate, __webpack_require__(341).clearImmediate))
 
 /***/ },
-/* 341 */
+/* 342 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -35145,12 +35522,12 @@
 	 */
 	"use strict";
 	
-	var mockExpectation = __webpack_require__(342);
-	var spyCallToString = __webpack_require__(337).toString;
-	var extend = __webpack_require__(336);
-	var match = __webpack_require__(313);
-	var deepEqual = __webpack_require__(315).use(match);
-	var wrapMethod = __webpack_require__(319);
+	var mockExpectation = __webpack_require__(343);
+	var spyCallToString = __webpack_require__(338).toString;
+	var extend = __webpack_require__(337);
+	var match = __webpack_require__(314);
+	var deepEqual = __webpack_require__(316).use(match);
+	var wrapMethod = __webpack_require__(320);
 	
 	var push = Array.prototype.push;
 	
@@ -35317,7 +35694,7 @@
 
 
 /***/ },
-/* 342 */
+/* 343 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -35330,15 +35707,15 @@
 	 */
 	"use strict";
 	
-	var spyInvoke = __webpack_require__(335).invoke;
-	var spyCallToString = __webpack_require__(337).toString;
-	var timesInWords = __webpack_require__(328);
-	var extend = __webpack_require__(336);
-	var match = __webpack_require__(313);
-	var stub = __webpack_require__(338);
-	var assert = __webpack_require__(333);
-	var deepEqual = __webpack_require__(315).use(match);
-	var format = __webpack_require__(322);
+	var spyInvoke = __webpack_require__(336).invoke;
+	var spyCallToString = __webpack_require__(338).toString;
+	var timesInWords = __webpack_require__(329);
+	var extend = __webpack_require__(337);
+	var match = __webpack_require__(314);
+	var stub = __webpack_require__(339);
+	var assert = __webpack_require__(334);
+	var deepEqual = __webpack_require__(316).use(match);
+	var format = __webpack_require__(323);
 	
 	var slice = Array.prototype.slice;
 	var push = Array.prototype.push;
@@ -35615,7 +35992,7 @@
 
 
 /***/ },
-/* 343 */
+/* 344 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -35628,7 +36005,7 @@
 	 */
 	"use strict";
 	
-	var sinon = __webpack_require__(318);
+	var sinon = __webpack_require__(319);
 	
 	// cache a reference to setTimeout, so that our reference won't be stubbed out
 	// when using fake timers and errors will still get logged
@@ -35669,7 +36046,7 @@
 
 
 /***/ },
-/* 344 */
+/* 345 */
 /***/ function(module, exports) {
 
 	/**
@@ -35769,7 +36146,7 @@
 
 
 /***/ },
-/* 345 */
+/* 346 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(setImmediate, clearImmediate) {/**
@@ -35791,7 +36168,7 @@
 	 */
 	"use strict";
 	
-	var llx = __webpack_require__(346);
+	var llx = __webpack_require__(347);
 	
 	exports.useFakeTimers = function () {
 	    var now;
@@ -35824,10 +36201,10 @@
 	    Date: Date
 	};
 	
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(340).setImmediate, __webpack_require__(340).clearImmediate))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(341).setImmediate, __webpack_require__(341).clearImmediate))
 
 /***/ },
-/* 346 */
+/* 347 */
 /***/ function(module, exports) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/*global global, window*/
@@ -36353,7 +36730,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 347 */
+/* 348 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/**
@@ -36362,9 +36739,9 @@
 	
 	"use strict";
 	
-	var event = __webpack_require__(344);
-	var extend = __webpack_require__(336);
-	var logError = __webpack_require__(343);
+	var event = __webpack_require__(345);
+	var extend = __webpack_require__(337);
+	var logError = __webpack_require__(344);
 	
 	var xdr = { XDomainRequest: global.XDomainRequest };
 	xdr.GlobalXDomainRequest = global.XDomainRequest;
@@ -36555,7 +36932,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 348 */
+/* 349 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/**
@@ -36568,11 +36945,11 @@
 	 */
 	"use strict";
 	
-	var TextEncoder = __webpack_require__(349).TextEncoder;
+	var TextEncoder = __webpack_require__(350).TextEncoder;
 	
-	var sinon = __webpack_require__(318);
-	var sinonEvent = __webpack_require__(344);
-	var extend = __webpack_require__(336);
+	var sinon = __webpack_require__(319);
+	var sinonEvent = __webpack_require__(345);
+	var extend = __webpack_require__(337);
 	
 	function getWorkingXHR(globalScope) {
 	    var supportsXHR = typeof globalScope.XMLHttpRequest !== "undefined";
@@ -37240,7 +37617,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 349 */
+/* 350 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// Copyright 2014 Joshua Bell. All rights reserved.
@@ -37257,7 +37634,7 @@
 	// See the License for the specific language governing permissions and
 	// limitations under the License.
 	
-	var encoding = __webpack_require__(350);
+	var encoding = __webpack_require__(351);
 	
 	module.exports = {
 	  TextEncoder: encoding.TextEncoder,
@@ -37266,7 +37643,7 @@
 
 
 /***/ },
-/* 350 */
+/* 351 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// Copyright 2014 Joshua Bell. All rights reserved.
@@ -37290,7 +37667,7 @@
 	 */
 	if (typeof module !== "undefined" && module.exports) {
 	  this["encoding-indexes"] =
-	    __webpack_require__(351)["encoding-indexes"];
+	    __webpack_require__(352)["encoding-indexes"];
 	}
 	
 	(function(global) {
@@ -40340,7 +40717,7 @@
 
 
 /***/ },
-/* 351 */
+/* 352 */
 /***/ function(module, exports) {
 
 	// Copyright 2014 Joshua Bell. All rights reserved.
@@ -40400,7 +40777,7 @@
 
 
 /***/ },
-/* 352 */
+/* 353 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -40417,9 +40794,9 @@
 	"use strict";
 	
 	var push = [].push;
-	var sinon = __webpack_require__(318);
-	var createInstance = __webpack_require__(314);
-	var format = __webpack_require__(322);
+	var sinon = __webpack_require__(319);
+	var createInstance = __webpack_require__(315);
+	var format = __webpack_require__(323);
 	
 	function responseArray(handler) {
 	    var response = handler;
@@ -40628,7 +41005,7 @@
 
 
 /***/ },
-/* 353 */
+/* 354 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -40647,8 +41024,8 @@
 	 */
 	"use strict";
 	
-	var fakeServer = __webpack_require__(352);
-	var fakeTimers = __webpack_require__(345);
+	var fakeServer = __webpack_require__(353);
+	var fakeTimers = __webpack_require__(346);
 	
 	function Server() {}
 	Server.prototype = fakeServer;
@@ -40714,7 +41091,7 @@
 
 
 /***/ },
-/* 354 */
+/* 355 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -40727,8 +41104,8 @@
 	 */
 	"use strict";
 	
-	__webpack_require__(355);
-	var sinon = __webpack_require__(318);
+	__webpack_require__(356);
+	var sinon = __webpack_require__(319);
 	
 	function createTest(property, setUp, tearDown) {
 	    return function () {
@@ -40795,7 +41172,7 @@
 
 
 /***/ },
-/* 355 */
+/* 356 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -40808,8 +41185,8 @@
 	 */
 	"use strict";
 	
-	__webpack_require__(356);
-	var sinon = __webpack_require__(318);
+	__webpack_require__(357);
+	var sinon = __webpack_require__(319);
 	
 	var slice = Array.prototype.slice;
 	
@@ -40878,7 +41255,7 @@
 
 
 /***/ },
-/* 356 */
+/* 357 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -40892,11 +41269,11 @@
 	 */
 	"use strict";
 	
-	__webpack_require__(336);
-	__webpack_require__(334);
-	__webpack_require__(353);
-	__webpack_require__(345);
-	var sinon = __webpack_require__(318);
+	__webpack_require__(337);
+	__webpack_require__(335);
+	__webpack_require__(354);
+	__webpack_require__(346);
+	var sinon = __webpack_require__(319);
 	
 	var push = [].push;
 	
@@ -41019,7 +41396,7 @@
 
 
 /***/ },
-/* 357 */
+/* 358 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -41040,7 +41417,7 @@
 	
 	var _canvas = __webpack_require__(253);
 	
-	var _util = __webpack_require__(358);
+	var _util = __webpack_require__(359);
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -41633,7 +42010,7 @@
 	};
 
 /***/ },
-/* 358 */
+/* 359 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -41903,15 +42280,15 @@
 	exports.default = { Sequence: Sequence, Range: Range, range: range, pad: pad };
 
 /***/ },
-/* 359 */
+/* 360 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	
 	__webpack_require__(255);
 	mocha.setup("bdd");
-	__webpack_require__(360);
-	__webpack_require__(309);
+	__webpack_require__(361);
+	__webpack_require__(310);
 	if (false) {
 		module.hot.accept();
 		module.hot.dispose(function () {
@@ -41924,7 +42301,7 @@
 	}
 
 /***/ },
-/* 360 */
+/* 361 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -42150,15 +42527,15 @@
 	});
 
 /***/ },
-/* 361 */
+/* 362 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	
 	__webpack_require__(255);
 	mocha.setup("bdd");
-	__webpack_require__(362);
-	__webpack_require__(309);
+	__webpack_require__(363);
+	__webpack_require__(310);
 	if (false) {
 		module.hot.accept();
 		module.hot.dispose(function () {
@@ -42171,14 +42548,14 @@
 	}
 
 /***/ },
-/* 362 */
+/* 363 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
 	var _chai = __webpack_require__(266);
 	
-	var _util = __webpack_require__(358);
+	var _util = __webpack_require__(359);
 	
 	var _util2 = _interopRequireDefault(_util);
 	
@@ -42484,383 +42861,6 @@
 	        });
 	    });
 	});
-
-/***/ },
-/* 363 */
-/***/ function(module, exports, __webpack_require__) {
-
-	(function () {
-	    "use strict";
-	
-	    // Module systems magic dance.
-	
-	    /* istanbul ignore else */
-	    if (true) {
-	        // NodeJS
-	        module.exports = chaiAsPromised;
-	    } else if (typeof define === "function" && define.amd) {
-	        // AMD
-	        define(function () {
-	            return chaiAsPromised;
-	        });
-	    } else {
-	        /*global self: false */
-	
-	        // Other environment (usually <script> tag): plug in to global chai instance directly.
-	        chai.use(chaiAsPromised);
-	
-	        // Expose as a property of the global object so that consumers can configure the `transferPromiseness` property.
-	        self.chaiAsPromised = chaiAsPromised;
-	    }
-	
-	    chaiAsPromised.transferPromiseness = function (assertion, promise) {
-	        assertion.then = promise.then.bind(promise);
-	    };
-	
-	    chaiAsPromised.transformAsserterArgs = function (values) {
-	        return values;
-	    };
-	
-	    function chaiAsPromised(chai, utils) {
-	        var Assertion = chai.Assertion;
-	        var assert = chai.assert;
-	
-	        function isJQueryPromise(thenable) {
-	            return typeof thenable.always === "function" &&
-	                   typeof thenable.done === "function" &&
-	                   typeof thenable.fail === "function" &&
-	                   typeof thenable.pipe === "function" &&
-	                   typeof thenable.progress === "function" &&
-	                   typeof thenable.state === "function";
-	        }
-	
-	        function assertIsAboutPromise(assertion) {
-	            if (typeof assertion._obj.then !== "function") {
-	                throw new TypeError(utils.inspect(assertion._obj) + " is not a thenable.");
-	            }
-	            if (isJQueryPromise(assertion._obj)) {
-	                throw new TypeError("Chai as Promised is incompatible with jQuery's thenables, sorry! Please use a " +
-	                                    "Promises/A+ compatible library (see http://promisesaplus.com/).");
-	            }
-	        }
-	
-	        function method(name, asserter) {
-	            utils.addMethod(Assertion.prototype, name, function () {
-	                assertIsAboutPromise(this);
-	                return asserter.apply(this, arguments);
-	            });
-	        }
-	
-	        function property(name, asserter) {
-	            utils.addProperty(Assertion.prototype, name, function () {
-	                assertIsAboutPromise(this);
-	                return asserter.apply(this, arguments);
-	            });
-	        }
-	
-	        function doNotify(promise, done) {
-	            promise.then(function () { done(); }, done);
-	        }
-	
-	        // These are for clarity and to bypass Chai refusing to allow `undefined` as actual when used with `assert`.
-	        function assertIfNegated(assertion, message, extra) {
-	            assertion.assert(true, null, message, extra.expected, extra.actual);
-	        }
-	
-	        function assertIfNotNegated(assertion, message, extra) {
-	            assertion.assert(false, message, null, extra.expected, extra.actual);
-	        }
-	
-	        function getBasePromise(assertion) {
-	            // We need to chain subsequent asserters on top of ones in the chain already (consider
-	            // `eventually.have.property("foo").that.equals("bar")`), only running them after the existing ones pass.
-	            // So the first base-promise is `assertion._obj`, but after that we use the assertions themselves, i.e.
-	            // previously derived promises, to chain off of.
-	            return typeof assertion.then === "function" ? assertion : assertion._obj;
-	        }
-	
-	        // Grab these first, before we modify `Assertion.prototype`.
-	
-	        var propertyNames = Object.getOwnPropertyNames(Assertion.prototype);
-	
-	        var propertyDescs = {};
-	        propertyNames.forEach(function (name) {
-	            propertyDescs[name] = Object.getOwnPropertyDescriptor(Assertion.prototype, name);
-	        });
-	
-	        property("fulfilled", function () {
-	            var that = this;
-	            var derivedPromise = getBasePromise(that).then(
-	                function (value) {
-	                    that._obj = value;
-	                    assertIfNegated(that,
-	                                    "expected promise not to be fulfilled but it was fulfilled with #{act}",
-	                                    { actual: value });
-	                    return value;
-	                },
-	                function (reason) {
-	                    assertIfNotNegated(that,
-	                                       "expected promise to be fulfilled but it was rejected with #{act}",
-	                                       { actual: reason });
-	                }
-	            );
-	
-	            chaiAsPromised.transferPromiseness(that, derivedPromise);
-	        });
-	
-	        property("rejected", function () {
-	            var that = this;
-	            var derivedPromise = getBasePromise(that).then(
-	                function (value) {
-	                    that._obj = value;
-	                    assertIfNotNegated(that,
-	                                       "expected promise to be rejected but it was fulfilled with #{act}",
-	                                       { actual: value });
-	                    return value;
-	                },
-	                function (reason) {
-	                    assertIfNegated(that,
-	                                    "expected promise not to be rejected but it was rejected with #{act}",
-	                                    { actual: reason });
-	
-	                    // Return the reason, transforming this into a fulfillment, to allow further assertions, e.g.
-	                    // `promise.should.be.rejected.and.eventually.equal("reason")`.
-	                    return reason;
-	                }
-	            );
-	
-	            chaiAsPromised.transferPromiseness(that, derivedPromise);
-	        });
-	
-	        method("rejectedWith", function (Constructor, message) {
-	            var desiredReason = null;
-	            var constructorName = null;
-	
-	            if (Constructor instanceof RegExp || typeof Constructor === "string") {
-	                message = Constructor;
-	                Constructor = null;
-	            } else if (Constructor && Constructor instanceof Error) {
-	                desiredReason = Constructor;
-	                Constructor = null;
-	                message = null;
-	            } else if (typeof Constructor === "function") {
-	                constructorName = (new Constructor()).name;
-	            } else {
-	                Constructor = null;
-	            }
-	
-	            var that = this;
-	            var derivedPromise = getBasePromise(that).then(
-	                function (value) {
-	                    var assertionMessage = null;
-	                    var expected = null;
-	
-	                    if (Constructor) {
-	                        assertionMessage = "expected promise to be rejected with #{exp} but it was fulfilled with " +
-	                                           "#{act}";
-	                        expected = constructorName;
-	                    } else if (message) {
-	                        var verb = message instanceof RegExp ? "matching" : "including";
-	                        assertionMessage = "expected promise to be rejected with an error " + verb + " #{exp} but it " +
-	                                           "was fulfilled with #{act}";
-	                        expected = message;
-	                    } else if (desiredReason) {
-	                        assertionMessage = "expected promise to be rejected with #{exp} but it was fulfilled with " +
-	                                           "#{act}";
-	                        expected = desiredReason;
-	                    }
-	
-	                    that._obj = value;
-	
-	                    assertIfNotNegated(that, assertionMessage, { expected: expected, actual: value });
-	                },
-	                function (reason) {
-	                    if (Constructor) {
-	                        that.assert(reason instanceof Constructor,
-	                                    "expected promise to be rejected with #{exp} but it was rejected with #{act}",
-	                                    "expected promise not to be rejected with #{exp} but it was rejected with #{act}",
-	                                    constructorName,
-	                                    reason);
-	                    }
-	
-	                    var reasonMessage = utils.type(reason) === "object" && "message" in reason ?
-	                                            reason.message :
-	                                            "" + reason;
-	                    if (message && reasonMessage !== null && reasonMessage !== undefined) {
-	                        if (message instanceof RegExp) {
-	                            that.assert(message.test(reasonMessage),
-	                                        "expected promise to be rejected with an error matching #{exp} but got #{act}",
-	                                        "expected promise not to be rejected with an error matching #{exp}",
-	                                        message,
-	                                        reasonMessage);
-	                        }
-	                        if (typeof message === "string") {
-	                            that.assert(reasonMessage.indexOf(message) !== -1,
-	                                        "expected promise to be rejected with an error including #{exp} but got #{act}",
-	                                        "expected promise not to be rejected with an error including #{exp}",
-	                                        message,
-	                                        reasonMessage);
-	                        }
-	                    }
-	
-	                    if (desiredReason) {
-	                        that.assert(reason === desiredReason,
-	                                    "expected promise to be rejected with #{exp} but it was rejected with #{act}",
-	                                    "expected promise not to be rejected with #{exp}",
-	                                    desiredReason,
-	                                    reason);
-	                    }
-	                }
-	            );
-	
-	            chaiAsPromised.transferPromiseness(that, derivedPromise);
-	        });
-	
-	        property("eventually", function () {
-	            utils.flag(this, "eventually", true);
-	        });
-	
-	        method("notify", function (done) {
-	            doNotify(getBasePromise(this), done);
-	        });
-	
-	        method("become", function (value, message) {
-	            return this.eventually.deep.equal(value, message);
-	        });
-	
-	        ////////
-	        // `eventually`
-	
-	        // We need to be careful not to trigger any getters, thus `Object.getOwnPropertyDescriptor` usage.
-	        var methodNames = propertyNames.filter(function (name) {
-	            return name !== "assert" && typeof propertyDescs[name].value === "function";
-	        });
-	
-	        methodNames.forEach(function (methodName) {
-	            Assertion.overwriteMethod(methodName, function (originalMethod) {
-	                return function () {
-	                    doAsserterAsyncAndAddThen(originalMethod, this, arguments);
-	                };
-	            });
-	        });
-	
-	        var getterNames = propertyNames.filter(function (name) {
-	            return name !== "_obj" && typeof propertyDescs[name].get === "function";
-	        });
-	
-	        getterNames.forEach(function (getterName) {
-	            // Chainable methods are things like `an`, which can work both for `.should.be.an.instanceOf` and as
-	            // `should.be.an("object")`. We need to handle those specially.
-	            var isChainableMethod = Assertion.prototype.__methods.hasOwnProperty(getterName);
-	
-	            if (isChainableMethod) {
-	                Assertion.overwriteChainableMethod(
-	                    getterName,
-	                    function (originalMethod) {
-	                        return function() {
-	                            doAsserterAsyncAndAddThen(originalMethod, this, arguments);
-	                        };
-	                    },
-	                    function (originalGetter) {
-	                        return function() {
-	                            doAsserterAsyncAndAddThen(originalGetter, this);
-	                        };
-	                    }
-	                );
-	            } else {
-	                Assertion.overwriteProperty(getterName, function (originalGetter) {
-	                    return function () {
-	                        doAsserterAsyncAndAddThen(originalGetter, this);
-	                    };
-	                });
-	            }
-	        });
-	
-	        function doAsserterAsyncAndAddThen(asserter, assertion, args) {
-	            // Since we're intercepting all methods/properties, we need to just pass through if they don't want
-	            // `eventually`, or if we've already fulfilled the promise (see below).
-	            if (!utils.flag(assertion, "eventually")) {
-	                return asserter.apply(assertion, args);
-	            }
-	
-	            var derivedPromise = getBasePromise(assertion).then(function (value) {
-	                // Set up the environment for the asserter to actually run: `_obj` should be the fulfillment value, and
-	                // now that we have the value, we're no longer in "eventually" mode, so we won't run any of this code,
-	                // just the base Chai code that we get to via the short-circuit above.
-	                assertion._obj = value;
-	                utils.flag(assertion, "eventually", false);
-	
-	                return args ? chaiAsPromised.transformAsserterArgs(args) : args;
-	            }).then(function (args) {
-	                asserter.apply(assertion, args);
-	
-	                // Because asserters, for example `property`, can change the value of `_obj` (i.e. change the "object"
-	                // flag), we need to communicate this value change to subsequent chained asserters. Since we build a
-	                // promise chain paralleling the asserter chain, we can use it to communicate such changes.
-	                return assertion._obj;
-	            });
-	
-	            chaiAsPromised.transferPromiseness(assertion, derivedPromise);
-	        }
-	
-	        ///////
-	        // Now use the `Assertion` framework to build an `assert` interface.
-	        var originalAssertMethods = Object.getOwnPropertyNames(assert).filter(function (propName) {
-	            return typeof assert[propName] === "function";
-	        });
-	
-	        assert.isFulfilled = function (promise, message) {
-	            return (new Assertion(promise, message)).to.be.fulfilled;
-	        };
-	
-	        assert.isRejected = function (promise, toTestAgainst, message) {
-	            if (typeof toTestAgainst === "string") {
-	                message = toTestAgainst;
-	                toTestAgainst = undefined;
-	            }
-	
-	            var assertion = (new Assertion(promise, message));
-	            return toTestAgainst !== undefined ? assertion.to.be.rejectedWith(toTestAgainst) : assertion.to.be.rejected;
-	        };
-	
-	        assert.becomes = function (promise, value, message) {
-	            return assert.eventually.deepEqual(promise, value, message);
-	        };
-	
-	        assert.doesNotBecome = function (promise, value, message) {
-	            return assert.eventually.notDeepEqual(promise, value, message);
-	        };
-	
-	        assert.eventually = {};
-	        originalAssertMethods.forEach(function (assertMethodName) {
-	            assert.eventually[assertMethodName] = function (promise) {
-	                var otherArgs = Array.prototype.slice.call(arguments, 1);
-	
-	                var customRejectionHandler;
-	                var message = arguments[assert[assertMethodName].length - 1];
-	                if (typeof message === "string") {
-	                    customRejectionHandler = function (reason) {
-	                        throw new chai.AssertionError(message + "\n\nOriginal reason: " + utils.inspect(reason));
-	                    };
-	                }
-	
-	                var returnedPromise = promise.then(
-	                    function (fulfillmentValue) {
-	                        return assert[assertMethodName].apply(assert, [fulfillmentValue].concat(otherArgs));
-	                    },
-	                    customRejectionHandler
-	                );
-	
-	                returnedPromise.notify = function (done) {
-	                    doNotify(returnedPromise, done);
-	                };
-	
-	                return returnedPromise;
-	            };
-	        });
-	    }
-	}());
-
 
 /***/ }
 /******/ ]);

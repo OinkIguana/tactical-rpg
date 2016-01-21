@@ -27,6 +27,7 @@ CREATE TABLE accounts (
     username VARCHAR(512) UNIQUE NOT NULL,
     password VARCHAR(512) NOT NULL,
     salt VARCHAR(512) NOT NULL,
+    validation_key VARCHAR(512),
     email VARCHAR(512) UNIQUE NOT NULL,
     join_date TIMESTAMP NOT NULL DEFAULT (NOW()::TIMESTAMP),
     active_date TIMESTAMP
