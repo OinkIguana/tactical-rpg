@@ -1,0 +1,21 @@
+@font-face {
+    font-family: '8bitOperator';
+    src: url(../../font/8bitOperatorPlus8-Regular.ttf);
+}
+@font-face {
+    font-family: 'Open Sans';
+    src: url(../../font/OpenSans-Regular.ttf);
+}
+
+$inputFocus: rgb(255, 255, 255);
+$inputColor: transparentize($inputFocus, 0.5);
+
+$buttonColor: rgb(210, 210, 210);
+$buttonHover: darken($buttonColor, 5%);
+
+$textClickable: rgb(35, 48, 71);
+$textHover: lighten($textClickable, 30%);
+
+@function borderize($c) {
+    @return darken($c, 50%);
+}

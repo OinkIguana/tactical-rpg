@@ -9,6 +9,7 @@ import {promisified as socket} from '../socket';
 import generate from '../generator';
 
 import {VALID_PASSWORD, VALID_USERNAME} from '../const.js';
+import {alignActiveP} from './common';
 
 const $form = $('fieldset#login');
 
@@ -34,8 +35,9 @@ const submit = () => {
             const token = {username: username, password: password};
             yield socket.emit('login:login', token);
             localStorage.setItem('rpg-login-token', token);
-            $('#sec-login').removeClass('active');
+            $('#sec-login,#sec-login p,#login').removeClass('active');
             $('#sec-main-menu').addClass('active');
+            alignActiveP();
         } catch(error) {
             localStorage.removeItem('rpg-login-token');
             $('#login-error').text(error);

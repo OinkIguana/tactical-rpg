@@ -4,11 +4,13 @@
 'use strict';
 import $ from 'jquery';
 
+
 import {promisified as socket} from '../socket';
 
 import generate from '../generator';
 
 import {VALID_USERNAME, VALID_EMAIL, VALID_PASSWORD} from '../const.js';
+import {alignActiveP} from './common';
 
 const $form = $('fieldset#new-account');
 
@@ -52,6 +54,7 @@ const submit = () => {
             yield socket.emit('login:sign-up', {username: username, password: password, email: email});
             // Change the currently active fieldset
             $(`#new-account,#login,#sec-login p`).toggleClass('active');
+            alignActiveP();
         } catch(error) {
             $('#login-error').text(error);
         }

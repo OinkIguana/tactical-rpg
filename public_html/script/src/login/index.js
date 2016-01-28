@@ -8,6 +8,7 @@ import './login';
 import './signup';
 import './forgot-password';
 import './reset-password';
+import {alignActiveP} from './common';
 
 const $p = $('#sec-login p');
 $p.click(function() {
@@ -15,4 +16,6 @@ $p.click(function() {
     $(`fieldset`).removeClass('active');
     $(`fieldset#${$(this).attr('data-for')}`).addClass('active');
     $p.toggleClass('active');
+    alignActiveP();
 });
+alignActiveP();

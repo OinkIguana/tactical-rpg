@@ -14,9 +14,9 @@ import {VALID_PASSWORD} from '../const.js';
 const $form = $('fieldset#reset-password');
 
 const {pathname} = parseUrl(window.location.href);
-const [, reset_password, username, validation_key] = pathname.split('/');
+const [, action, username, validation_key] = pathname.split('/');
 
-if(reset_password === 'reset_password') {
+if(action === 'reset-password') {
     $form.addClass('active');
     $('fieldset#login, #sec-login p').removeClass('active');
     const validate = (password, confirm) => {

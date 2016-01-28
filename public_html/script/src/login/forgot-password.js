@@ -9,6 +9,7 @@ import {promisified as socket} from '../socket';
 import generate from '../generator';
 
 import {VALID_USERNAME, VALID_EMAIL} from '../const.js';
+import {alignActiveP} from './common';
 
 const $form = $('fieldset#forgot-password');
 
@@ -37,6 +38,7 @@ const submit = () => {
             yield socket.emit('login:forgot-password', {username: username, email: email});
             // Change the currently active fieldset
             $(`#forgot-password,#login,#sec-login p`).toggleClass('active');
+            alignActiveP();
         } catch(error) {
             $('#login-error').text(error);
         }

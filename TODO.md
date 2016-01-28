@@ -2,15 +2,15 @@
 
 ## Login
 ### Front end
-* Log in
-* Sign up
-* Forgot password
-* Reset password page
+* ✓ Log in
+* ✓ Sign up
+* ✓ Forgot password
+* ✓ Reset password page
 
 ### Back end
-* Validate login info
-* Add new user to DB
-* Send reset password link to email
+* ✓ Validate login info
+* ✓ Add new user to DB
+* ✓ Send reset password link to email
 
 ## Main menu
 ### Front end
