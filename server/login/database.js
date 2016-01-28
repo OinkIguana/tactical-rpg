@@ -19,21 +19,29 @@ export const login = (username, password) => {
 };
 
 export const createNewUser = (username, password, email) => {
-    return connect(function*({query, exists}) {
+    return connect(function*({query}) {
         const salt = uuid();
-        const hashed = yield hash(password, salt);
-        yield query(`INSERT INTO accounts (username, password, salt, email) VALUES ('${username}', '${password}', '${salt}', '${email}')`);
+        const hashed = (yield hash(password, salt)).toString('hex');
+        yield query(`INSERT INTO accounts (username, password, salt, email) VALUES ('${username}', '${hashed}', '${salt}', '${email}')`);
     });
 };
 
-export const resetPassword = (username, email) => {
-    return connect(function*({query, exists}) {
-        const [{user_id, salt}] = yield query(`SELECT user_id, salt FROM accounts WHERE username = '${username}' AND email = '${email}'`);
-        const password = uuid();
+export const clearPassword = (username, email) => {
+    return connect(function*({query}) {
+        const [{user_id}] = yield query(`SELECT user_id FROM accounts WHERE username = '${username}' AND email = '${email}'`);
         const validation_key = uuid();
-        const hashed = yield hash(password, salt);
-        //yield query(`UPDATE accounts SET password = '${hashed}', validation_key = '${validation_key}' WHERE user_id = ${user_id}`);
+        yield query(`UPDATE accounts SET password = 'CANNOT LOG IN', validation_key = '${validation_key}' WHERE user_id = ${user_id}`);
         return validation_key;
+    });
+};
+
+export const resetPassword = (username, password, validation_key) => {
+    return connect(function*({query}) {
+        if(!validation_key) { throw 'No validation key'; }
+        const [{user_id}] = yield query(`SELECT user_id FROM accounts WHERE username = '${username}' AND validation_key = '${validation_key}'`);
+        const salt = uuid();
+        const hashed = (yield hash(password, salt)).toString('hex');
+        yield query(`UPDATE accounts SET salt = '${salt}', password = '${hashed}', validation_key = NULL WHERE user_id = ${user_id}`);
     });
 };
 

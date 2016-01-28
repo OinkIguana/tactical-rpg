@@ -17,6 +17,8 @@
         "AssertionError": false,
 
         "setTimeout": false,
+        "localStorage": false,
+        "sessionStorage": false,
 
         "describe": false,
         "it": false,

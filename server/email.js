@@ -2,6 +2,7 @@
 
 import {EmailTemplate} from 'email-templates';
 import nodemailer from 'nodemailer';
+import {promisify} from 'bluebird';
 
 import generate from './generator';
 import {OUR_EMAIL} from './config';
@@ -14,10 +15,11 @@ export default (who, templateName, values) => {
             from: OUR_EMAIL,
             to: who,
             subject: "RPG: Password reset",
-            html: message.html,
-            text: message.text
+            html: message.html
         };
-        const transport = nodemailer.createTransport('sendmail');
-        yield transport.sendMail(emailData);
+        // Don't bother sending... Doesn't work yet
+
+        // const transport = nodemailer.createTransport('sendmail');
+        // yield promisify(transport.sendMail)(emailData);
     });
 };

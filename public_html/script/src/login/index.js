@@ -4,11 +4,12 @@
 'use strict';
 import $ from 'jquery';
 
-import login from './login';
-import signup from './signup';
-import forgotPassword from './forgot-password';
+import './login';
+import './signup';
+import './forgot-password';
+import './reset-password';
 
-const $p = $('p');
+const $p = $('#sec-login p');
 $p.click(function() {
     // Change the currently active fieldset
     $(`fieldset`).removeClass('active');

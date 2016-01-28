@@ -17,7 +17,7 @@ export default (generator) => {
         };
 
         // Prepare for the next result
-        const next =  ({done, value}) => {
+        const next = ({done, value}) => {
             if(done) { return resolve(value); }
             value
                 .then(pass, fail)
