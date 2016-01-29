@@ -1,5 +1,5 @@
 /*
-    Deals with creating new accounts
+    Sends the user an email with a link to reset their password if they forgot it
 */
 'use strict';
 import $ from 'jquery';

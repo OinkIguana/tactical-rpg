@@ -34,7 +34,7 @@ const submit = () => {
             yield validate(username, password);
             const token = {username: username, password: password};
             yield socket.emit('login:login', token);
-            localStorage.setItem('rpg-login-token', token);
+            localStorage.setItem('rpg-login-token', JSON.stringify(token));
             $('#sec-login,#sec-login p,#login').removeClass('active');
             $('#sec-main-menu').addClass('active');
             alignActiveP();
@@ -48,12 +48,16 @@ const submit = () => {
 // Attempt to log in in automatically if a login token exists already
 generate(function*() {
     try {
-        if(!localStorage.getItem('rpg-login-token')) { return; }
-        yield socket.emit('login:login', localStorage.getItem('rpg-login-token'));
-        $('#sec-login').removeClass('active');
-        $('#sec-main-menu').addClass('active');
+        if(!localStorage.getItem('rpg-login-token')) { throw 'No token'; }
+        $('#sec-login,#sec-login p,fieldset#login').removeClass('active');
+        $('#sec-main-menu').addClass('active'); // Assume they are logged in
+        yield socket.emit('login:login', JSON.parse(localStorage.getItem('rpg-login-token')));
     } catch(error) {
         localStorage.removeItem('rpg-login-token');
+        // Kick out may be a little delayed but good enough for now
+        $('#sec-login,#sec-login p[data-for!="login"],fieldset#login').addClass('active');
+        $('#sec-main-menu').removeClass('active');
+        alignActiveP();
     }
 });
 

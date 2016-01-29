@@ -47,22 +47,20 @@
 	'use strict';
 	
 	__webpack_require__(1);
-	
+
 	__webpack_require__(8);
-	
+
 	var _jquery = __webpack_require__(198);
-	
+
 	var _jquery2 = _interopRequireDefault(_jquery);
-	
+
 	__webpack_require__(199);
-	
+
 	__webpack_require__(250);
-	
+
 	__webpack_require__(263);
-	
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	(0, _jquery2.default)('#sec-login').addClass('active');
 
 /***/ },
 /* 1 */
@@ -22585,7 +22583,11 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
+	(0, _common.alignActiveP)();
+	
 	var $p = (0, _jquery2.default)('#sec-login p');
+	var ENTER_KEY = 13;
+	
 	$p.click(function () {
 	    // Change the currently active fieldset
 	    (0, _jquery2.default)('fieldset').removeClass('active');
@@ -22593,7 +22595,27 @@
 	    $p.toggleClass('active');
 	    (0, _common.alignActiveP)();
 	});
-	(0, _common.alignActiveP)();
+	
+	// Add keyboard events to each element
+	(0, _jquery2.default)('#sec-login fieldset').each(function () {
+	    (0, _jquery2.default)(this).children('input').each(function (i) {
+	        var _this = this;
+	
+	        // Move to the next box or submit on enter pressed
+	        var last = (0, _jquery2.default)(this).parent().children('input').length - 1;
+	        (0, _jquery2.default)(this).keydown(function (_ref) {
+	            var which = _ref.which;
+	
+	            if (which === ENTER_KEY) {
+	                if (i == last) {
+	                    (0, _jquery2.default)(_this).parent().children('button').click();
+	                } else {
+	                    (0, _jquery2.default)(_this).parent().children('input').eq(i + 1).focus();
+	                }
+	            }
+	        });
+	    });
+	});
 
 /***/ },
 /* 251 */
@@ -22652,7 +22674,7 @@
 	                        return _socket.promisified.emit('login:login', token);
 	
 	                    case 8:
-	                        localStorage.setItem('rpg-login-token', token);
+	                        localStorage.setItem('rpg-login-token', JSON.stringify(token));
 	                        (0, _jquery2.default)('#sec-login,#sec-login p,#login').removeClass('active');
 	                        (0, _jquery2.default)('#sec-main-menu').addClass('active');
 	                        (0, _common.alignActiveP)();
@@ -22688,16 +22710,16 @@
 	                        break;
 	                    }
 	
-	                    return _context2.abrupt('return');
+	                    throw 'No token';
 	
 	                case 3:
-	                    _context2.next = 5;
-	                    return _socket.promisified.emit('login:login', localStorage.getItem('rpg-login-token'));
+	                    (0, _jquery2.default)('#sec-login,#sec-login p,fieldset#login').removeClass('active');
+	                    (0, _jquery2.default)('#sec-main-menu').addClass('active'); // Assume they are logged in
+	                    _context2.next = 7;
+	                    return _socket.promisified.emit('login:login', JSON.parse(localStorage.getItem('rpg-login-token')));
 	
-	                case 5:
-	                    (0, _jquery2.default)('#sec-login').removeClass('active');
-	                    (0, _jquery2.default)('#sec-main-menu').addClass('active');
-	                    _context2.next = 12;
+	                case 7:
+	                    _context2.next = 15;
 	                    break;
 	
 	                case 9:
@@ -22705,8 +22727,12 @@
 	                    _context2.t0 = _context2['catch'](0);
 	
 	                    localStorage.removeItem('rpg-login-token');
+	                    // Kick out may be a little delayed but good enough for now
+	                    (0, _jquery2.default)('#sec-login,#sec-login p[data-for!="login"],fieldset#login').addClass('active');
+	                    (0, _jquery2.default)('#sec-main-menu').removeClass('active');
+	                    (0, _common.alignActiveP)();
 	
-	                case 12:
+	                case 15:
 	                case 'end':
 	                    return _context2.stop();
 	            }
@@ -22775,6 +22801,9 @@
 /* 254 */
 /***/ function(module, exports, __webpack_require__) {
 
+	/*
+	    Common functions used by the login pages
+	*/
 	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
@@ -22788,6 +22817,7 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
+	// Align <p> elements to be at the bottom of the fieldset
 	var alignActiveP = exports.alignActiveP = function alignActiveP() {
 	    return (0, _jquery2.default)('#sec-login p.active').each(function (i) {
 	        (0, _jquery2.default)(this).css({
@@ -22942,7 +22972,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
-	    Deals with creating new accounts
+	    Sends the user an email with a link to reset their password if they forgot it
 	*/
 	'use strict';
 	
@@ -23024,7 +23054,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
-	    Deals with creating new accounts
+	    Resets the password if the url has reset-password in the action slot
 	*/
 	'use strict';
 	

@@ -1,5 +1,5 @@
 /*
-    Deals with creating new accounts
+    Resets the password if the url has reset-password in the action slot
 */
 'use strict';
 import {parse as parseUrl} from 'url';
