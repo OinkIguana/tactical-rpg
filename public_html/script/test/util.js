@@ -3,7 +3,7 @@
 import {should as should_} from 'chai';
 const should = should_();
 
-import util from '../src/util.js';
+import util from '../src/util';
 
 describe('util.js', () => {
     describe('Sequence', () => {

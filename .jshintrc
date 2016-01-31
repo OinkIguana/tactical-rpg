@@ -3,6 +3,7 @@
     "esnext": true,
     "elision": true,
     "expr": true,
+    "laxbreak": true,
     "globals": {
         "console": false,
         "window": false,
@@ -17,6 +18,8 @@
         "AssertionError": false,
 
         "setTimeout": false,
+        "localStorage": false,
+        "sessionStorage": false,
 
         "describe": false,
         "it": false,

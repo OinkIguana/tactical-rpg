@@ -4,8 +4,8 @@ import {should as should_} from 'chai';
 const should = should_();
 import {spy, stub} from 'sinon';
 
-import {setCanvas, canvas, context} from '../src/canvas.js';
-import draw from '../src/draw.js';
+import {setCanvas, canvas, context} from '../src/canvas';
+import draw from '../src/draw';
 // import {Sprite} from '../../../script/src/sprite';
 
 describe('draw.js', () => {

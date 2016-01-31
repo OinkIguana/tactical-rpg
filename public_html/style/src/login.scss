@@ -1,1 +1,78 @@
-#sec-login {}
+#sec-login {
+    background-image: url(../../image/src/login-background.jpg);
+    background-size: cover;
+
+    h1 {
+        font-size: 48px;
+        text-align: center;
+        font-family: '8bitOperator',fantasy;
+        margin-bottom: 50px;
+    }
+    div.container {
+        box-sizing: border-box;
+        position: relative;
+        height: 100%;
+        width: 600px;
+        margin: 0 auto;
+        padding: 50px;
+        background-color: rgba(255, 255, 255, 0.85);
+    }
+    main {
+        position: relative;
+        width: 100%;
+    }
+    fieldset {
+        width: 100%;
+        padding-bottom: 16px;
+
+        legend {
+            display: block;
+            width: 100%;
+            text-align: center;
+            font-size: larger;
+            margin-bottom: 32px;
+        }
+        &~aside {
+            font-size: smaller;
+            position: absolute;
+            top: 32px;
+            z-index: 1;
+        }
+    }
+    input {
+        box-sizing: border-box;
+        display: inline-block;
+        width: 100%;
+        padding: 10px 10px 5px 5px;
+        margin: 10px 0;
+
+        border-width: 0 0 1px 1px;
+        border-style: solid;
+        border-color: borderize($inputColor);
+
+        background-color: $inputColor;
+        &:focus {
+            border-color: borderize($inputFocus);
+            background-color: $inputFocus;
+        }
+    }
+    button {
+        padding: 5px 10px;
+        border: 1px solid borderize($buttonColor);
+        border-radius: 3px;
+        background-color: $buttonColor;
+        &:hover {
+            border-color: borderize($buttonHover);
+            background-color: $buttonHover;
+        }
+    }
+    p {
+        cursor: pointer;
+        margin: 4px 0;
+
+        color: $textClickable;
+        &:hover {
+            color: $textHover;
+        }
+    }
+}

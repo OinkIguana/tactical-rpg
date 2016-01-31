@@ -5,9 +5,14 @@ section {
     top: 0;
     right: 0;
     bottom: 0;
+    width: 100%;
     // Scrollbar goes inside
     overflow-y: auto;
     overflow-x: none;
+
+    * {
+        font-family: 'Open Sans',sans-serif;
+    }
 }
 
 canvas {

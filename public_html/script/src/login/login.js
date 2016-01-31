@@ -8,33 +8,63 @@ import {promisified as socket} from '../socket';
 
 import generate from '../generator';
 
-const PASSWORD_MIN_LENGTH = 8;
-const VALID_USERNAME = /[\S]{3,}/;
+import {VALID_PASSWORD, VALID_USERNAME} from '../const';
+import {reset, alignActiveP} from './common';
+import {load as loadMenu} from '../main-menu';
 
 const $form = $('fieldset#login');
+
 const validate = (username, password) => {
-    // Don't bother sending guaranteed invalid data to the server
-    if(!VALID_USERNAME.test(username) || password.length < PASSWORD_MIN_LENGTH) {
-        throw 'Your username or password is incorrect';
-    }
+    return new Promise((resolve, reject) => {
+        // Don't bother sending guaranteed invalid data to the server
+        if(!VALID_USERNAME.test(username) || !VALID_PASSWORD.test(password)) {
+            return reject('Your username or password is incorrect');
+        }
+        resolve();
+    });
 };
 
 const submit = () => {
+    $('#login-error').text('');
     generate(function*() {
         try {
             const [username, password] = [
                 $('#username').val(),
                 $('#password').val()
             ];
-            validate(username, password);
+            yield validate(username, password);
             yield socket.emit('login:login', {username: username, password: password});
-            $('#sec-login').removeClass('active');
-            $('#sec-main-menu').addClass('active');
+            localStorage.setItem('rpg-username', username);
+            localStorage.setItem('rpg-password', password);
+            $('#sec-login,#sec-login *').removeClass('active');
+            loadMenu();
         } catch(error) {
+            localStorage.removeItem('rpg-username');
+            localStorage.removeItem('rpg-password');
             $('#login-error').text(error);
         }
     });
 };
+
+// Attempt to log in in automatically if a login token exists already
+generate(function*() {
+    try {
+        if(!localStorage.getItem('rpg-username') || !localStorage.getItem('rpg-password')) { throw 'No token'; }
+        // Assume they are logged in correctly
+        $('#sec-login,#sec-login *').removeClass('active');
+        loadMenu();
+        // But check to make sure
+        yield socket.emit('login:login', {
+            username: localStorage.getItem('rpg-username'),
+            password: localStorage.getItem('rpg-password'),
+        });
+    } catch(error) {
+        localStorage.removeItem('rpg-username');
+        localStorage.removeItem('rpg-password');
+        // Kick out may be a little delayed but good enough for now
+        reset();
+    }
+});
 
 $form.children('button')
     .click(submit);

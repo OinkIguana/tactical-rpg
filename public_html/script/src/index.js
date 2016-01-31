@@ -5,8 +5,9 @@ import 'babel-polyfill';
 
 import $ from 'jquery';
 
-import './socket.js';
-import './login';
-import './canvas.js';
+import './socket';
 
-$('#sec-login').addClass('active');
+import './login';
+import './main-menu';
+
+import './canvas';
