@@ -10,7 +10,8 @@ chai.use(asPromised);
 chai.use(sinon);
 
 // Import tests
-import './canvas.js';
-import './draw.js';
-import './generator.js';
-import './util.js';
+import './canvas';
+import './draw';
+import './generator';
+import './util';
+import './drawable';

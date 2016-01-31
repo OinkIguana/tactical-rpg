@@ -38,14 +38,21 @@ export const textWidth = (str) => {
     return context.measureText(str).width;
 };
 
-export const image = (...args) => {
-    context.drawImage(...args);
+export const image = ({img, sx, sy, swidth, sheight, x, y, width, height}) => {
+    if (sx === undefined) sx = 0;
+    if (sy === undefined) sy = 0;
+    if (swidth === undefined) swidth = (width === undefined) ? img.width : width;
+    if (sheight === undefined) sheight = (height === undefined) ? img.height : height;
+    if (width === undefined) width = (swidth === undefined) ? img.width : swidth;
+    if (height === undefined) height = (sheight === undefined) ? img.height : sheight;
+
+    context.drawImage(img, sx, sy, swidth, sheight, x, y, width, height);
 };
 
-export const sprite = (spr, subimage, x, y, w, h) => {
-    if(spr.image instanceof Image) {
-        context.drawImage(spr.image, ...spr.frames[subimage], x, y, w || spr.frames[subimage].w, h || spr.frames[subimage].h);
-    }
+export const sprite = (imageSet, subImageBounds, x, y, w, h) => {
+    context.drawImage(imageSet, subImageBounds.x + x, subImageBounds.y + y,
+            subImageBounds.width, subImageBounds.height, x - subImageBounds.x,
+            y - subImageBounds.y, w || subImageBounds.w, h || subImageBounds.h);
 };
 
 export const pixelData = (pd, x, y) => {
@@ -214,7 +221,7 @@ export const Path = class {
     [GENERATE]() { for(let item of this[STACK]) { item(); } }
 };
 
-// Wrapper around built in context2d.ImageData
+// Wrapper around built-in context2d.ImageData
 export const PixelData = class {
     constructor(...args) {
         this[IMAGE_DATA] = (args.length === 4) ? context.getImageData(...args) : context.createImageData(...args);
