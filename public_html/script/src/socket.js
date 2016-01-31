@@ -20,7 +20,13 @@ export const promisified = {
     },
     once(event) {
         return new Promise((resolve, reject) => {
-            socket.once(event, resolve);
+            socket.once(event, (error, value) => {
+                if(!!error) {
+                    reject(error);
+                } else {
+                    resolve(value);
+                }
+            });
         });
     },
     // Non-promisifiable functions just pass through

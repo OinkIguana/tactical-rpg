@@ -2,9 +2,19 @@
 
 import {should as should_} from 'chai';
 const should = should_();
+import pg from 'pg';
+import {spy, stub} from 'sinon';
 import connect from '../server/database.js';
 
+
 describe('database.js', () => {
+    let pgspy;
+    beforeEach(() => {
+        pgspy = spy(pg, 'connect');
+    });
+    afterEach(() => {
+        pgspy.restore();
+    });
     it('should export a function', () => {
         connect.should.be.an.instanceof(Function);
     });
@@ -23,6 +33,28 @@ describe('database.js', () => {
             yield Promise.resolve(1);
             return 15;
         }).should.eventually.become(15);
+    });
+    it('should open a connection to the database', () => {
+        return connect(function*(query) {
+            yield query.query('SELECT 1 AS num');
+        }).then(() => {
+            pgspy.should.have.been.calledOnce;
+        }).should.eventually.be.resolved;
+    });
+    it('should call close', () => {
+        const close = spy();
+        pgspy.restore();
+        pgspy = stub(pg, 'connect').returns(
+            Promise.resolve([{
+                query() {
+                    return Promise.resolve([{num: 1}]);
+                }
+            }, close]));
+        return connect(function*(query) {
+            yield query.query('SELECT 1 AS num');
+        }).then(() => {
+            close.should.have.been.calledOnce;
+        }).should.eventually.be.resolved;
     });
     it('should pass a set of query functions to the generator', () => {
         return connect(function*(query) {
@@ -68,7 +100,7 @@ describe('database.js', () => {
             }).should.eventually.be.fulfilled;
         });
     });
-    describe('#exists', () => {
+    describe('#count', () => {
         it('should return a promise', () => {
             return connect(function*({count}) {
                 const q = count('SELECT 1 AS num');

@@ -1,26 +1,38 @@
 <section id="sec-login" class="toggleable">
-    <p id="login-error"></p>
-    <fieldset id="login" class="toggleable active">
-        <legend>Log in</legend>
-        <input id="username" type="text" autocomplete="off" placeholder="Username" autofocus>
-        <input id="password" type="password" autocomplete="off" placeholder="Password">
-        <button>Log in</button>
-    </fieldset>
-    <fieldset id="new-account" class="toggleable">
-        <legend>Sign up</legend>
-        <input id="new-username" type="text" autocomplete="off" placeholder="Username">
-        <input id="new-password" type="password" autocomplete="off" placeholder="Password">
-        <input id="new-confirm-password" type="password" autocomplete="off" placeholder="Confirm Password">
-        <input id="new-email" type="email" autocomplete="off" placeholder="Email">
-        <button>Create account</button>
-    </fieldset>
-    <fieldset id="forgot-password" class="toggleable">
-        <legend>Forgot password</legend>
-        <input id="forgot-username" type="text" autocomplete="off" placeholder="Username">
-        <input id="forgot-email" type="email" autocomplete="off" placeholder="Email">
-        <button>Request password</button>
-    </fieldset>
-    <p data-for="login" class="toggleable">Back</p>
-    <p data-for="new-account" class="toggleable active">Create an account</p>
-    <p data-for="forgot-password" class="toggleable active">Forgot password</p>
+    <div>
+        <h1>RPG</h1>
+        <main>
+            <aside id="login-error"></aside>
+            <fieldset id="login" class="toggleable active">
+                <legend>Log in</legend>
+                <input id="username" type="text" autocomplete="off" placeholder="Username" autofocus>
+                <input id="password" type="password" autocomplete="off" placeholder="Password">
+                <button>Log in</button>
+            </fieldset>
+            <fieldset id="new-account" class="toggleable">
+                <legend>Sign up</legend>
+                <input id="new-username" type="text" autocomplete="off" placeholder="Username">
+                <input id="new-password" type="password" autocomplete="off" placeholder="Password">
+                <input id="new-confirm-password" type="password" autocomplete="off" placeholder="Confirm Password">
+                <input id="new-email" type="email" autocomplete="off" placeholder="Email">
+                <input id="new-confirm-email" type="email" autocomplete="off" placeholder="Confirm Email">
+                <button>Create account</button>
+            </fieldset>
+            <fieldset id="forgot-password" class="toggleable">
+                <legend>Forgot password</legend>
+                <input id="forgot-username" type="text" autocomplete="off" placeholder="Username">
+                <input id="forgot-email" type="email" autocomplete="off" placeholder="Email">
+                <button>Request password</button>
+            </fieldset>
+            <fieldset id="reset-password" class="toggleable">
+                <legend>Reset password</legend>
+                <input id="re-password" type="password" autocomplete="off" placeholder="Password">
+                <input id="re-confirm-password" type="password" autocomplete="off" placeholder="Confirm Password">
+                <button>Reset password</button>
+            </fieldset>
+            <p data-for="login" class="toggleable">Back</p>
+            <p data-for="new-account" class="toggleable active">Create an account</p>
+            <p data-for="forgot-password" class="toggleable active">Forgot password</p>
+        </main>
+    </div>
 </section>

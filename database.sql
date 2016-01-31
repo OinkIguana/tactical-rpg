@@ -7,6 +7,10 @@
             game_players
 */
 
+-- Reset
+DROP DATABASE rpg;
+DROP ROLE rpg;
+
 -------------------------------- Database Setup --------------------------------
 
 CREATE DATABASE rpg;
@@ -19,7 +23,17 @@ GRANT ALL PRIVILEGES ON DATABASE rpg TO rpg;
 \c rpg;
 SET ROLE rpg;
 
+------------------------------- Helper Functions -------------------------------
+
+-- CREATE FUNCTION random_string(INTEGER) RETURNS TEXT LANGUAGE SQL AS $$
+--     SELECT upper(
+--         substring(
+--             (SELECT string_agg(md5(random()::TEXT), '')
+--                 FROM generate_series(1, CEIL($1 / 32.)::INTEGER)), $1));
+-- $$;
+
 ---------------------------------- User Data -----------------------------------
+
 
 -- Personal data not used in game
 CREATE TABLE accounts (

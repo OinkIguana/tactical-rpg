@@ -5,9 +5,14 @@ section {
     top: 0;
     right: 0;
     bottom: 0;
+    width: 100%;
     // Scrollbar goes inside
     overflow-y: auto;
     overflow-x: none;
+
+    * {
+        font-family: 'Open Sans',sans-serif;
+    }
 }
 
 canvas {
@@ -20,4 +25,10 @@ canvas {
     top: 0;
     width: 100%;
     height: 100%;
+}
+
+h1 {
+    font-size: 48px;
+    text-align: center;
+    font-family: '8bitOperator',fantasy;
 }
