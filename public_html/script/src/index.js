@@ -7,6 +7,8 @@ import $ from 'jquery';
 
 import './socket';
 
+import './friends';
+
 import './login';
 import './main-menu';
 

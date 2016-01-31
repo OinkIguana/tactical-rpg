@@ -1,3 +1,4 @@
+@charset "UTF-8";
 /* http://meyerweb.com/eric/tools/css/reset/
    v2.0 | 20110126
    License: none (public domain)
@@ -74,6 +75,88 @@ canvas {
   top: 0;
   width: 100%;
   height: 100%; }
+
+section#sec-friends {
+  pointer-events: none; }
+  #sec-login.active ~ section#sec-friends {
+    display: none; }
+  section#sec-friends footer {
+    position: absolute;
+    bottom: 0;
+    height: 28px;
+    width: 100%;
+    text-align: right;
+    overflow: visible; }
+    section#sec-friends footer aside, section#sec-friends footer div {
+      box-sizing: border-box;
+      display: inline-block;
+      position: relative;
+      width: 180px;
+      height: 28px;
+      pointer-events: auto;
+      text-align: left; }
+      section#sec-friends footer aside:not(aside), section#sec-friends footer div:not(aside) {
+        margin-right: 16px; }
+      section#sec-friends footer aside:not(div), section#sec-friends footer div:not(div) {
+        width: 220px; }
+      section#sec-friends footer aside header, section#sec-friends footer div header {
+        box-sizing: border-box;
+        position: relative;
+        display: inline-block;
+        width: 100%;
+        height: 28px;
+        padding-left: 8px;
+        font-size: smaller;
+        line-height: 26px;
+        cursor: pointer;
+        border: 1px solid;
+        background-color: white;
+        border-color: gray;
+        border-bottom: 0;
+        border-radius: 3px 3px 0 0;
+        color: #233047; }
+        section#sec-friends footer aside header span.close, section#sec-friends footer div header span.close {
+          box-sizing: border-box;
+          position: absolute;
+          visibility: hidden;
+          right: 0;
+          margin: 4px;
+          height: 20px;
+          width: 20px;
+          line-height: 16px;
+          vertical-align: middle;
+          border: 1px solid transparent;
+          border-radius: 2px; }
+          section#sec-friends footer aside header span.close:hover, section#sec-friends footer div header span.close:hover {
+            border-color: #5776ac;
+            color: #5776ac; }
+        section#sec-friends footer aside header:hover span, section#sec-friends footer div header:hover span {
+          visibility: visible; }
+      section#sec-friends footer aside main, section#sec-friends footer div main {
+        display: none;
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 28px;
+        border-width: 0 1px;
+        border-style: solid;
+        background-color: white;
+        border-color: gray; }
+    section#sec-friends footer div.open {
+      width: 260px;
+      top: -272px; }
+      section#sec-friends footer div.open header {
+        border-bottom: 1px solid; }
+      section#sec-friends footer div.open main {
+        height: 272px;
+        display: block; }
+    section#sec-friends footer aside.open {
+      top: -572px; }
+      section#sec-friends footer aside.open header {
+        border-bottom: 1px solid; }
+      section#sec-friends footer aside.open main {
+        height: 572px;
+        display: block; }
 
 #sec-login {
   background-image: url(/image/login-background.jpg);
@@ -156,8 +239,8 @@ canvas {
       bottom: 100px;
       width: 100%;
       padding: 20px 50px;
-      border-radius: 25px;
-      box-shadow: 0 0 25px 25px rgba(255, 255, 255, 0.85);
+      border-radius: 5px;
+      box-shadow: 0 0 5px 5px rgba(255, 255, 255, 0.85);
       background-color: rgba(255, 255, 255, 0.85); }
       #sec-main-menu main div:not(#saved-games)#settings {
         top: 250px; }
@@ -233,11 +316,25 @@ section.toggleable {
   section.toggleable.active {
     pointer-events: auto;
     visibility: visible; }
-section, section * {
-  visibility: hidden !important; }
 
-#mocha {
-  z-index: 10000;
-  background-color: white; }
+.user {
+  position: relative;
+  padding-left: 20px; }
+  .user::before {
+    content: "\25CF";
+    position: absolute;
+    left: 0;
+    line-height: 16pt;
+    text-align: center;
+    font-size: 16pt;
+    color: #818181; }
+  .user.online::before {
+    color: #1dab2a; }
+
+.icon {
+  display: inline-block;
+  text-align: center; }
+  .icon.close::after {
+    content: 'x'; }
 
 /*# sourceMappingURL=main.css.map*/

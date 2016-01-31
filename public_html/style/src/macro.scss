@@ -16,6 +16,9 @@ $buttonHover: darken($buttonColor, 5%);
 $textClickable: rgb(35, 48, 71);
 $textHover: lighten($textClickable, 30%);
 
+$onlineColor: rgb(29, 171, 42);
+$offlineColor: rgb(129, 129, 129);
+
 @function borderize($c) {
     @return darken($c, 50%);
 }

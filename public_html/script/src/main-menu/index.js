@@ -14,6 +14,7 @@ import './logout';
 import {promisified as socket} from '../socket';
 import generate from '../generator';
 import {createGameList} from './continue-game';
+import {onLogin} from '../login';
 
 const ENTER_KEY = 13;
 const $labels = $('#sec-main-menu p[data-for]');
@@ -30,13 +31,13 @@ $labels.click(function() {
 });
 
 // Loads the current games in progress from the server
-export const load = () => {
+onLogin(() => {
     generate(function*() {
         $('#sec-main-menu,#main-menu').addClass('active');
         const games = yield socket.emit('main-menu:games-in-progress', localStorage.getItem('rpg-username'));
         createGameList(games);
     });
-};
+});
 
 // Add keyboard events to settings page
 $('#settings fieldset')

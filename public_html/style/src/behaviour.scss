@@ -4,6 +4,7 @@
         display: block;
     }
 }
+
 section.toggleable {
     display: block;
     pointer-events: none;
@@ -12,4 +13,29 @@ section.toggleable {
         pointer-events: auto;
         visibility: visible;
     }
+}
+
+.user {
+    position: relative;
+    padding-left: 20px;
+    &::before {
+        content: "●";
+
+        position: absolute;
+        left: 0;
+        line-height: 16pt;
+        text-align: center;
+        font-size: 16pt;
+
+        color: $offlineColor;
+    }
+    &.online::before {
+        color: $onlineColor;
+    }
+}
+
+.icon {
+    display: inline-block;
+    text-align: center;
+    &.close::after { content: 'x'; }
 }
