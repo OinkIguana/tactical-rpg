@@ -11,5 +11,8 @@ chai.use(chaiAsPromised);
 // Import tests
 import './generator';
 import './database';
+import './user';
 
+import './query';
 import './login';
+import './main-menu';

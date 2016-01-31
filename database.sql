@@ -54,6 +54,11 @@ INSERT INTO accounts
     (username, password, salt, email) VALUES
     (':)', 'e56a9225cf72f3f038d95101daab71254d81a35e811043884daae7326aa15ae132bbd16ab68bb3c8e09d71c6f49aa259e9117d8bde800a15e9071617425865e3',
      'salty', 'a@b.c');
+-- Testing account 2
+INSERT INTO accounts
+    (username, password, salt, email) VALUES
+    (':))', 'e56a9225cf72f3f038d95101daab71254d81a35e811043884daae7326aa15ae132bbd16ab68bb3c8e09d71c6f49aa259e9117d8bde800a15e9071617425865e3',
+     'salty', 'e@f.g');
 
 -- Connect friends to be notified of their online status
 CREATE TABLE friends (

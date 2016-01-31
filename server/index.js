@@ -4,7 +4,10 @@ import socket_io from 'socket.io';
 
 import {PORT} from './config';
 
+import query from './query';
 import login from './login';
+import mainMenu from './main-menu';
+import {socketUser, removeUser} from './user';
 
 const app = express();
 const server = app.listen(PORT, () => { console.log(`Server started at ${PORT}`); });
@@ -24,5 +27,13 @@ const io = socket_io(server);
 io.on('connection', (socket) => {
     // Error catch
     socket.on('error', console.error);
+    socket.on('disconnect', () => {
+        const user = socketUser(socket);
+        if(user !== undefined) {
+            removeUser(user);
+        }
+    });
+    query(socket);
     login(socket);
+    mainMenu(socket);
 });

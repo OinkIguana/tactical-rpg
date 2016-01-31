@@ -5,6 +5,9 @@ import 'babel-polyfill';
 
 import $ from 'jquery';
 
-import './socket.js';
+import './socket';
+
 import './login';
-import './canvas.js';
+import './main-menu';
+
+import './canvas';

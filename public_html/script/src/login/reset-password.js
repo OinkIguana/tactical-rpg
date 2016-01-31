@@ -9,7 +9,7 @@ import {promisified as socket} from '../socket';
 
 import generate from '../generator';
 
-import {VALID_PASSWORD} from '../const.js';
+import {VALID_PASSWORD} from '../const';
 
 const $form = $('fieldset#reset-password');
 

@@ -9,8 +9,8 @@ import {promisified as socket} from '../socket';
 
 import generate from '../generator';
 
-import {VALID_USERNAME, VALID_EMAIL, VALID_PASSWORD} from '../const.js';
-import {alignActiveP} from './common';
+import {VALID_USERNAME, VALID_EMAIL, VALID_PASSWORD} from '../const';
+import {reset} from './common';
 
 const $form = $('fieldset#new-account');
 
@@ -32,7 +32,7 @@ const validate = (username, password, confirm, email, emailConfirm) => {
         if(password !== confirm) {
             throw 'Your passwords do not match';
         }
-        const exists = yield socket.emit('login:user-exists', username);
+        const exists = yield socket.emit('query:user-exists', username);
         if(exists) {
             throw 'This user already exists';
         }
@@ -53,8 +53,7 @@ const submit = () => {
             yield validate(username, password, confirm, email, emailConfirm);
             yield socket.emit('login:sign-up', {username: username, password: password, email: email});
             // Change the currently active fieldset
-            $(`#new-account,#login,#sec-login p`).toggleClass('active');
-            alignActiveP();
+            reset();
         } catch(error) {
             $('#login-error').text(error);
         }

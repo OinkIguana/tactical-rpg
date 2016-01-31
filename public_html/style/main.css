@@ -75,15 +75,13 @@ canvas {
   width: 100%;
   height: 100%; }
 
-h1 {
-  font-size: 48px;
-  text-align: center;
-  font-family: '8bitOperator',fantasy; }
-
 #sec-login {
   background-image: url(/image/login-background.jpg);
   background-size: cover; }
   #sec-login h1 {
+    font-size: 48px;
+    text-align: center;
+    font-family: '8bitOperator',fantasy;
     margin-bottom: 50px; }
   #sec-login div {
     box-sizing: border-box;
@@ -146,5 +144,10 @@ h1 {
   .toggleable.active {
     pointer-events: auto;
     visibility: visible; }
+
+.selectable {
+  cursor: pointer; }
+  .selectable.selected {
+    cursor: auto; }
 
 /*# sourceMappingURL=main.css.map*/

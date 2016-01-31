@@ -9,16 +9,19 @@ import './signup';
 import './forgot-password';
 import './reset-password';
 import {alignActiveP} from './common';
+
+export * from './common';
+
 alignActiveP();
 
-const $p = $('#sec-login p');
+const $labels = $('#sec-login p');
 const ENTER_KEY = 13;
 
-$p.click(function() {
+$labels.click(function() {
     // Change the currently active fieldset
-    $(`fieldset`).removeClass('active');
+    $(`#sec-login fieldset`).removeClass('active');
     $(`fieldset#${$(this).attr('data-for')}`).addClass('active');
-    $p.toggleClass('active');
+    $labels.toggleClass('active');
     alignActiveP();
 });
 

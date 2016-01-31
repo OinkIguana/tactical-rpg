@@ -6,12 +6,14 @@ import {spy, stub} from 'sinon';
 import nodemailer from 'nodemailer';
 import uuid from 'node-uuid';
 import login from '../../server/login';
+import user from '../../server/user';
 
+const SOCKET_ID = 'TESTING_SOCKET';
 const [USER, PASS, EMAIL, VALIDATION_KEY] = [':)', ':)', 'a@b.c', 'TESTING_VALIDATION_KEY'];
 const [BAD_USER, BAD_PASS, BAD_EMAIL, BAD_VALIDATION_KEY] = [':(', ':(', 'd@e.f', 'null'];
 const [NEW_USER, NEW_PASS, NEW_EMAIL] = ['test_a', 'secretpassword', 'test@test.com'];
 
-const socket = { on: stub() };
+const socket = { on: stub(), id: SOCKET_ID };
 const sendMail = {
     sendMail() { return Promise.resolve(); }
 };
@@ -23,11 +25,17 @@ after(() => {
 const events = {
     'login:login': [{
         args: {username: USER, password: PASS},
+        after() {
+            user.removeUser(USER);
+        },
         tests(response) {
             describe('when the credentials are correct,', () => {
                 it('should call response with no errors', () => {
                     response.should.have.been.calledOnce;
                     should.not.exist(response.args[0][0]);
+                });
+                it('should add the user to the currently connected users', () => {
+                    user.socketUser(socket).should.equal(USER);
                 });
             });
         }
@@ -163,27 +171,6 @@ const events = {
                 it('should call response with an error', () => {
                     response.should.have.been.calledOnce;
                     response.args[0][0].should.be.a('string');
-                });
-            });
-        }
-    }],
-    'login:user-exists': [{
-        args: USER,
-        tests(response) {
-            describe('when the user exists,', () => {
-                it('should call response with (null,true)', () => {
-                    response.should.have.been.calledOnce;
-                    response.args[0].should.deep.equal([null, true]);
-                });
-            });
-        }
-    }, {
-        args: BAD_USER,
-        tests(response) {
-            describe('when the user does not exist,', () => {
-                it('should call response with (null,false)', () => {
-                    response.should.have.been.calledOnce;
-                    response.args[0].should.deep.equal([null, false]);
                 });
             });
         }

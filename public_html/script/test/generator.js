@@ -3,7 +3,7 @@
 import {should as should_} from 'chai';
 const should = should_();
 
-import generate from '../src/generator.js';
+import generate from '../src/generator';
 
 describe('generator.js', () => {
     it('should run a generator that yields promises', () => {

@@ -58,7 +58,9 @@
 
 	__webpack_require__(250);
 
-	__webpack_require__(263);
+	__webpack_require__(255);
+
+	__webpack_require__(273);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -22567,32 +22569,52 @@
 	*/
 	'use strict';
 	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	var _common = __webpack_require__(251);
+	
+	var _loop = function _loop(_key2) {
+	    if (_key2 === "default") return 'continue';
+	    Object.defineProperty(exports, _key2, {
+	        enumerable: true,
+	        get: function get() {
+	            return _common[_key2];
+	        }
+	    });
+	};
+	
+	for (var _key2 in _common) {
+	    var _ret = _loop(_key2);
+	
+	    if (_ret === 'continue') continue;
+	}
+	
 	var _jquery = __webpack_require__(198);
 	
 	var _jquery2 = _interopRequireDefault(_jquery);
 	
-	__webpack_require__(251);
+	__webpack_require__(252);
 	
-	__webpack_require__(255);
+	__webpack_require__(265);
 	
-	__webpack_require__(256);
+	__webpack_require__(266);
 	
-	__webpack_require__(257);
-	
-	var _common = __webpack_require__(254);
+	__webpack_require__(267);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	(0, _common.alignActiveP)();
 	
-	var $p = (0, _jquery2.default)('#sec-login p');
+	var $labels = (0, _jquery2.default)('#sec-login p');
 	var ENTER_KEY = 13;
 	
-	$p.click(function () {
+	$labels.click(function () {
 	    // Change the currently active fieldset
-	    (0, _jquery2.default)('fieldset').removeClass('active');
+	    (0, _jquery2.default)('#sec-login fieldset').removeClass('active');
 	    (0, _jquery2.default)('fieldset#' + (0, _jquery2.default)(this).attr('data-for')).addClass('active');
-	    $p.toggleClass('active');
+	    $labels.toggleClass('active');
 	    (0, _common.alignActiveP)();
 	});
 	
@@ -22622,6 +22644,44 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
+	    Common functions used by the login pages
+	*/
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.reset = exports.alignActiveP = undefined;
+	
+	var _jquery = __webpack_require__(198);
+	
+	var _jquery2 = _interopRequireDefault(_jquery);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	// Align <p> elements to be at the bottom of the fieldset
+	var alignActiveP = exports.alignActiveP = function alignActiveP() {
+	    (0, _jquery2.default)('#sec-login p.active').each(function (i) {
+	        (0, _jquery2.default)(this).css({
+	            top: i * (0, _jquery2.default)(this).outerHeight(true) + (0, _jquery2.default)('#sec-login fieldset.active').outerHeight(true)
+	        });
+	    });
+	};
+	
+	// Set the login page back to its default state
+	var reset = exports.reset = function reset() {
+	    (0, _jquery2.default)('.toggleable').removeClass('active');
+	    (0, _jquery2.default)('#sec-login,#sec-login p[data-for!="login"],fieldset#login').addClass('active');
+	    (0, _jquery2.default)('#login-error').text('');
+	    (0, _jquery2.default)('input').val('');
+	    alignActiveP();
+	};
+
+/***/ },
+/* 252 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/*
 	    Deals with logging in existing users
 	*/
 	'use strict';
@@ -22632,13 +22692,15 @@
 	
 	var _socket = __webpack_require__(199);
 	
-	var _generator = __webpack_require__(252);
+	var _generator = __webpack_require__(253);
 	
 	var _generator2 = _interopRequireDefault(_generator);
 	
-	var _const = __webpack_require__(253);
+	var _const = __webpack_require__(254);
 	
-	var _common = __webpack_require__(254);
+	var _common = __webpack_require__(251);
+	
+	var _mainMenu = __webpack_require__(255);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -22657,7 +22719,7 @@
 	var submit = function submit() {
 	    (0, _jquery2.default)('#login-error').text('');
 	    (0, _generator2.default)(regeneratorRuntime.mark(function _callee() {
-	        var username, password, token;
+	        var username, password;
 	        return regeneratorRuntime.wrap(function _callee$(_context) {
 	            while (1) {
 	                switch (_context.prev = _context.next) {
@@ -22669,23 +22731,23 @@
 	                        return validate(username, password);
 	
 	                    case 5:
-	                        token = { username: username, password: password };
-	                        _context.next = 8;
-	                        return _socket.promisified.emit('login:login', token);
+	                        _context.next = 7;
+	                        return _socket.promisified.emit('login:login', { username: username, password: password });
 	
-	                    case 8:
-	                        localStorage.setItem('rpg-login-token', JSON.stringify(token));
-	                        (0, _jquery2.default)('#sec-login,#sec-login p,#login').removeClass('active');
-	                        (0, _jquery2.default)('#sec-main-menu').addClass('active');
-	                        (0, _common.alignActiveP)();
+	                    case 7:
+	                        localStorage.setItem('rpg-username', username);
+	                        localStorage.setItem('rpg-password', password);
+	                        (0, _jquery2.default)('#sec-login,#sec-login *').removeClass('active');
+	                        (0, _mainMenu.load)();
 	                        _context.next = 18;
 	                        break;
 	
-	                    case 14:
-	                        _context.prev = 14;
+	                    case 13:
+	                        _context.prev = 13;
 	                        _context.t0 = _context['catch'](0);
 	
-	                        localStorage.removeItem('rpg-login-token');
+	                        localStorage.removeItem('rpg-username');
+	                        localStorage.removeItem('rpg-password');
 	                        (0, _jquery2.default)('#login-error').text(_context.t0);
 	
 	                    case 18:
@@ -22693,7 +22755,7 @@
 	                        return _context.stop();
 	                }
 	            }
-	        }, _callee, this, [[0, 14]]);
+	        }, _callee, this, [[0, 13]]);
 	    }));
 	};
 	
@@ -22705,7 +22767,7 @@
 	                case 0:
 	                    _context2.prev = 0;
 	
-	                    if (localStorage.getItem('rpg-login-token')) {
+	                    if (!(!localStorage.getItem('rpg-username') || !localStorage.getItem('rpg-password'))) {
 	                        _context2.next = 3;
 	                        break;
 	                    }
@@ -22713,26 +22775,30 @@
 	                    throw 'No token';
 	
 	                case 3:
-	                    (0, _jquery2.default)('#sec-login,#sec-login p,fieldset#login').removeClass('active');
-	                    (0, _jquery2.default)('#sec-main-menu').addClass('active'); // Assume they are logged in
+	                    // Assume they are logged in correctly
+	                    (0, _jquery2.default)('#sec-login,#sec-login *').removeClass('active');
+	                    (0, _jquery2.default)('#sec-main-menu,#main-menu').addClass('active');
+	                    // But check to make sure
 	                    _context2.next = 7;
-	                    return _socket.promisified.emit('login:login', JSON.parse(localStorage.getItem('rpg-login-token')));
+	                    return _socket.promisified.emit('login:login', {
+	                        username: localStorage.getItem('rpg-username'),
+	                        password: localStorage.getItem('rpg-password')
+	                    });
 	
 	                case 7:
-	                    _context2.next = 15;
+	                    _context2.next = 14;
 	                    break;
 	
 	                case 9:
 	                    _context2.prev = 9;
 	                    _context2.t0 = _context2['catch'](0);
 	
-	                    localStorage.removeItem('rpg-login-token');
+	                    localStorage.removeItem('rpg-username');
+	                    localStorage.removeItem('rpg-password');
 	                    // Kick out may be a little delayed but good enough for now
-	                    (0, _jquery2.default)('#sec-login,#sec-login p[data-for!="login"],fieldset#login').addClass('active');
-	                    (0, _jquery2.default)('#sec-main-menu').removeClass('active');
-	                    (0, _common.alignActiveP)();
+	                    (0, _common.reset)();
 	
-	                case 15:
+	                case 14:
 	                case 'end':
 	                    return _context2.stop();
 	            }
@@ -22743,7 +22809,7 @@
 	$form.children('button').click(submit);
 
 /***/ },
-/* 252 */
+/* 253 */
 /***/ function(module, exports) {
 
 	/*
@@ -22785,7 +22851,7 @@
 	};
 
 /***/ },
-/* 253 */
+/* 254 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -22798,18 +22864,86 @@
 	var VALID_EMAIL = exports.VALID_EMAIL = /[\d\w\-]+@[\d\w]+\.[\d\w]+/; // Incomplete, but fine for now
 
 /***/ },
-/* 254 */
+/* 255 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
-	    Common functions used by the login pages
+	    Manages the main menu, allowing users to start/continue games, manage
+	    settings, manage friends, view stats, and logout
 	*/
 	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
-	exports.alignActiveP = undefined;
+	exports.load = undefined;
+	
+	var _jquery = __webpack_require__(198);
+	
+	var _jquery2 = _interopRequireDefault(_jquery);
+	
+	__webpack_require__(256);
+	
+	var _continueGame = __webpack_require__(257);
+	
+	__webpack_require__(259);
+	
+	__webpack_require__(260);
+	
+	__webpack_require__(264);
+	
+	var _socket = __webpack_require__(199);
+	
+	var _generator = __webpack_require__(253);
+	
+	var _generator2 = _interopRequireDefault(_generator);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var $labels = (0, _jquery2.default)('#sec-main-menu p[data-for]');
+	var $links = (0, _jquery2.default)('#sec-main-menu p[data-action]');
+	
+	$labels.click(function () {
+	    // Change the currently active fieldset
+	    (0, _jquery2.default)('#sec-main-menu div,#settings fieldset').removeClass('active');
+	    (0, _jquery2.default)('#' + (0, _jquery2.default)(this).attr('data-for')).addClass('active');
+	    $labels.toggleClass('active');
+	});
+	
+	// Loads the current games in progress from the server
+	var load = exports.load = function load() {
+	    (0, _generator2.default)(regeneratorRuntime.mark(function _callee() {
+	        var games;
+	        return regeneratorRuntime.wrap(function _callee$(_context) {
+	            while (1) {
+	                switch (_context.prev = _context.next) {
+	                    case 0:
+	                        (0, _jquery2.default)('#sec-main-menu,#main-menu').addClass('active');
+	                        _context.next = 3;
+	                        return _socket.promisified.emit('main-menu:games-in-progress');
+	
+	                    case 3:
+	                        games = _context.sent;
+	
+	                        (0, _continueGame.createGameList)(games);
+	
+	                    case 5:
+	                    case 'end':
+	                        return _context.stop();
+	                }
+	            }
+	        }, _callee, this);
+	    }));
+	};
+
+/***/ },
+/* 256 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/*
+	    Directs the player towards the game lobby
+	*/
+	'use strict';
 	
 	var _jquery = __webpack_require__(198);
 	
@@ -22817,17 +22951,549 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	// Align <p> elements to be at the bottom of the fieldset
-	var alignActiveP = exports.alignActiveP = function alignActiveP() {
-	    return (0, _jquery2.default)('#sec-login p.active').each(function (i) {
-	        (0, _jquery2.default)(this).css({
-	            top: i * (0, _jquery2.default)(this).outerHeight(true) + (0, _jquery2.default)('#sec-login fieldset.active').outerHeight(true)
+	(0, _jquery2.default)('#sec-main-menu p[data-action="new-game"]').click(function () {
+	    (0, _jquery2.default)('#sec-lobby').addClass('active');
+	    (0, _jquery2.default)('#sec-main-menu,#sec-main-menu *').removeClass('active');
+	});
+
+/***/ },
+/* 257 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/*
+	    Displays the list of currently active games, and allows players to resume
+	    them
+	*/
+	'use strict';
+	
+	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.createGameList = undefined;
+	
+	var _jquery = __webpack_require__(198);
+	
+	var _jquery2 = _interopRequireDefault(_jquery);
+	
+	var _socket = __webpack_require__(199);
+	
+	var _generator = __webpack_require__(253);
+	
+	var _generator2 = _interopRequireDefault(_generator);
+	
+	var _gameData = __webpack_require__(258);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+	
+	// Formats an ISO date to be nice looking:
+	//      Jan 5, 2015 at 8:30 pm
+	var formatDate = function formatDate(datetime) {
+	    var _datetime$split = datetime.split(' ');
+	
+	    var _datetime$split2 = _slicedToArray(_datetime$split, 2);
+	
+	    var date = _datetime$split2[0];
+	    var time = _datetime$split2[1];
+	
+	    var _date$split$map = date.split('-').map(function (x) {
+	        return parseInt(x);
+	    });
+	
+	    var _date$split$map2 = _slicedToArray(_date$split$map, 3);
+	
+	    var year = _date$split$map2[0];
+	    var month = _date$split$map2[1];
+	    var day = _date$split$map2[2];
+	
+	    var _time$split$map = time.split(':').map(function (x) {
+	        return parseInt(x);
+	    });
+	
+	    var _time$split$map2 = _slicedToArray(_time$split$map, 3);
+	
+	    var hour = _time$split$map2[0];
+	    var minute = _time$split$map2[1];
+	    var second = _time$split$map2[2];
+	
+	    var monthName = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][month];
+	    var hour12 = hour % 12 + (hour % 12 === 0 ? 12 : 0);
+	    var ampm = hour >= 12 ? 'pm' : 'am';
+	
+	    return monthName + ' ' + day + ', ' + year + ' at ' + hour12 + ':' + minute + ' ' + ampm;
+	};
+	
+	var createGameList = exports.createGameList = function createGameList(games) {
+	    var $savedGames = (0, _jquery2.default)('#saved-games');
+	    games.forEach(function (game, i) {
+	        var _$$addClass;
+	
+	        game = new _gameData.GameData(game);
+	        var results = game.state.map(function (side) {
+	            return (0, _jquery2.default)('<span></span>').addClass(side === game.me.side ? "victory" : "defeat");
 	        });
+	        $savedGames.append((0, _jquery2.default)('<div></div>').addClass('game-preview').attr('id', 'continue-game-' + i).click(function () {
+	            (0, _generator2.default)(regeneratorRuntime.mark(function _callee() {
+	                var _ref, _ref2, accept;
+	
+	                return regeneratorRuntime.wrap(function _callee$(_context) {
+	                    while (1) {
+	                        switch (_context.prev = _context.next) {
+	                            case 0:
+	                                _context.next = 2;
+	                                return _socket.promisified.emit('main-menu:request-continue', game.id);
+	
+	                            case 2:
+	                                _context.next = 4;
+	                                return _socket.promisified.once('main-menu:request-responded');
+	
+	                            case 4:
+	                                _ref = _context.sent;
+	                                _ref2 = _slicedToArray(_ref, 1);
+	                                accept = _ref2[0];
+	                                // TODO: Handle response
+	
+	                                if (accept) {} else {}
+	
+	                            case 8:
+	                            case 'end':
+	                                return _context.stop();
+	                        }
+	                    }
+	                }, _callee, this);
+	            }));
+	        }).append((0, _jquery2.default)('<p></p>').addClass('game-title').text(game.me.teamname + ' vs. ' + game.them.teamname), (0, _jquery2.default)('<p></p>').addClass('game-opponent').text(game.them.username), (0, _jquery2.default)('<p></p>').addClass('game-start-date').text('Game started: ').append((0, _jquery2.default)('<time></time>').attr('datetime', game.startDate).text(formatDate(game.startDate))), (0, _jquery2.default)('<p></p>').addClass('game-last-play-date').text('Last played: ').append((0, _jquery2.default)('<time></time>').attr('datetime', game.lastPlayDate).text(formatDate(game.lastPlayDate))), (_$$addClass = (0, _jquery2.default)('<div></div>').addClass('game-progress')).append.apply(_$$addClass, _toConsumableArray(results))));
 	    });
 	};
 
 /***/ },
-/* 255 */
+/* 258 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/*
+	    Provides better access to the game data than using the raw object
+	*/
+	'use strict';
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.setGame = exports.game = exports.GameData = exports.PlayerData = undefined;
+	
+	var _generator = __webpack_require__(253);
+	
+	var _generator2 = _interopRequireDefault(_generator);
+	
+	var _socket = __webpack_require__(199);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var RAW = Symbol('RAW');
+	var PLAYER = Symbol('PLAYER');
+	var USERNAME = Symbol('USERNAME');
+	var PlayerData = exports.PlayerData = function () {
+	    function PlayerData(raw) {
+	        var _this = this;
+	
+	        _classCallCheck(this, PlayerData);
+	
+	        this[RAW] = raw;
+	        _socket.promisified.emit('query:find-username', this[RAW]['user-id']).then(function (username) {
+	            return _this[USERNAME] = username;
+	        });
+	    }
+	
+	    _createClass(PlayerData, [{
+	        key: 'username',
+	        get: function get() {
+	            return this[USERNAME];
+	        }
+	    }]);
+	
+	    return PlayerData;
+	}();
+	
+	var GameData = exports.GameData = function () {
+	    function GameData(raw) {
+	        _classCallCheck(this, GameData);
+	
+	        this[RAW] = raw;
+	        this[PLAYER] = raw.player.map(function (player) {
+	            return new PlayerData(player);
+	        });
+	    }
+	
+	    _createClass(GameData, [{
+	        key: 'me',
+	        get: function get() {
+	            return this[PLAYER][0].username === localStorage.getItem('rpg-username') ? this[PLAYER][0] : this[PLAYER][1];
+	        }
+	    }, {
+	        key: 'them',
+	        get: function get() {
+	            return this[PLAYER][0].username !== localStorage.getItem('rpg-username') ? this[PLAYER][0] : this[PLAYER][1];
+	        }
+	    }, {
+	        key: 'state',
+	        get: function get() {
+	            return this[RAW].state;
+	        }
+	    }, {
+	        key: 'startDate',
+	        get: function get() {
+	            return this[RAW]['start-date'];
+	        }
+	    }, {
+	        key: 'lastPlayDate',
+	        get: function get() {
+	            return this[RAW]['last-play-date'];
+	        }
+	    }]);
+	
+	    return GameData;
+	}();
+	
+	var game = exports.game = undefined;
+	
+	var setGame = exports.setGame = function setGame(data) {
+	    exports.game = game = new GameData(data);
+	};
+
+/***/ },
+/* 259 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+/***/ },
+/* 260 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/*
+	    Allows the player to change their settings
+	*/
+	'use strict';
+	
+	var _jquery = __webpack_require__(198);
+	
+	var _jquery2 = _interopRequireDefault(_jquery);
+	
+	__webpack_require__(261);
+	
+	__webpack_require__(262);
+	
+	__webpack_require__(263);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var $tabs = (0, _jquery2.default)('#settings p[data-tab]');
+	$tabs.click(function () {
+	    $tabs.removeClass('selected');
+	    (0, _jquery2.default)(this).addClass('selected');
+	    (0, _jquery2.default)('#settings fieldset,#settings p').removeClass('active');
+	    (0, _jquery2.default)('#settings #' + (0, _jquery2.default)(this).attr('data-tab')).addClass('active');
+	});
+
+/***/ },
+/* 261 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/*
+	    Changes the player's password
+	*/
+	'use strict';
+	
+	var _jquery = __webpack_require__(198);
+	
+	var _jquery2 = _interopRequireDefault(_jquery);
+	
+	var _socket = __webpack_require__(199);
+	
+	var _generator = __webpack_require__(253);
+	
+	var _generator2 = _interopRequireDefault(_generator);
+	
+	var _const = __webpack_require__(254);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var $form = (0, _jquery2.default)('fieldset#change-password');
+	
+	var validate = function validate(old, password, confirm) {
+	    return new Promise(function (resolve, reject) {
+	        // Don't bother sending guaranteed invalid data to the server
+	        if (password !== confirm) {
+	            return reject('Your passwords do not match.');
+	        }
+	        if (!_const.VALID_PASSWORD.test(password)) {
+	            return reject('That is not a valid password.');
+	        }
+	        if (!_const.VALID_PASSWORD.test(old)) {
+	            return reject('Your current password is incorrect');
+	        }
+	        resolve();
+	    });
+	};
+	
+	var submit = function submit() {
+	    (0, _jquery2.default)('#settings-error').text('');
+	    (0, _generator2.default)(regeneratorRuntime.mark(function _callee() {
+	        var old, password, confirm;
+	        return regeneratorRuntime.wrap(function _callee$(_context) {
+	            while (1) {
+	                switch (_context.prev = _context.next) {
+	                    case 0:
+	                        _context.prev = 0;
+	                        old = (0, _jquery2.default)('#change-password-old').val();
+	                        password = (0, _jquery2.default)('#change-password-new').val();
+	                        confirm = (0, _jquery2.default)('#change-password-confirm').val();
+	                        _context.next = 6;
+	                        return validate(old, password, confirm);
+	
+	                    case 6:
+	                        _context.next = 8;
+	                        return _socket.promisified.emit('main-menu:change-password', { old: old, password: password });
+	
+	                    case 8:
+	                        (0, _jquery2.default)('#settings-saved').addClass('active');
+	                        (0, _jquery2.default)('#change-password-old,#change-password-new,#change-password-confirm').val('');
+	                        (0, _jquery2.default)('#change-password').removeClass('active');
+	                        localStorage.setItem('rpg-password', password);
+	                        _context.next = 17;
+	                        break;
+	
+	                    case 14:
+	                        _context.prev = 14;
+	                        _context.t0 = _context['catch'](0);
+	
+	                        (0, _jquery2.default)('#settings-error').text(_context.t0);
+	
+	                    case 17:
+	                    case 'end':
+	                        return _context.stop();
+	                }
+	            }
+	        }, _callee, this, [[0, 14]]);
+	    }));
+	};
+	
+	$form.children('button').click(submit);
+
+/***/ },
+/* 262 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/*
+	    Changes the player's password
+	*/
+	'use strict';
+	
+	var _jquery = __webpack_require__(198);
+	
+	var _jquery2 = _interopRequireDefault(_jquery);
+	
+	var _socket = __webpack_require__(199);
+	
+	var _generator = __webpack_require__(253);
+	
+	var _generator2 = _interopRequireDefault(_generator);
+	
+	var _const = __webpack_require__(254);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var $form = (0, _jquery2.default)('fieldset#change-username');
+	
+	var validate = function validate(username, confirm) {
+	    return new Promise(function (resolve, reject) {
+	        // Don't bother sending guaranteed invalid data to the server
+	        if (username !== confirm) {
+	            return reject('Your usernames do not match.');
+	        }
+	        if (!_const.VALID_USERNAME.test(username)) {
+	            return reject('That is not a valid username.');
+	        }
+	        resolve();
+	    });
+	};
+	
+	var submit = function submit() {
+	    (0, _jquery2.default)('#settings-error').text('');
+	    (0, _generator2.default)(regeneratorRuntime.mark(function _callee() {
+	        var username, confirm;
+	        return regeneratorRuntime.wrap(function _callee$(_context) {
+	            while (1) {
+	                switch (_context.prev = _context.next) {
+	                    case 0:
+	                        _context.prev = 0;
+	                        username = (0, _jquery2.default)('#change-username-new').val();
+	                        confirm = (0, _jquery2.default)('#change-username-confirm').val();
+	                        _context.next = 5;
+	                        return validate(username, confirm);
+	
+	                    case 5:
+	                        _context.next = 7;
+	                        return _socket.promisified.emit('main-menu:change-username', { username: username });
+	
+	                    case 7:
+	                        (0, _jquery2.default)('#settings-saved').addClass('active');
+	                        (0, _jquery2.default)('#change-username-new,#change-username-confirm').val('');
+	                        (0, _jquery2.default)('#change-username').removeClass('active');
+	                        localStorage.setItem('rpg-username', username);
+	                        _context.next = 16;
+	                        break;
+	
+	                    case 13:
+	                        _context.prev = 13;
+	                        _context.t0 = _context['catch'](0);
+	
+	                        (0, _jquery2.default)('#settings-error').text(_context.t0);
+	
+	                    case 16:
+	                    case 'end':
+	                        return _context.stop();
+	                }
+	            }
+	        }, _callee, this, [[0, 13]]);
+	    }));
+	};
+	
+	$form.children('button').click(submit);
+
+/***/ },
+/* 263 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/*
+	    Changes the player's password
+	*/
+	'use strict';
+	
+	var _jquery = __webpack_require__(198);
+	
+	var _jquery2 = _interopRequireDefault(_jquery);
+	
+	var _socket = __webpack_require__(199);
+	
+	var _generator = __webpack_require__(253);
+	
+	var _generator2 = _interopRequireDefault(_generator);
+	
+	var _const = __webpack_require__(254);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var $form = (0, _jquery2.default)('fieldset#change-email');
+	
+	var validate = function validate(email, confirm) {
+	    return new Promise(function (resolve, reject) {
+	        // Don't bother sending guaranteed invalid data to the server
+	        if (email !== confirm) {
+	            return reject('Your emails do not match.');
+	        }
+	        if (!_const.VALID_EMAIL.test(email)) {
+	            return reject('That is not a valid email.');
+	        }
+	        resolve();
+	    });
+	};
+	
+	var submit = function submit() {
+	    (0, _jquery2.default)('#settings-error').text('');
+	    (0, _generator2.default)(regeneratorRuntime.mark(function _callee() {
+	        var email, confirm;
+	        return regeneratorRuntime.wrap(function _callee$(_context) {
+	            while (1) {
+	                switch (_context.prev = _context.next) {
+	                    case 0:
+	                        _context.prev = 0;
+	                        email = (0, _jquery2.default)('#change-email-new').val();
+	                        confirm = (0, _jquery2.default)('#change-email-confirm').val();
+	                        _context.next = 5;
+	                        return validate(email, confirm);
+	
+	                    case 5:
+	                        _context.next = 7;
+	                        return _socket.promisified.emit('main-menu:change-email', { email: email });
+	
+	                    case 7:
+	                        (0, _jquery2.default)('#settings-saved').addClass('active');
+	                        (0, _jquery2.default)('#change-email-new,#change-email-confirm').val('');
+	                        (0, _jquery2.default)('#change-email').removeClass('active');
+	                        _context.next = 15;
+	                        break;
+	
+	                    case 12:
+	                        _context.prev = 12;
+	                        _context.t0 = _context['catch'](0);
+	
+	                        (0, _jquery2.default)('#settings-error').text(_context.t0);
+	
+	                    case 15:
+	                    case 'end':
+	                        return _context.stop();
+	                }
+	            }
+	        }, _callee, this, [[0, 12]]);
+	    }));
+	};
+	
+	$form.children('button').click(submit);
+
+/***/ },
+/* 264 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/*
+	    Logs out the player, sending them back to the login page
+	*/
+	'use strict';
+	
+	var _jquery = __webpack_require__(198);
+	
+	var _jquery2 = _interopRequireDefault(_jquery);
+	
+	var _generator = __webpack_require__(253);
+	
+	var _generator2 = _interopRequireDefault(_generator);
+	
+	var _socket = __webpack_require__(199);
+	
+	var _login = __webpack_require__(250);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	(0, _jquery2.default)('#sec-main-menu p[data-action="logout"]').click(function () {
+	    (0, _generator2.default)(regeneratorRuntime.mark(function _callee() {
+	        return regeneratorRuntime.wrap(function _callee$(_context) {
+	            while (1) {
+	                switch (_context.prev = _context.next) {
+	                    case 0:
+	                        (0, _jquery2.default)('input').val('');
+	                        (0, _login.reset)();
+	                        localStorage.removeItem('rpg-username');
+	                        localStorage.removeItem('rpg-password');
+	                        _context.next = 6;
+	                        return _socket.promisified.emit('main-menu:logout');
+	
+	                    case 6:
+	                    case 'end':
+	                        return _context.stop();
+	                }
+	            }
+	        }, _callee, this);
+	    }));
+	});
+
+/***/ },
+/* 265 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -22841,13 +23507,13 @@
 	
 	var _socket = __webpack_require__(199);
 	
-	var _generator = __webpack_require__(252);
+	var _generator = __webpack_require__(253);
 	
 	var _generator2 = _interopRequireDefault(_generator);
 	
-	var _const = __webpack_require__(253);
+	var _const = __webpack_require__(254);
 	
-	var _common = __webpack_require__(254);
+	var _common = __webpack_require__(251);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -22901,7 +23567,7 @@
 	
 	                    case 10:
 	                        _context.next = 12;
-	                        return _socket.promisified.emit('login:user-exists', username);
+	                        return _socket.promisified.emit('query:user-exists', username);
 	
 	                    case 12:
 	                        exists = _context.sent;
@@ -22945,30 +23611,29 @@
 	
 	                    case 10:
 	                        // Change the currently active fieldset
-	                        (0, _jquery2.default)('#new-account,#login,#sec-login p').toggleClass('active');
-	                        (0, _common.alignActiveP)();
-	                        _context2.next = 17;
+	                        (0, _common.reset)();
+	                        _context2.next = 16;
 	                        break;
 	
-	                    case 14:
-	                        _context2.prev = 14;
+	                    case 13:
+	                        _context2.prev = 13;
 	                        _context2.t0 = _context2['catch'](0);
 	
 	                        (0, _jquery2.default)('#login-error').text(_context2.t0);
 	
-	                    case 17:
+	                    case 16:
 	                    case 'end':
 	                        return _context2.stop();
 	                }
 	            }
-	        }, _callee2, this, [[0, 14]]);
+	        }, _callee2, this, [[0, 13]]);
 	    }));
 	};
 	
 	$form.children('button').click(submit);
 
 /***/ },
-/* 256 */
+/* 266 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -22982,13 +23647,13 @@
 	
 	var _socket = __webpack_require__(199);
 	
-	var _generator = __webpack_require__(252);
+	var _generator = __webpack_require__(253);
 	
 	var _generator2 = _interopRequireDefault(_generator);
 	
-	var _const = __webpack_require__(253);
+	var _const = __webpack_require__(254);
 	
-	var _common = __webpack_require__(254);
+	var _common = __webpack_require__(251);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -23027,30 +23692,29 @@
 	
 	                    case 7:
 	                        // Change the currently active fieldset
-	                        (0, _jquery2.default)('#forgot-password,#login,#sec-login p').toggleClass('active');
-	                        (0, _common.alignActiveP)();
-	                        _context.next = 14;
+	                        (0, _common.reset)();
+	                        _context.next = 13;
 	                        break;
 	
-	                    case 11:
-	                        _context.prev = 11;
+	                    case 10:
+	                        _context.prev = 10;
 	                        _context.t0 = _context['catch'](0);
 	
 	                        (0, _jquery2.default)('#login-error').text(_context.t0);
 	
-	                    case 14:
+	                    case 13:
 	                    case 'end':
 	                        return _context.stop();
 	                }
 	            }
-	        }, _callee, this, [[0, 11]]);
+	        }, _callee, this, [[0, 10]]);
 	    }));
 	};
 	
 	$form.children('button').click(submit);
 
 /***/ },
-/* 257 */
+/* 267 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -23060,7 +23724,7 @@
 	
 	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 	
-	var _url = __webpack_require__(258);
+	var _url = __webpack_require__(268);
 	
 	var _jquery = __webpack_require__(198);
 	
@@ -23068,11 +23732,11 @@
 	
 	var _socket = __webpack_require__(199);
 	
-	var _generator = __webpack_require__(252);
+	var _generator = __webpack_require__(253);
 	
 	var _generator2 = _interopRequireDefault(_generator);
 	
-	var _const = __webpack_require__(253);
+	var _const = __webpack_require__(254);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -23151,7 +23815,7 @@
 	}
 
 /***/ },
-/* 258 */
+/* 268 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// Copyright Joyent, Inc. and other Node contributors.
@@ -23175,7 +23839,7 @@
 	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 	// USE OR OTHER DEALINGS IN THE SOFTWARE.
 	
-	var punycode = __webpack_require__(259);
+	var punycode = __webpack_require__(269);
 	
 	exports.parse = urlParse;
 	exports.resolve = urlResolve;
@@ -23247,7 +23911,7 @@
 	      'gopher:': true,
 	      'file:': true
 	    },
-	    querystring = __webpack_require__(260);
+	    querystring = __webpack_require__(270);
 	
 	function urlParse(url, parseQueryString, slashesDenoteHost) {
 	  if (url && isObject(url) && url instanceof Url) return url;
@@ -23864,7 +24528,7 @@
 
 
 /***/ },
-/* 259 */
+/* 269 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module, global) {/*! https://mths.be/punycode v1.3.2 by @mathias */
@@ -24399,17 +25063,17 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(231)(module), (function() { return this; }())))
 
 /***/ },
-/* 260 */
+/* 270 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
-	exports.decode = exports.parse = __webpack_require__(261);
-	exports.encode = exports.stringify = __webpack_require__(262);
+	exports.decode = exports.parse = __webpack_require__(271);
+	exports.encode = exports.stringify = __webpack_require__(272);
 
 
 /***/ },
-/* 261 */
+/* 271 */
 /***/ function(module, exports) {
 
 	// Copyright Joyent, Inc. and other Node contributors.
@@ -24495,7 +25159,7 @@
 
 
 /***/ },
-/* 262 */
+/* 272 */
 /***/ function(module, exports) {
 
 	// Copyright Joyent, Inc. and other Node contributors.
@@ -24565,7 +25229,7 @@
 
 
 /***/ },
-/* 263 */
+/* 273 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*

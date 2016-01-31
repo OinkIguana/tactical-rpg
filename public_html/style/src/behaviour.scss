@@ -6,3 +6,10 @@
         visibility: visible;
     }
 }
+
+.selectable {
+    cursor: pointer;
+    &.selected {
+        cursor: auto;
+    }
+}

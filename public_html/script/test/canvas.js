@@ -5,7 +5,7 @@ const should = should_();
 
 import $ from 'jquery';
 
-import {canvas, context, setCanvas} from '../src/canvas.js';
+import {canvas, context, setCanvas} from '../src/canvas';
 
 describe('canvas.js', () => {
     beforeEach(() => setCanvas('game'));
