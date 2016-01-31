@@ -15,3 +15,4 @@ import './socket';
 import './draw';
 import './generator';
 import './util';
+import './drawable';
