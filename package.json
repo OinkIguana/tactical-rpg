@@ -30,12 +30,11 @@
     },
     {
       "name": "Ethan Hardy",
-      "email": "ehardy45@gmail.com",
+      "email": "ehardy45@gmail.com"
     }
   ],
   "license": "MIT",
   "dependencies": {
-    "babel": "^6.3.13",
     "bluebird": "^3.1.1",
     "ejs": "^2.3.4",
     "email-templates": "^2.0.1",
