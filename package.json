@@ -29,7 +29,8 @@
       "url": "cameldridge.com"
     },
     {
-      "name": "Ethan Hardy"
+      "name": "Ethan Hardy",
+      "email": "ehardy45@gmail.com",
     }
   ],
   "license": "MIT",
@@ -55,6 +56,7 @@
     "chai-as-promised": "^5.2.0",
     "css-loader": "^0.23.1",
     "extract-text-webpack-plugin": "^1.0.1",
+    "file-loader": "^0.8.5",
     "img-loader": "^1.2.2",
     "mocha": "^2.3.4",
     "mocha-loader": "^0.7.1",

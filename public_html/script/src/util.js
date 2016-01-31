@@ -3,6 +3,8 @@
 */
 'use strict';
 
+import {textWidth, setFont} from './draw.js';
+
 // A sequence of values, which loops around on itself as you iterate over it
 const [INNER, ELEMENTS, INDEX] = [Symbol('INNER'), Symbol('ELEMENTS'), Symbol('INDEX')];
 const InnerSequence = class {
@@ -109,4 +111,78 @@ export const pad = (str, len = 0, char = '') => {
     return (str.length >= len) ? str : pad(char + str, len, char);
 };
 
-export default {Sequence, Range, range, pad};
+/****************************************   graphic utils   ******************************************/
+
+
+
+export const Point = class { //a basic (x, y) coordinate
+    constructor(xP, yP) {
+        this.x = xP;
+        this.y = yP;
+    }
+};
+
+export const Rect = class { //graphical rect - origin is top left
+    constructor(xP, yP, widthP, heightP) {
+        this.x = xP;
+        this.y = yP;
+        this.width = widthP;
+        this.height = heightP;
+    }
+
+    [Symbol.iterator]() { return [this.x, this.y, this.width, this.height]; }
+};
+
+export function aspectFitRect(outsideRect, widthToHeightRatio) {
+    var returnFrame = new Rect();
+    if (outsideRect.width / outsideRect.height > widthToHeightRatio) { //returned frame will have the same height as outsideRect
+        returnFrame.height = outsideRect.height;
+        returnFrame.width = returnFrame.height * widthToHeightRatio;
+        returnFrame.x = outsideRect.x + outsideRect.width / 2 - returnFrame.width / 2;
+        returnFrame.y = outsideRect.y;
+    }
+    else { //returned frame will have the same width as outsideRect
+        returnFrame.width = outsideRect.width;
+        returnFrame.height = returnFrame.width / widthToHeightRatio;
+        returnFrame.y = outsideRect.y + outsideRect.height / 2 - returnFrame.height / 2;
+        returnFrame.x = outsideRect.x;
+    }
+}
+
+export function aspectFillRect(outsideRect, widthToHeightRatio) {
+    var returnFrame = new Rect();
+    if (outsideRect.width / outsideRect.height > widthToHeightRatio) { //returned frame will have the same width as outsideRect
+        returnFrame.width = outsideRect.width;
+        returnFrame.height = returnFrame.width / widthToHeightRatio;
+        returnFrame.y = outsideRect.y + outsideRect.height / 2 - returnFrame.height / 2;
+        returnFrame.x = outsideRect.x;
+    }
+    else { //returned frame will have the same height as outsideRect
+        returnFrame.height = outsideRect.height;
+        returnFrame.width = returnFrame.height * widthToHeightRatio;
+        returnFrame.x = outsideRect.x + outsideRect.width / 2 - returnFrame.width / 2;
+        returnFrame.y = outsideRect.y;
+    }
+}
+
+export function linesFromString({string, fontSize, frame}) {
+    setFont({size: fontSize});
+    var lines = [];
+    var spaceIndex, currentLine = "", previousIndex = -1;
+    while ((spaceIndex = string.indexOf(" ", previousIndex + 1)) !== -1) {
+        let word = string.substring(previousIndex + 1, spaceIndex);
+        let clWidth = textWidth(currentLine), wordWidth = textWidth(word);
+        if (clWidth + wordWidth > frame.width) {
+            lines.push(currentLine);
+            currentLine = word;
+            if (wordWidth > frame.width) {
+                lines.push(currentLine.substr(0, Math.round(frame.width / wordWidth)));
+                currentLine = "";
+            }
+        }
+        previousIndex = spaceIndex;
+    }
+    return lines;
+}
+
+export default {Sequence, Range, range, pad, Point, Rect};

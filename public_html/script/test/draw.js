@@ -118,16 +118,16 @@ describe('draw.js', () => {
             draw.textWidth('Hello World').should.be.a('number');
         });
     });
-    describe('image(image[, sx, sy, sw, sh], x, y[, w, h])', () => {
+    describe('image({image[, sx, sy, sw, sh], x, y[, w, h]})', () => {
         it('should draw the image', () => {
-            const img = new Image();
-            draw.image(img, 0, 0, 32, 32, 0, 0, 32, 32);
-            draw.image(img, 0, 0, 32, 32);
-            draw.image(img, 0, 0);
+            const img = new Image(40, 50);
+            draw.image({img: img, swidth: 32, sheight: 32, x: 0, y: 0, width: 32, height: 32});
+            draw.image({img: img, sx: 10, sy: 10, x: 0, y: 0, width: 32, height: 32});
+            draw.image({img: img, x: 20, y: 20});
             ctx.drawImage.should.have.been.calledThrice;
             ctx.drawImage.should.have.been.calledWith(img, 0, 0, 32, 32, 0, 0, 32, 32);
-            ctx.drawImage.should.have.been.calledWith(img, 0, 0, 32, 32);
-            ctx.drawImage.should.have.been.calledWith(img, 0, 0);
+            ctx.drawImage.should.have.been.calledWith(img, 10, 10, 32, 32, 0, 0, 32, 32);
+            ctx.drawImage.should.have.been.calledWith(img, 0, 0, img.width, img.height, 20, 20, img.width, img.height);
         });
     });
     // describe('sprite(spr, subimage, x, y[, w, h])', () => {
