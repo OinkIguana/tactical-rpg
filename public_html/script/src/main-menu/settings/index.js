@@ -14,6 +14,8 @@ $tabs.click(function() {
     $tabs.removeClass('selected');
     $(this).addClass('selected');
     $('#settings fieldset,#settings p').removeClass('active');
-    $(`#settings #${$(this).attr('data-tab')}`).addClass('active');
+    $(`#settings #${$(this).attr('data-tab')}`)
+        .addClass('active')
+        .children('input').eq(0).focus();
 });
 

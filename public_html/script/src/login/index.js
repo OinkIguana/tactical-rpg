@@ -17,7 +17,9 @@ const ENTER_KEY = 13;
 $labels.click(function() {
     // Change the currently active fieldset
     $(`#sec-login fieldset`).removeClass('active');
-    $(`fieldset#${$(this).attr('data-for')}`).addClass('active');
+    $(`fieldset#${$(this).attr('data-for')}`)
+        .addClass('active')
+        .children('input').eq(0).focus();
     $labels.toggleClass('active');
 });
 
@@ -30,7 +32,7 @@ $('#sec-login fieldset')
                 const last = $(this).parent().children('input').length - 1;
                 $(this).keydown(({which}) => {
                     if(which === ENTER_KEY) {
-                        if(i == last) {
+                        if(i === last) {
                             $(this).parent().children('button').click();
                         } else {
                             $(this).parent().children('input').eq(i + 1).focus();

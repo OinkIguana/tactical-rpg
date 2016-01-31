@@ -156,6 +156,8 @@ canvas {
       bottom: 100px;
       width: 100%;
       padding: 20px 50px;
+      border-radius: 25px;
+      box-shadow: 0 0 25px 25px rgba(255, 255, 255, 0.85);
       background-color: rgba(255, 255, 255, 0.85); }
       #sec-main-menu main div:not(#saved-games)#settings {
         top: 250px; }
@@ -204,6 +206,8 @@ canvas {
     color: #233047; }
     #sec-main-menu p:hover {
       color: #5776ac; }
+    #sec-main-menu p[data-for], #sec-main-menu p[data-action] {
+      font-size: larger; }
     #sec-main-menu p[data-tab] {
       box-sizing: border-box;
       display: inline-block;
@@ -229,10 +233,5 @@ section.toggleable {
   section.toggleable.active {
     pointer-events: auto;
     visibility: visible; }
-
-.selectable {
-  cursor: pointer; }
-  .selectable.selected {
-    cursor: auto; }
 
 /*# sourceMappingURL=main.css.map*/
