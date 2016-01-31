@@ -8,18 +8,19 @@ import './login';
 import './signup';
 import './forgot-password';
 import './reset-password';
-import {alignActiveP} from './common';
-alignActiveP();
 
-const $p = $('#sec-login p');
+export * from './common';
+
+const $labels = $('#sec-login p');
 const ENTER_KEY = 13;
 
-$p.click(function() {
+$labels.click(function() {
     // Change the currently active fieldset
-    $(`fieldset`).removeClass('active');
-    $(`fieldset#${$(this).attr('data-for')}`).addClass('active');
-    $p.toggleClass('active');
-    alignActiveP();
+    $(`#sec-login fieldset`).removeClass('active');
+    $(`fieldset#${$(this).attr('data-for')}`)
+        .addClass('active')
+        .children('input').eq(0).focus();
+    $labels.toggleClass('active');
 });
 
 // Add keyboard events to each element
@@ -31,7 +32,7 @@ $('#sec-login fieldset')
                 const last = $(this).parent().children('input').length - 1;
                 $(this).keydown(({which}) => {
                     if(which === ENTER_KEY) {
-                        if(i == last) {
+                        if(i === last) {
                             $(this).parent().children('button').click();
                         } else {
                             $(this).parent().children('input').eq(i + 1).focus();

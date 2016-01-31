@@ -8,8 +8,9 @@ import {promisified as socket} from '../socket';
 
 import generate from '../generator';
 
-import {VALID_PASSWORD, VALID_USERNAME} from '../const.js';
-import {alignActiveP} from './common';
+import {VALID_PASSWORD, VALID_USERNAME} from '../const';
+import {reset, alignActiveP} from './common';
+import {load as loadMenu} from '../main-menu';
 
 const $form = $('fieldset#login');
 
@@ -32,14 +33,14 @@ const submit = () => {
                 $('#password').val()
             ];
             yield validate(username, password);
-            const token = {username: username, password: password};
-            yield socket.emit('login:login', token);
-            localStorage.setItem('rpg-login-token', JSON.stringify(token));
-            $('#sec-login,#sec-login p,#login').removeClass('active');
-            $('#sec-main-menu').addClass('active');
-            alignActiveP();
+            yield socket.emit('login:login', {username: username, password: password});
+            localStorage.setItem('rpg-username', username);
+            localStorage.setItem('rpg-password', password);
+            $('#sec-login,#sec-login *').removeClass('active');
+            loadMenu();
         } catch(error) {
-            localStorage.removeItem('rpg-login-token');
+            localStorage.removeItem('rpg-username');
+            localStorage.removeItem('rpg-password');
             $('#login-error').text(error);
         }
     });
@@ -48,16 +49,20 @@ const submit = () => {
 // Attempt to log in in automatically if a login token exists already
 generate(function*() {
     try {
-        if(!localStorage.getItem('rpg-login-token')) { throw 'No token'; }
-        $('#sec-login,#sec-login p,fieldset#login').removeClass('active');
-        $('#sec-main-menu').addClass('active'); // Assume they are logged in
-        yield socket.emit('login:login', JSON.parse(localStorage.getItem('rpg-login-token')));
+        if(!localStorage.getItem('rpg-username') || !localStorage.getItem('rpg-password')) { throw 'No token'; }
+        // Assume they are logged in correctly
+        $('#sec-login,#sec-login *').removeClass('active');
+        loadMenu();
+        // But check to make sure
+        yield socket.emit('login:login', {
+            username: localStorage.getItem('rpg-username'),
+            password: localStorage.getItem('rpg-password'),
+        });
     } catch(error) {
-        localStorage.removeItem('rpg-login-token');
+        localStorage.removeItem('rpg-username');
+        localStorage.removeItem('rpg-password');
         // Kick out may be a little delayed but good enough for now
-        $('#sec-login,#sec-login p[data-for!="login"],fieldset#login').addClass('active');
-        $('#sec-main-menu').removeClass('active');
-        alignActiveP();
+        reset();
     }
 });
 

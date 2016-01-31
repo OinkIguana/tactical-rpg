@@ -1,0 +1,24 @@
+{
+  "players": [{
+      "user-id": 0,
+      "teamname": "",
+      "side": 0,
+      "units": [],
+      "inventory": [],
+      "stat-points": 0,
+      "money": 0
+    }, {
+      "user-id": 0,
+      "teamname": "",
+      "side": 1,
+      "units": [],
+      "inventory": [],
+      "stat-points": 0,
+      "money": 0
+    }
+  ],
+  "state": [],
+  "start-date": "YYYY-MM-DD HH:MM:SS",
+  "last-play-date": "YYYY-MM-DD HH:MM:SS",
+  "id": 0
+}

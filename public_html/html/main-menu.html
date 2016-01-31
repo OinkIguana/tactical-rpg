@@ -1,4 +1,43 @@
 <section id="sec-main-menu" class="toggleable">
-    <h1>Welcome to RPG</h1>
-    <p></p>
+    <div class="container">
+        <main>
+            <div id="main-menu" class="toggleable">
+                <p data-action="new-game">New Game</p>
+                <p data-for="continue-game">Continue</p>
+                <p data-for="extras">Extras</p>
+                <p data-for="settings">Settings</p>
+                <p data-action="logout">Log out</p>
+            </div>
+            <div id="continue-game" class="toggleable">
+                <p data-for="main-menu">Back</p>
+                <div id="saved-games"></div>
+            </div>
+            <div id="extras" class="toggleable">
+                <p data-for="main-menu">Back</p>
+            </div>
+            <div id="settings" class="toggleable">
+                <p data-for="main-menu">Back</p>
+                <p data-tab="change-password" class="selectable">Change password</p><p data-tab="change-username" class="selectable">Change username</p><p data-tab="change-email" class="selectable">Change email</p>
+                <fieldset id="change-password" class="toggleable">
+                    <input id="change-password-old" type="password" autocomplete="off" placeholder="Current Password">
+                    <input id="change-password-new" type="password" autocomplete="off" placeholder="New Password">
+                    <input id="change-password-confirm" type="password" autocomplete="off" placeholder="Confirm Password">
+                    <button>Save changes</button>
+                </fieldset>
+                <fieldset id="change-username" class="toggleable">
+                    <input id="change-username-new" type="text" autocomplete="off" placeholder="New Username">
+                    <input id="change-username-confirm" type="text" autocomplete="off" placeholder="Confirm Username">
+                    <button>Save changes</button>
+                </fieldset>
+                <fieldset id="change-email" class="toggleable">
+                    <input id="change-email-new" type="email" autocomplete="off" placeholder="New Email">
+                    <input id="change-email-confirm" type="email" autocomplete="off" placeholder="Confirm Email">
+                    <button>Save changes</button>
+                </fieldset>
+                <aside id="settings-error"></aside>
+                <p id="settings-saved" class="toggleable">Your settings have been saved</p>
+            </div>
+        </main>
+    </div>
+    <aside id="invites"></aside>
 </section>

@@ -3,6 +3,7 @@
     "esnext": true,
     "elision": true,
     "expr": true,
+    "laxbreak": true,
     "globals": {
         "console": false,
         "window": false,

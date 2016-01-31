@@ -1,13 +1,19 @@
+/*
+    Handles all requests from the login page
+*/
 'use strict';
-import {login, createNewUser, clearPassword, resetPassword, userExists} from './database';
+
+import {login, createNewUser, clearPassword, resetPassword} from './database';
 import generate from '../generator';
 import sendEmail from '../email';
+import {addUser} from '../user';
 
 export default (socket) => {
     socket.on('login:login', ({username, password}, res) => {
         generate(function*() {
             try {
                 yield login(username, password);
+                addUser(username, socket);
                 res(null);
             } catch(error) {
                 res('Your username or password is incorrect');
@@ -49,12 +55,6 @@ export default (socket) => {
             } catch(error) {
                 res('You aren\'t allowed to reset this user\'s password');
             }
-        });
-    });
-
-    socket.on('login:user-exists', (username, res) => {
-        userExists(username).then((exists) => {
-            res(null, exists);
         });
     });
 };
