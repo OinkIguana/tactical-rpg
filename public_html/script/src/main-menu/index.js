@@ -20,7 +20,11 @@ const $links = $('#sec-main-menu p[data-action]');
 
 $labels.click(function() {
     // Change the currently active fieldset
-    $(`#sec-main-menu div,#settings fieldset`).removeClass('active');
+    $(`#sec-main-menu div.toggleable,#settings fieldset`).removeClass('active');
+    $('#change-password').addClass('active');
+    $('#settings-error').text('');
+    $('#settings p').removeClass('selected');
+    $('#settings p[data-tab="change-password"]').addClass('selected');
     $(`#${$(this).attr('data-for')}`).addClass('active');
     $labels.toggleClass('active');
 });
@@ -29,7 +33,7 @@ $labels.click(function() {
 export const load = () => {
     generate(function*() {
         $('#sec-main-menu,#main-menu').addClass('active');
-        const games = yield socket.emit('main-menu:games-in-progress');
+        const games = yield socket.emit('main-menu:games-in-progress', localStorage.getItem('rpg-username'));
         createGameList(games);
     });
 };

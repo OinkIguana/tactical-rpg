@@ -8,11 +8,8 @@ import './login';
 import './signup';
 import './forgot-password';
 import './reset-password';
-import {alignActiveP} from './common';
 
 export * from './common';
-
-alignActiveP();
 
 const $labels = $('#sec-login p');
 const ENTER_KEY = 13;
@@ -22,7 +19,6 @@ $labels.click(function() {
     $(`#sec-login fieldset`).removeClass('active');
     $(`fieldset#${$(this).attr('data-for')}`).addClass('active');
     $labels.toggleClass('active');
-    alignActiveP();
 });
 
 // Add keyboard events to each element

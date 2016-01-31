@@ -9,7 +9,7 @@ import user from '../../server/user';
 const SOCKET_ID = 'TESTING_SOCKET';
 const [USER, PASS, EMAIL, VALIDATION_KEY] = [':)', ':)', 'a@b.c', 'TESTING_VALIDATION_KEY'];
 const [BAD_USER, BAD_PASS, BAD_EMAIL, BAD_VALIDATION_KEY] = [':(', ':(', 'd@e.f', 'null'];
-const [NEW_USER, NEW_PASS, NEW_EMAIL] = [':))', ':)', 'e@f.g'];
+const [NEW_USER, NEW_PASS, NEW_EMAIL] = [':|', ':)', 'e@f.g'];
 
 const socket = { on: stub(), id: SOCKET_ID };
 
@@ -18,6 +18,9 @@ const events = {
         before() {
             user.addUser(USER, socket);
         },
+        after() {
+            user.removeUser(USER);
+        },
         tests(response) {
             it('should respond with no errors', () => {
                 response.should.have.been.calledOnce;
@@ -25,6 +28,56 @@ const events = {
             });
             it('should remove the user from the connected users', () => {
                 should.not.exist(user.socketUser(socket));
+            });
+        }
+    }],
+    'main-menu:games-in-progress': [{
+        tests(response) {
+            describe('when the socket is not logged in', () => {
+                it('should call response with no errors', () => {
+                    response.should.have.been.calledOnce;
+                    should.not.exist(response.args[0][0]);
+                });
+                it('should respond with an empty array', () => {
+                    response.should.have.been.calledOnce;
+                    response.args[0][1].should.be.an.instanceof(Array);
+                    response.args[0][1].length.should.equal(0);
+                });
+            });
+        }
+    }, {
+        before() {
+            user.addUser(USER, socket);
+        },
+        after() {
+            user.removeUser(USER);
+        },
+        tests(response) {
+            describe('when there are no games', () => {
+                it('should call response with no errors', () => {
+                    response.should.have.been.calledOnce;
+                    should.not.exist(response.args[0][0]);
+                });
+                it('should respond with an empty array', () => {
+                    response.should.have.been.calledOnce;
+                    response.args[0][1].should.be.an.instanceof(Array);
+                    response.args[0][1].length.should.equal(0);
+                });
+            });
+        }
+    }, {
+        args: NEW_USER,
+        tests(response) {
+            describe.skip('when there are games', () => {
+                it('should call response with no errors', () => {
+                    response.should.have.been.calledOnce;
+                    should.not.exist(response.args[0][0]);
+                });
+                it('should respond with a non-empty array', () => {
+                    response.should.have.been.calledOnce;
+                    response.args[0][1].should.be.an.instanceof(Array);
+                    response.args[0][1].length.should.not.equal(0);
+                });
             });
         }
     }],

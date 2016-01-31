@@ -1,4 +1,11 @@
 .toggleable {
+    display: none;
+    &.active {
+        display: block;
+    }
+}
+section.toggleable {
+    display: block;
     pointer-events: none;
     visibility: hidden;
     &.active {

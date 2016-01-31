@@ -83,24 +83,18 @@ canvas {
     text-align: center;
     font-family: '8bitOperator',fantasy;
     margin-bottom: 50px; }
-  #sec-login div {
+  #sec-login div.container {
     box-sizing: border-box;
-    padding: 50px;
     position: relative;
     height: 100%;
     width: 600px;
     margin: 0 auto;
+    padding: 50px;
     background-color: rgba(255, 255, 255, 0.85); }
   #sec-login main {
     position: relative;
     width: 100%; }
-  #sec-login aside {
-    font-size: smaller;
-    position: absolute;
-    top: 32px;
-    z-index: 1; }
   #sec-login fieldset {
-    position: absolute;
     width: 100%;
     padding-bottom: 16px; }
     #sec-login fieldset legend {
@@ -109,6 +103,11 @@ canvas {
       text-align: center;
       font-size: larger;
       margin-bottom: 32px; }
+    #sec-login fieldset ~ aside {
+      font-size: smaller;
+      position: absolute;
+      top: 32px;
+      z-index: 1; }
   #sec-login input {
     box-sizing: border-box;
     display: inline-block;
@@ -132,16 +131,102 @@ canvas {
       background-color: #c5c5c5; }
   #sec-login p {
     cursor: pointer;
-    position: absolute;
     margin: 4px 0;
     color: #233047; }
     #sec-login p:hover {
       color: #5776ac; }
 
+#sec-main-menu {
+  background-image: url(/image/menu-background.jpg);
+  background-size: cover; }
+  #sec-main-menu div.container {
+    box-sizing: border-box;
+    position: relative;
+    height: 100%;
+    width: 600px;
+    margin: 0 auto; }
+  #sec-main-menu main {
+    box-sizing: border-box;
+    position: relative;
+    width: 100%;
+    height: 100%; }
+    #sec-main-menu main div:not(#saved-games) {
+      box-sizing: border-box;
+      position: absolute;
+      bottom: 100px;
+      width: 100%;
+      padding: 20px 50px;
+      background-color: rgba(255, 255, 255, 0.85); }
+      #sec-main-menu main div:not(#saved-games)#settings {
+        top: 250px; }
+  #sec-main-menu fieldset {
+    box-sizing: border-box;
+    left: 0;
+    padding: 20px;
+    width: 100%; }
+    #sec-main-menu fieldset legend {
+      display: block;
+      width: 100%;
+      text-align: center;
+      font-size: larger;
+      margin-bottom: 32px; }
+    #sec-main-menu fieldset ~ aside {
+      font-size: smaller;
+      position: absolute;
+      top: 32px;
+      z-index: 1; }
+  #sec-main-menu input {
+    box-sizing: border-box;
+    display: inline-block;
+    width: 100%;
+    padding: 10px 10px 5px 5px;
+    margin: 10px 0;
+    border-width: 0 0 1px 1px;
+    border-style: solid;
+    border-color: rgba(128, 128, 128, 0.5);
+    background-color: rgba(255, 255, 255, 0.5); }
+    #sec-main-menu input:focus {
+      border-color: gray;
+      background-color: white; }
+  #sec-main-menu button {
+    padding: 5px 10px;
+    border: 1px solid #535353;
+    border-radius: 3px;
+    background-color: #d2d2d2; }
+    #sec-main-menu button:hover {
+      border-color: #464646;
+      background-color: #c5c5c5; }
+  #sec-main-menu p {
+    cursor: pointer;
+    margin: 4px 0;
+    text-align: center;
+    padding: 6px;
+    color: #233047; }
+    #sec-main-menu p:hover {
+      color: #5776ac; }
+    #sec-main-menu p[data-tab] {
+      box-sizing: border-box;
+      display: inline-block;
+      width: 33.33%;
+      border-style: solid;
+      border-color: rgba(128, 128, 128, 0.85);
+      border-bottom-width: 1px; }
+      #sec-main-menu p[data-tab].selected {
+        border-width: 1px;
+        border-bottom-width: 0;
+        border-top-left-radius: 10px 50%;
+        border-top-right-radius: 10px 50%; }
+
 .toggleable {
+  display: none; }
+  .toggleable.active {
+    display: block; }
+
+section.toggleable {
+  display: block;
   pointer-events: none;
   visibility: hidden; }
-  .toggleable.active {
+  section.toggleable.active {
     pointer-events: auto;
     visibility: visible; }
 

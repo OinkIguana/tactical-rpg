@@ -52,7 +52,7 @@ generate(function*() {
         if(!localStorage.getItem('rpg-username') || !localStorage.getItem('rpg-password')) { throw 'No token'; }
         // Assume they are logged in correctly
         $('#sec-login,#sec-login *').removeClass('active');
-        $('#sec-main-menu,#main-menu').addClass('active');
+        loadMenu();
         // But check to make sure
         yield socket.emit('login:login', {
             username: localStorage.getItem('rpg-username'),

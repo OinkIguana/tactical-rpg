@@ -28,6 +28,10 @@ const formatDate = (datetime) => {
 
 export const createGameList = (games) => {
     const $savedGames = $('#saved-games');
+    if(games.length === 0) {
+        $savedGames.text('You haven\'t started any games');
+        return;
+    }
     games.forEach((game, i) => {
         game = new GameData(game);
         const results = game.state.map((side) =>

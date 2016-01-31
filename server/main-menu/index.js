@@ -5,7 +5,7 @@
 
 import generate from '../generator';
 import {socketUser, removeUser, addUser} from '../user';
-import {changePassword, changeUsername, changeEmail} from './database';
+import {gamesInProgress, changePassword, changeUsername, changeEmail} from './database';
 
 export default (socket) => {
     socket.on('disconnect', () => {
@@ -14,6 +14,18 @@ export default (socket) => {
     socket.on('main-menu:logout', (nil, res) => {
         removeUser(socketUser(socket));
         res();
+    });
+    socket.on('main-menu:games-in-progress', (username, res) => {
+        generate(function*() {
+            try {
+                if(!username) { username = socketUser(socket); }
+                if(username === undefined) { throw 'Not logged in'; }
+                const games = yield gamesInProgress(username);
+                res(null, games);
+            } catch(error) {
+                res(null, []);
+            }
+        });
     });
     socket.on('main-menu:change-password', ({old, password}, res) => {
         generate(function*() {

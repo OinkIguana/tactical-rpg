@@ -22605,8 +22605,6 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	(0, _common.alignActiveP)();
-	
 	var $labels = (0, _jquery2.default)('#sec-login p');
 	var ENTER_KEY = 13;
 	
@@ -22615,7 +22613,6 @@
 	    (0, _jquery2.default)('#sec-login fieldset').removeClass('active');
 	    (0, _jquery2.default)('fieldset#' + (0, _jquery2.default)(this).attr('data-for')).addClass('active');
 	    $labels.toggleClass('active');
-	    (0, _common.alignActiveP)();
 	});
 	
 	// Add keyboard events to each element
@@ -22651,7 +22648,7 @@
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
-	exports.reset = exports.alignActiveP = undefined;
+	exports.reset = undefined;
 	
 	var _jquery = __webpack_require__(198);
 	
@@ -22659,22 +22656,12 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	// Align <p> elements to be at the bottom of the fieldset
-	var alignActiveP = exports.alignActiveP = function alignActiveP() {
-	    (0, _jquery2.default)('#sec-login p.active').each(function (i) {
-	        (0, _jquery2.default)(this).css({
-	            top: i * (0, _jquery2.default)(this).outerHeight(true) + (0, _jquery2.default)('#sec-login fieldset.active').outerHeight(true)
-	        });
-	    });
-	};
-	
 	// Set the login page back to its default state
 	var reset = exports.reset = function reset() {
 	    (0, _jquery2.default)('.toggleable').removeClass('active');
 	    (0, _jquery2.default)('#sec-login,#sec-login p[data-for!="login"],fieldset#login').addClass('active');
 	    (0, _jquery2.default)('#login-error').text('');
 	    (0, _jquery2.default)('input').val('');
-	    alignActiveP();
 	};
 
 /***/ },
@@ -22777,7 +22764,7 @@
 	                case 3:
 	                    // Assume they are logged in correctly
 	                    (0, _jquery2.default)('#sec-login,#sec-login *').removeClass('active');
-	                    (0, _jquery2.default)('#sec-main-menu,#main-menu').addClass('active');
+	                    (0, _mainMenu.load)();
 	                    // But check to make sure
 	                    _context2.next = 7;
 	                    return _socket.promisified.emit('login:login', {
@@ -22905,7 +22892,11 @@
 	
 	$labels.click(function () {
 	    // Change the currently active fieldset
-	    (0, _jquery2.default)('#sec-main-menu div,#settings fieldset').removeClass('active');
+	    (0, _jquery2.default)('#sec-main-menu div.toggleable,#settings fieldset').removeClass('active');
+	    (0, _jquery2.default)('#change-password').addClass('active');
+	    (0, _jquery2.default)('#settings-error').text('');
+	    (0, _jquery2.default)('#settings p').removeClass('selected');
+	    (0, _jquery2.default)('#settings p[data-tab="change-password"]').addClass('selected');
 	    (0, _jquery2.default)('#' + (0, _jquery2.default)(this).attr('data-for')).addClass('active');
 	    $labels.toggleClass('active');
 	});
@@ -22920,7 +22911,7 @@
 	                    case 0:
 	                        (0, _jquery2.default)('#sec-main-menu,#main-menu').addClass('active');
 	                        _context.next = 3;
-	                        return _socket.promisified.emit('main-menu:games-in-progress');
+	                        return _socket.promisified.emit('main-menu:games-in-progress', localStorage.getItem('rpg-username'));
 	
 	                    case 3:
 	                        games = _context.sent;
@@ -23028,6 +23019,10 @@
 	
 	var createGameList = exports.createGameList = function createGameList(games) {
 	    var $savedGames = (0, _jquery2.default)('#saved-games');
+	    if (games.length === 0) {
+	        $savedGames.text('You haven\'t started any games');
+	        return;
+	    }
 	    games.forEach(function (game, i) {
 	        var _$$addClass;
 	

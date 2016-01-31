@@ -1,29 +1,38 @@
-#sec-login {
-    background-image: url(../../image/src/login-background.jpg);
+#sec-main-menu {
+    background-image: url(../../image/src/menu-background.jpg);
     background-size: cover;
 
-    h1 {
-        font-size: 48px;
-        text-align: center;
-        font-family: '8bitOperator',fantasy;
-        margin-bottom: 50px;
-    }
     div.container {
         box-sizing: border-box;
         position: relative;
         height: 100%;
         width: 600px;
         margin: 0 auto;
-        padding: 50px;
-        background-color: rgba(255, 255, 255, 0.85);
     }
+
     main {
+        box-sizing: border-box;
         position: relative;
         width: 100%;
+        height: 100%;
+
+        div:not(#saved-games) {
+            box-sizing: border-box;
+            position: absolute;
+            bottom: 100px;
+            width: 100%;
+            padding: 20px 50px;
+            background-color: rgba(255, 255, 255, 0.85);
+
+            &#settings { top: 250px }
+        }
     }
+
     fieldset {
+        box-sizing: border-box;
+        left: 0;
+        padding: 20px;
         width: 100%;
-        padding-bottom: 16px;
 
         legend {
             display: block;
@@ -39,6 +48,7 @@
             z-index: 1;
         }
     }
+
     input {
         box-sizing: border-box;
         display: inline-block;
@@ -56,6 +66,7 @@
             background-color: $inputFocus;
         }
     }
+
     button {
         padding: 5px 10px;
         border: 1px solid borderize($buttonColor);
@@ -69,10 +80,28 @@
     p {
         cursor: pointer;
         margin: 4px 0;
+        text-align: center;
+        padding: 6px;
 
         color: $textClickable;
         &:hover {
             color: $textHover;
+        }
+
+        &[data-tab] {
+            box-sizing: border-box;
+            display: inline-block;
+            width: 33.33%;
+            border-style: solid;
+            border-color: borderize(rgba(255, 255, 255, 0.85));
+            border-bottom-width: 1px;
+
+            &.selected {
+                border-width: 1px;
+                border-bottom-width: 0;
+                border-top-left-radius: 10px 50%;
+                border-top-right-radius: 10px 50%;
+            }
         }
     }
 }
