@@ -38,15 +38,19 @@ export const textWidth = (str) => {
     return context.measureText(str).width;
 };
 
-export const image = ({img, sx, sy, swidth, sheight, x, y, width, height}) => {
-    if (sx === undefined) sx = 0;
-    if (sy === undefined) sy = 0;
-    if (swidth === undefined) swidth = (width === undefined) ? img.width : width;
-    if (sheight === undefined) sheight = (height === undefined) ? img.height : height;
-    if (width === undefined) width = (swidth === undefined) ? img.width : swidth;
-    if (height === undefined) height = (sheight === undefined) ? img.height : sheight;
-
-    context.drawImage(img, sx, sy, swidth, sheight, x, y, width, height);
+export const image = (...args) => {
+    if(args.length === 1) {
+        let [{img, sx, sy, swidth, sheight, x, y, width, height}] = args;
+        if (sx === undefined) sx = 0;
+        if (sy === undefined) sy = 0;
+        if (swidth === undefined) swidth = (width === undefined) ? img.width : width;
+        if (sheight === undefined) sheight = (height === undefined) ? img.height : height;
+        if (width === undefined) width = (swidth === undefined) ? img.width : swidth;
+        if (height === undefined) height = (sheight === undefined) ? img.height : sheight;
+        context.drawImage(img, sx, sy, swidth, sheight, x, y, width, height);
+    } else {
+        context.drawImage(...args);
+    }
 };
 
 export const sprite = (imageSet, subImageBounds, x, y, w, h) => {
@@ -109,7 +113,7 @@ export const transformed = (opts, ...todo) => {
 
 // Chained, saveable, easy to use context2d paths
 export const Path = class {
-    constructor() {
+    constructor(...args) {
         this[STACK] = [() => context.beginPath()];
     }
 

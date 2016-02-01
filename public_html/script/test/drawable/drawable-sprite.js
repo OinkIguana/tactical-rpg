@@ -20,10 +20,10 @@ describe('drawable-sprite.js', () => {
 
     describe('setupSubImageBounds', () => {
         it("should populate subImageBounds with the correct number of subimages", () => {
-            sprite.subImageBounds.length.should.eql(100);
+            sprite.subImageBounds.length.should.equal(100);
         });
         it("should populate subImageBounds with correctly sized subimages", () => {
-            sprite.subImageBounds[0].width.should.eql(40);
+            sprite.subImageBounds[0].width.should.equal(40);
         });
     });
 });

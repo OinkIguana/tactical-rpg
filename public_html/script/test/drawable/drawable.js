@@ -37,7 +37,7 @@ describe('drawable.js', () => {
         });
         it("should be sorted when a child's zIndex is changed", () => {
             bottom.zIndex = 4;
-            parent.children[parent.children.length - 1].zIndex.should.eql(4);
+            parent.children[parent.children.length - 1].zIndex.should.equal(4);
         });
     });
     it("should modify its parent's children array when removed from the parent", () => {
@@ -45,7 +45,7 @@ describe('drawable.js', () => {
         const child = new Drawable({frame: new Rect(20, 20, 40, 30)});
         parent.addChild(child);
         child.removeFromParent();
-        parent.children.length.should.eql(0);
+        parent.children.length.should.equal(0);
     });
     it("should modify its child's parent property when removing it", () => {
         const parent = new Drawable({frame: new Rect(20, 20, 400, 300)});

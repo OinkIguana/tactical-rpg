@@ -233,5 +233,11 @@ section.toggleable {
   section.toggleable.active {
     pointer-events: auto;
     visibility: visible; }
+section, section * {
+  visibility: hidden !important; }
+
+#mocha {
+  z-index: 10000;
+  background-color: white; }
 
 /*# sourceMappingURL=main.css.map*/
