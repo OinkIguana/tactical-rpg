@@ -8,25 +8,29 @@ import {Drawable} from './drawable.js';
 import draw from '../draw.js';
 import {Rect} from '../util.js';
 
-const [CYCLE_COUNT, SUBIMAGE_BOUNDS, IMAGE_SET] = [Symbol('CYCLE_COUNT'), Symbol('SUBIMAGE_BOUNDS'), Symbol('IMAGE_SET')];
+const   [SUBIMAGE_INDEX, SUBIMAGE_BOUNDS, IMAGE_SET] =
+        [Symbol('SUBIMAGE_INDEX'), Symbol('SUBIMAGE_BOUNDS'), Symbol('IMAGE_SET')];
 
 export const DrawableSprite = class extends Drawable {
-    constructor({frame, imageSet, subImageWidth, subImageHeight, cyclesPerFrame, imageSetBounds}) { //should be passed a larger image containing each frame
+    constructor({frame, imageSet, subImageWidth, subImageHeight, frameDuration, imageSetBounds}) {
+        //should be passed a larger image containing each frame
         super({frame: frame});
         if (imageSet === undefined || !(imageSet instanceof Image)) {
-            throw new TypeError("DrawableSprite is being passed a non-Image object in its constructor", 'drawable-sprite.js');
+            throw new TypeError(
+                'DrawableSprite is being passed a non-Image object in its constructor',
+                'drawable-sprite.js');
         }
         this[IMAGE_SET] = imageSet;
-        this[CYCLE_COUNT] = 0;
-        this.cyclesPerFrame = cyclesPerFrame || 5; //TODO find a good default value
-        let imgRect = imageSetBounds || new Rect(0, 0, imageSet.width, imageSet.height);
-        this.setupSubImageBounds(imgRect, subImageWidth, subImageHeight);
+        this[SUBIMAGE_INDEX] = 0;
+        this.frameDuration = frameDuration || 1; //TODO find a good default value
+        const imageRect = imageSetBounds || new Rect(0, 0, imageSet.width, imageSet.height);
+        this.setupSubImageBounds(imageRect, subImageWidth, subImageHeight);
     }
 
-    setupSubImageBounds(imageSetBounds, subImageWidth, subImageHeight) {
+    setupSubImageBounds(imageRect, subImageWidth, subImageHeight) {
         this[SUBIMAGE_BOUNDS] = [];
-        for (let i = imageSetBounds.x; i <= imageSetBounds.width + imageSetBounds.x - subImageWidth; i += subImageWidth) {
-            for (let j = imageSetBounds.y; j <= imageSetBounds.height + imageSetBounds.y - subImageHeight; j += subImageHeight) {
+        for (let i = imageRect.x; i <= imageRect.width + imageRect.x - subImageWidth; i += subImageWidth) {
+            for (let j = imageRect.y; j <= imageRect.height + imageRect.y - subImageHeight; j += subImageHeight) {
                 this[SUBIMAGE_BOUNDS].push(new Rect(i, j, subImageWidth, subImageHeight));
             }
         }
@@ -37,15 +41,15 @@ export const DrawableSprite = class extends Drawable {
     draw(xOffset = 0, yOffset = 0, shouldDrawChildren = true) {
         super.draw(xOffset, yOffset, false);
         if (this.shouldRedraw) {
-            draw.sprite(this[IMAGE_SET], this[SUBIMAGE_BOUNDS][this[CYCLE_COUNT] / this.cyclesPerFrame],
-                this.frame.x + xOffset, this.frame.y + yOffset);
+            draw.transformed({translate: {x: xOffset, y: yOffset}}, () => {
+                draw.image(
+                    this[IMAGE_SET],
+                    ...this[SUBIMAGE_BOUNDS][Math.floor(this[SUBIMAGE_INDEX] / this.frameDuration)],
+                    ...this.frame);
+            });
         }
-        if (this[CYCLE_COUNT] / this.cyclesPerFrame !=  ++this[CYCLE_COUNT] / this.cyclesPerFrame) {
-            if (this[CYCLE_COUNT] === this.cyclesPerFrame * this[SUBIMAGE_BOUNDS].length) {
-                this[CYCLE_COUNT] = 0;
-            }
-            this.shouldRedraw = true;
-        }
+        this[SUBIMAGE_INDEX] = (this[SUBIMAGE_INDEX] + 1) % (this[SUBIMAGE_BOUNDS].length * this.frameDuration);
+        this.shouldRedraw = (this[SUBIMAGE_INDEX] % this.frameDuration === 0);
     }
 };
 

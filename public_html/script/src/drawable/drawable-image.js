@@ -9,12 +9,16 @@ import {Drawable} from 'drawable.js';
 import draw from '../draw.js';
 import {aspectFillRect, aspectFitRect} from '../util.js';
 
-const [BGIMAGE, IMG_FRAME, SCALE_MODE] = [Symbol('BGIMAGE'), Symbol('IMG_FRAME'), Symbol('SCALE_MODE')];
+const [BGIMAGE, IMG_FRAME, SCALE_MODE] =
+        [Symbol('BGIMAGE'), Symbol('IMG_FRAME'), Symbol('SCALE_MODE')];
+
+const [TO_FILL, ASPECT_TO_FILL, ASPECT_TO_FIT] =
+        [Symbol('toFill'), Symbol('aspectToFill'), Symbol('aspectToFit')];
 
 export const ScaleMode = {
-    toFill: Symbol('toFill'),
-    aspectToFill: Symbol('aspectToFill'),
-    aspectToFit: Symbol('aspectToFit') //default
+    get toFill() { return TO_FILL; },
+    get aspectToFill() { return ASPECT_TO_FILL; },
+    get aspectToFit() { return ASPECT_TO_FIT; } //default
 };
 
 export const DrawableImage = class extends Drawable {
@@ -23,7 +27,9 @@ export const DrawableImage = class extends Drawable {
         super({frame: frame});
         if (bgImage !== undefined) {
             if (!(bgImage instanceof Image)) {
-                throw new TypeError("DrawableImage is being passed a non-Image object in its constructor", 'drawable-image.js');
+                throw new TypeError(
+                    'DrawableImage is being passed a non-Image object in its constructor',
+                    'drawable-image.js');
             }
             this[BGIMAGE] = bgImage;
         }
@@ -31,8 +37,7 @@ export const DrawableImage = class extends Drawable {
             this[IMG_FRAME] = imageFrame;
             this[SCALE_MODE] = ScaleMode.toFill; //if the image is given as a subimage, scaleMode must be toFill
                                             //(cause I really don't wanna figure out the math otherwise)
-        }
-        else {
+        } else {
             this[SCALE_MODE] = ScaleMode.aspectToFit;
         }
     }
@@ -50,45 +55,54 @@ export const DrawableImage = class extends Drawable {
     set scaleMode(mode) {
         if (this[IMG_FRAME] === undefined) {
             this[SCALE_MODE] = mode;
-        }
-        else {
-            console.log("scaleMode cannot be changed when the image is set as a subimage");
+        } else {
+            console.log('scaleMode cannot be changed when the image is set as a subimage');
         }
     }
 
     get scaleMode() { return this[SCALE_MODE]; }
 
-
     draw(xOffset = 0, yOffset = 0, shouldDrawChildren = true) {
         super.draw(xOffset, yOffset, false);
-        if (this.backgroundImage !== undefined && this.shouldRedraw) {
-            switch (this.scaleMode) {
+        if (this[BGIMAGE] !== undefined && this.shouldRedraw) {
+            switch (this[SCALE_MODE]) {
                 case ScaleMode.toFill:
                     if (this[IMG_FRAME] !== undefined) {
-                        draw.image({img: this.backgroundImage, x: this.frame.x + xOffset, y: this.frame.y + yOffset,
-                                    sx: this[IMG_FRAME].x, sy: this[IMG_FRAME].y,
-                                    swidth: this[IMG_FRAME].width, sheight: this[IMG_FRAME].height,
-                                    width: this.frame.width, height: this.frame.height});
-                    }
-                    else {
-                        draw.image({img: this.backgroundImage, x: this.frame.x + xOffset, y: this.frame.y + yOffset,
-                                    width: this.frame.width, height: this.frame.height});
+                        draw.transformed({translate: {x: xOffset, y: yOffset}}, () => {
+                            draw.image(this[BGIMAGE], ...this[IMG_FRAME], ...this.frame);
+                        });
+                    } else {
+                        draw.transformed({translate: {x: xOffset, y: yOffset}}, () => {
+                            draw.image(this[BGIMAGE], ...this.frame);
+                        });
                     }
                     break;
                 case ScaleMode.aspectToFill:
-                    let imgRect = aspectFillRect(this.frame, this.backgroundImage.width / this.backgroundImage.height);
-                    draw.image({img: this.backgroundImage, x: imgRect.x, y: imgRect.y,
-                                sx: this.frame.x, sy: this.frame.y,
-                                swidth: this.frame.width, sheight: this.frame.height,
-                                width: imgRect.width, height: this.frame.height});
+                    let imgRect = aspectFillRect(...this.frame.noPoint(), this[BGIMAGE].width / this[BGIMAGE].height);
+                    draw.transformed({translate: {x: xOffset, y: yOffset}}, () => {
+                        new draw.Path()
+                            .rect(...this.frame)
+                            .doInside(() => {
+                                draw.image(this[BGIMAGE], ...imgRect);
+                            });
+                    });
+                    // let imgRect = aspectFillRect(this.frame, this[BGIMAGE].width / this[BGIMAGE].height);
+                    // draw.image({img: this[BGIMAGE], x: imgRect.x, y: imgRect.y,
+                    //             sx: this.frame.x, sy: this.frame.y,
+                    //             swidth: this.frame.width, sheight: this.frame.height,
+                    //             width: imgRect.width, height: this.frame.height});
                     break;
                 case ScaleMode.aspectToFit:
-                    let imgRect = aspectFitRect(this.frame, this.backgroundImage.width / this.backgroundImage.height);
-                    draw.image({img: this.backgroundImage, x: imgRect.x, y: imgRect.y,
-                                width: imgRect.width, height: this.frame.height});
+                    let imgRect = aspectFitRect(...this.frame, this[BGIMAGE].width / this[BGIMAGE].height);
+                    draw.transformed({translate: {x: xOffset, y: yOffset}}, () => {
+                        draw.image(this[BGIMAGE], ...imgRect);
+                    });
+                    // let imgRect = aspectFitRect(this.frame, this[BGIMAGE].width / this[BGIMAGE].height);
+                    // draw.image({img: this[BGIMAGE], x: imgRect.x, y: imgRect.y,
+                    //             width: imgRect.width, height: this.frame.height});
                     break;
                 default:
-                    throw new Error("DrawableImage.scaleMode is undefined while drawing", 'drawable-image.js');
+                    throw new Error('DrawableImage.scaleMode is undefined while drawing', 'drawable-image.js');
             }
         }
     }

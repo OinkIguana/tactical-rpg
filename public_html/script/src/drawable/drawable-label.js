@@ -7,27 +7,33 @@
 
 import {Drawable} from 'drawable.js';
 import draw from '../draw.js';
-import {linesFromString} from '../util.js';
+import {linesFromString, Point} from '../util.js';
 
 const [TEXT, LINES] = [Symbol('TEXT'), Symbol('LINES')];
 
+const [LEFT, RIGHT, CENTER, JUSTIFIED] =
+    [Symbol('left'), Symbol('right'), Symbol('center'), Symbol('justified')];
+
 export const TextAlign = {
-    left: Symbol('left'), //default
-    right: Symbol('right'),
-    center: Symbol('center'),
-    justified: Symbol('justified')
+    get left() { return LEFT; }, // Default
+    get right() { return RIGHT; },
+    get center() { return CENTER; },
+    get justified() { return JUSTIFIED; },
 };
 
+const [TOP, MIDDLE, BOTTOM] =
+    [Symbol('top'), Symbol('middle'), Symbol('bottom')];
+
 export const VerticalAlign = {
-    top: Symbol('top'),
-    middle: Symbol('middle'), //default
-    bottom: Symbol('bottom')
+    get top() { return TOP; },
+    get middle() { return MIDDLE; }, // Default
+    get bottom() { return BOTTOM; },
 };
 
 export const DrawableLabel = class extends Drawable {
     constructor({frame, txt}) {
         super({frame: frame});
-        this.font = {family: 'sans-serif', size: 16, textAlign: TextAlign.left, verticalAlign: VerticalAlign.center, baseline: 'middle', reset: false};
+        this.font = {family: 'sans-serif', size: 16, textAlign: TextAlign.left, verticalAlign: VerticalAlign.middle, baseline: 'middle', reset: false};
         if (txt !== undefined) {
             if (!(txt instanceof String)) {
                 throw new TypeError("DrawableLabel is being passed a non-String object in its constructor", 'drawable-image.js');
@@ -56,29 +62,28 @@ export const DrawableLabel = class extends Drawable {
 
     get frame() { return super.frame; }
 
-    setFont({family, size, textAlign, verticalAlign, baseline, reset}) {
+    setFont({family, size, textAlign, verticalAlign, baseline}) {
         this.font.family = family;
         this.font.size = size;
         this.font.textAlign = textAlign;
         this.font.verticalAlign = verticalAlign,
         this.font.baseline = baseline;
-        this.font.reset = reset;
     }
 
     textStartFromAligns() {
-        let textX, textY, fontArgs = {};
+        const [fontArgs, pos] = [{}, new Point(0, 0)];
         switch (this.font.textAlign) {
             case TextAlign.left:
                 fontArgs.align = 'left';
-                textX = this.frame.x;
+                pos.x = this.frame.x;
                 break;
             case TextAlign.right:
                 fontArgs.align = 'right';
-                textX = this.frame.x + this.frame.width;
+                pos.x = this.frame.x + this.frame.width;
                 break;
             case TextAlign.center:
                 fontArgs.align = 'center';
-                textX = (this.frame.x + this.frame.width) / 2;
+                pos.x = (this.frame.x + this.frame.width) / 2;
                 break;
             case TextAlign.justified:
                 console.log("Justified text not currently supported");
@@ -88,31 +93,31 @@ export const DrawableLabel = class extends Drawable {
         switch (this.font.verticalAlign) {
             case VerticalAlign.top:
                 fontArgs.baseline = 'top';
-                textY = this.frame.y;
+                pos.y = this.frame.y;
                 break;
             case VerticalAlign.middle:
                 fontArgs.baseline = 'middle';
-                let centerY = (this.frame.y + this.frame.height) / 2;
-                let vertOffset = this[LINES].length * (this.font.size + this.linePadding) / 2;
-                textY = centerY - vertOffset;
+                const centerY = (this.frame.y + this.frame.height) / 2;
+                const vertOffset = this[LINES].length * (this.font.size + this.linePadding) / 2;
+                pos.y = centerY - vertOffset;
                 break;
             case VerticalAlign.bottom:
                 fontArgs.baseline = 'bottom';
-                textY = this.frame.y + this.frame.height - this[LINES].length * (this.font.size + this.linePadding);
+                pos.y = this.frame.y + this.frame.height - this[LINES].length * (this.font.size + this.linePadding);
                 break;
         }
         draw.setFont(fontArgs);
-        return {textX: textX, textY: textY};
+        return pos;
     }
 
     draw(xOffset = 0, yOffset = 0, shouldDrawChildren = true) {
         super.draw(xOffset, yOffset, false);
         if (this.shouldRedraw) {
             draw.setFont(this.font);
-            let textPos = this.textStartFromAligns();
+            const textPos = this.textStartFromAligns();
             for (let line of this[LINES]) {
-                draw.text(line, textPos.textX, textPos.textY);
-                textPos.textY += this.font.size + this.linePadding;
+                draw.text(line, ...textPos);
+                textPos.y += this.font.size + this.linePadding;
             }
         }
     }
