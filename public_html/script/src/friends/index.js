@@ -5,6 +5,11 @@
 
 import $ from 'jquery';
 
+import './chat';
+import './list';
+import './invite';
+import './request';
+
 $('footer')
     .children('div,aside')
         .children('header')

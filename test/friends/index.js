@@ -3,7 +3,7 @@
 import {should as should_} from 'chai';
 const should = should_();
 import {spy, stub} from 'sinon';
-import mainMenu from '../../server/main-menu';
+import friends from '../../server/friends';
 import user from '../../server/user';
 
 const SOCKET_ID = 'TESTING_SOCKET';
@@ -14,34 +14,16 @@ const [NEW_USER, NEW_PASS, NEW_EMAIL] = [':|', ':)', 'e@f.g'];
 const socket = { on: stub(), id: SOCKET_ID };
 
 const events = {
-    'main-menu:logout': [{
-        before() {
-            user.addUser(USER, {socket: socket, id: 1});
-        },
-        after() {
-            user.removeUser(USER);
-        },
+    'friends:all-friends': [{
         tests(response) {
-            it('should respond with no errors', () => {
-                response.should.have.been.calledOnce;
-                should.not.exist(response.args[0][0]);
-            });
-            it('should remove the user from the connected users', () => {
-                should.not.exist(user.socketUser(socket));
-            });
-        }
-    }],
-    'main-menu:games-in-progress': [{
-        tests(response) {
-            describe('when the socket is not logged in', () => {
+            describe('when the user is not logged in', () => {
                 it('should call response with no errors', () => {
                     response.should.have.been.calledOnce;
                     should.not.exist(response.args[0][0]);
                 });
-                it('should respond with an empty array', () => {
+                it('should call respond with an array', () => {
                     response.should.have.been.calledOnce;
                     response.args[0][1].should.be.an.instanceof(Array);
-                    response.args[0][1].length.should.equal(0);
                 });
             });
         }
@@ -53,30 +35,32 @@ const events = {
             user.removeUser(USER);
         },
         tests(response) {
-            describe('when the socket is logged in', () => {
+            describe('when the user is logged in', () => {
                 it('should call response with no errors', () => {
                     response.should.have.been.calledOnce;
                     should.not.exist(response.args[0][0]);
                 });
-                it('should respond with an array', () => {
+                it('should call respond with an array', () => {
                     response.should.have.been.calledOnce;
                     response.args[0][1].should.be.an.instanceof(Array);
                 });
             });
         }
     }],
-    'main-menu:change-password': [{
-        args: {old: PASS, password: NEW_PASS},
+    'friends:pending-requests': [{
         tests(response) {
-            describe('when a socket is not logged in', () => {
-                it('should respond with an error', () => {
+            describe('when the user is not logged in', () => {
+                it('should call response with no errors', () => {
                     response.should.have.been.calledOnce;
-                    response.args[0][0].should.exist;
+                    should.not.exist(response.args[0][0]);
+                });
+                it('should call respond with an array', () => {
+                    response.should.have.been.calledOnce;
+                    response.args[0][1].should.be.an.instanceof(Array);
                 });
             });
         }
     }, {
-        args: {old: BAD_PASS, password: PASS},
         before() {
             user.addUser(USER, {socket: socket, id: 1});
         },
@@ -84,15 +68,30 @@ const events = {
             user.removeUser(USER);
         },
         tests(response) {
-            describe('when a socket is logged in and the old password is incorrect', () => {
-                it('should respond with an error', () => {
+            describe('when the user is logged in', () => {
+                it('should call response with no errors', () => {
                     response.should.have.been.calledOnce;
-                    response.args[0][0].should.exist;
+                    should.not.exist(response.args[0][0]);
+                });
+                it('should call respond with an array', () => {
+                    response.should.have.been.calledOnce;
+                    response.args[0][1].should.be.an.instanceof(Array);
+                });
+            });
+        }
+    }],
+    'friends:send-request': [{
+        args: BAD_USER,
+        tests(response) {
+            describe('when the user is not logged in', () => {
+                it('should call response with an error', () => {
+                    response.should.have.been.calledOnce;
+                    response.args[0][0].should.be.a('string');
                 });
             });
         }
     }, {
-        args: {old: PASS, password: PASS},
+        args: BAD_USER,
         before() {
             user.addUser(USER, {socket: socket, id: 1});
         },
@@ -100,26 +99,42 @@ const events = {
             user.removeUser(USER);
         },
         tests(response) {
-            describe.skip('when a socket is logged in and the old password is correct', () => {
-                it('should respond with no errors', () => {
+            describe('when the user is logged in and the second user doesn\'t exist', () => {
+                it('should call response with an error', () => {
+                    response.should.have.been.calledOnce;
+                    response.args[0][0].should.be.a('string');
+                });
+            });
+        }
+    }, {
+        args: NEW_USER,
+        before() {
+            user.addUser(USER, {socket: socket, id: 1});
+        },
+        after() {
+            user.removeUser(USER);
+        },
+        tests(response) {
+            describe.skip('when the user is logged in and the second user does exist', () => {
+                it('should call response with no errors', () => {
                     response.should.have.been.calledOnce;
                     should.not.exist(response.args[0][0]);
                 });
             });
         }
     }],
-    'main-menu:change-username': [{
-        args: {username: USER},
+    'friends:respond-request': [{
+        args: {nameA: NEW_USER, response: true},
         tests(response) {
-            describe('when a socket is not logged in', () => {
-                it('should respond with an error', () => {
+            describe('when the user is not logged in', () => {
+                it('should call response with an error', () => {
                     response.should.have.been.calledOnce;
-                    response.args[0][0].should.exist;
+                    response.args[0][0].should.be.a('string');
                 });
             });
         }
     }, {
-        args: {username: NEW_USER},
+        args: {nameA: BAD_USER, response: true},
         before() {
             user.addUser(USER, {socket: socket, id: 1});
         },
@@ -127,15 +142,15 @@ const events = {
             user.removeUser(USER);
         },
         tests(response) {
-            describe('when a socket is logged in and username is taken', () => {
-                it('should respond with an error', () => {
+            describe('when the user is logged in and the second user hasn\'t sent a request', () => {
+                it('should call response with an error', () => {
                     response.should.have.been.calledOnce;
-                    response.args[0][0].should.exist;
+                    response.args[0][0].should.be.a('string');
                 });
             });
         }
     }, {
-        args: {username: USER},
+        args: {nameA: NEW_USER, response: true},
         before() {
             user.addUser(USER, {socket: socket, id: 1});
         },
@@ -143,26 +158,30 @@ const events = {
             user.removeUser(USER);
         },
         tests(response) {
-            describe.skip('when a socket is logged in and the username is not taken', () => {
-                it('should respond with no errors', () => {
+            describe.skip('when the user is logged in and the second user does exist', () => {
+                it('should call response with no errors', () => {
                     response.should.have.been.calledOnce;
                     should.not.exist(response.args[0][0]);
+                });
+                it('should call respond with the other user\'s online state', () => {
+                    response.should.have.been.calledOnce;
+                    response.args[0][1].to.be.false;
                 });
             });
         }
     }],
-    'main-menu:change-email': [{
-        args: {email: EMAIL},
+    'friends:unfriend': [{
+        args: NEW_USER,
         tests(response) {
-            describe('when a socket is not logged in', () => {
-                it('should respond with an error', () => {
+            describe('when the user is not logged in', () => {
+                it('should call response with an error', () => {
                     response.should.have.been.calledOnce;
-                    response.args[0][0].should.exist;
+                    response.args[0][0].should.be.a('string');
                 });
             });
         }
     }, {
-        args: {email: NEW_EMAIL},
+        args: NEW_USER,
         before() {
             user.addUser(USER, {socket: socket, id: 1});
         },
@@ -170,36 +189,36 @@ const events = {
             user.removeUser(USER);
         },
         tests(response) {
-            describe('when a socket is logged in and email is taken', () => {
-                it('should respond with an error', () => {
-                    response.should.have.been.calledOnce;
-                    response.args[0][0].should.exist;
-                });
-            });
-        }
-    }, {
-        args: {email: EMAIL},
-        before() {
-            user.addUser(USER, {socket: socket, id: 1});
-        },
-        after() {
-            user.removeUser(USER);
-        },
-        tests(response) {
-            describe.skip('when a socket is logged in and the email is not taken', () => {
-                it('should respond with no errors', () => {
+            describe('when the user is logged in and the second user is a friend', () => {
+                it('should call response with no errors', () => {
                     response.should.have.been.calledOnce;
                     should.not.exist(response.args[0][0]);
+                });
+            });
+        }
+    }, {
+        args: BAD_USER,
+        before() {
+            user.addUser(USER, {socket: socket, id: 1});
+        },
+        after() {
+            user.removeUser(USER);
+        },
+        tests(response) {
+            describe('when the user is logged in and the second user is not a friend', () => {
+                it('should call response with an error', () => {
+                    response.should.have.been.calledOnce;
+                    response.args[0][0].should.be.a('string');
                 });
             });
         }
     }]
 };
 
-describe('main-menu', () => {
+describe('friends', () => {
     before(() => {
-        // Initialize the fake socket with the menu events
-        mainMenu(socket);
+        // Initialize the fake socket with the friend events
+        friends(socket);
     });
     describe('should create a handler for each of:', () => {
         Object.keys(events).forEach((eventName) => {

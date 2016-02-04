@@ -4,6 +4,7 @@
     "elision": true,
     "expr": true,
     "laxbreak": true,
+    "loopfunc": true,
     "globals": {
         "console": false,
         "window": false,

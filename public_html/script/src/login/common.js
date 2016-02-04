@@ -10,4 +10,5 @@ export const reset = () => {
     $('#sec-login,#sec-login p[data-for!="login"],fieldset#login').addClass('active');
     $('#login-error').text('');
     $('input').val('');
+    $('#friend-notifications p,#sec-friends footer div,#sec-friends footer aside ul li').remove();
 };

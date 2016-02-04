@@ -12,8 +12,11 @@ export default (socket) => {
     socket.on('login:login', ({username, password}, res) => {
         generate(function*() {
             try {
-                yield login(username, password);
-                addUser(username, socket);
+                const userID = yield login(username, password);
+                addUser(username, {
+                    socket: socket,
+                    userID: userID
+                });
                 res(null);
             } catch(error) {
                 res('Your username or password is incorrect');

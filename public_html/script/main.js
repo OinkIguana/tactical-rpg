@@ -58,11 +58,11 @@
 
 	__webpack_require__(251);
 
-	__webpack_require__(252);
+	__webpack_require__(255);
 
-	__webpack_require__(257);
+	__webpack_require__(269);
 
-	__webpack_require__(275);
+	__webpack_require__(279);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -15226,14 +15226,14 @@
 	    },
 	
 	    // Non-promisifiable functions just pass through
-	    get on() {
-	        return socket.on;
+	    on: function on() {
+	        return socket.on.apply(socket, arguments);
 	    },
-	    get removeListener() {
-	        return socket.removeListener;
+	    removeListener: function removeListener() {
+	        return socket.removeListener.apply(socket, arguments);
 	    },
-	    get removeAllListeners() {
-	        return socket.removeAllListeners;
+	    removeAllListeners: function removeAllListeners() {
+	        return socket.removeAllListeners.apply(socket, arguments);
 	    }
 	};
 	
@@ -22576,6 +22576,14 @@
 	
 	var _jquery2 = _interopRequireDefault(_jquery);
 	
+	__webpack_require__(252);
+	
+	__webpack_require__(253);
+	
+	__webpack_require__(267);
+	
+	__webpack_require__(268);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	(0, _jquery2.default)('footer').children('div,aside').children('header').click(function () {
@@ -22586,6 +22594,167 @@
 
 /***/ },
 /* 252 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+/***/ },
+/* 253 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/*
+	    Populates and keeps the friends list updated
+	*/
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.addFriendToList = undefined;
+	
+	var _jquery = __webpack_require__(199);
+	
+	var _jquery2 = _interopRequireDefault(_jquery);
+	
+	var _socket = __webpack_require__(200);
+	
+	var _generator = __webpack_require__(254);
+	
+	var _generator2 = _interopRequireDefault(_generator);
+	
+	var _login = __webpack_require__(255);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var addFriendToList = exports.addFriendToList = function addFriendToList(friend) {
+	    (0, _jquery2.default)('#friend-list').append((0, _jquery2.default)('<li></li>').append((0, _jquery2.default)('<span></span>').addClass('user ' + (friend.online ? 'online' : 'offline')).text(friend.username)).click(function () {
+	        (0, _jquery2.default)('#sec-friends footer').prepend((0, _jquery2.default)('<div></div>').attr('data-who', friend.username).append((0, _jquery2.default)('<header></header>').click(function () {
+	            (0, _jquery2.default)(this).parent().toggleClass('open');
+	        }).append((0, _jquery2.default)('<span></span>').addClass((0, _jquery2.default)(this).children('span').attr('class')).text(friend.username), (0, _jquery2.default)('<span></span>').addClass('icon close').click(function () {
+	            (0, _jquery2.default)(this).parents('div[data-who]').remove();
+	        })), (0, _jquery2.default)('<main></main>')));
+	    }));
+	};
+	
+	// Populate the friend list
+	(0, _login.onLogin)(function (loggedIn) {
+	    (0, _generator2.default)(regeneratorRuntime.mark(function _callee() {
+	        var friends, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, friend;
+	
+	        return regeneratorRuntime.wrap(function _callee$(_context) {
+	            while (1) {
+	                switch (_context.prev = _context.next) {
+	                    case 0:
+	                        _context.next = 2;
+	                        return loggedIn;
+	
+	                    case 2:
+	                        _context.next = 4;
+	                        return _socket.promisified.emit('friends:all-friends');
+	
+	                    case 4:
+	                        friends = _context.sent;
+	                        _iteratorNormalCompletion = true;
+	                        _didIteratorError = false;
+	                        _iteratorError = undefined;
+	                        _context.prev = 8;
+	
+	                        for (_iterator = friends[Symbol.iterator](); !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	                            friend = _step.value;
+	
+	                            addFriendToList(friend);
+	                        }
+	                        _context.next = 16;
+	                        break;
+	
+	                    case 12:
+	                        _context.prev = 12;
+	                        _context.t0 = _context['catch'](8);
+	                        _didIteratorError = true;
+	                        _iteratorError = _context.t0;
+	
+	                    case 16:
+	                        _context.prev = 16;
+	                        _context.prev = 17;
+	
+	                        if (!_iteratorNormalCompletion && _iterator.return) {
+	                            _iterator.return();
+	                        }
+	
+	                    case 19:
+	                        _context.prev = 19;
+	
+	                        if (!_didIteratorError) {
+	                            _context.next = 22;
+	                            break;
+	                        }
+	
+	                        throw _iteratorError;
+	
+	                    case 22:
+	                        return _context.finish(19);
+	
+	                    case 23:
+	                        return _context.finish(16);
+	
+	                    case 24:
+	                    case 'end':
+	                        return _context.stop();
+	                }
+	            }
+	        }, _callee, this, [[8, 12, 16, 24], [17,, 19, 23]]);
+	    }));
+	});
+	
+	_socket.promisified.on('friends:request-confirmed', function (who) {
+	    // Assume online, since they just confirmed it now
+	    addFriendToList({ username: who, online: true });
+	});
+
+/***/ },
+/* 254 */
+/***/ function(module, exports) {
+
+	/*
+	    Automatically progresses Promise based generators as their values
+	    become available
+	*/
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	exports.default = function (generator) {
+	    return new Promise(function (resolve, reject) {
+	        var run = generator();
+	
+	        // Run the next step of the generator
+	        var pass = function pass(args) {
+	            return run.next(args);
+	        };
+	        var fail = function fail(error) {
+	            return run.throw(error);
+	        };
+	
+	        // Prepare for the next result
+	        var next = function next(_ref) {
+	            var done = _ref.done;
+	            var value = _ref.value;
+	
+	            if (done) {
+	                return resolve(value);
+	            }
+	            value.then(pass, fail).then(next, reject);
+	        };
+	
+	        // Start
+	        next(run.next());
+	    });
+	};
+
+/***/ },
+/* 255 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -22598,7 +22767,7 @@
 	});
 	exports.onLogin = undefined;
 	
-	var _common = __webpack_require__(253);
+	var _common = __webpack_require__(256);
 	
 	var _loop = function _loop(_key2) {
 	    if (_key2 === "default") return 'continue';
@@ -22616,7 +22785,7 @@
 	    if (_ret === 'continue') continue;
 	}
 	
-	var _login = __webpack_require__(254);
+	var _login = __webpack_require__(257);
 	
 	Object.defineProperty(exports, 'onLogin', {
 	    enumerable: true,
@@ -22629,13 +22798,13 @@
 	
 	var _jquery2 = _interopRequireDefault(_jquery);
 	
-	__webpack_require__(254);
+	__webpack_require__(257);
 	
-	__webpack_require__(267);
+	__webpack_require__(259);
 	
-	__webpack_require__(268);
+	__webpack_require__(260);
 	
-	__webpack_require__(269);
+	__webpack_require__(261);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -22671,7 +22840,7 @@
 	});
 
 /***/ },
-/* 253 */
+/* 256 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -22696,10 +22865,11 @@
 	    (0, _jquery2.default)('#sec-login,#sec-login p[data-for!="login"],fieldset#login').addClass('active');
 	    (0, _jquery2.default)('#login-error').text('');
 	    (0, _jquery2.default)('input').val('');
+	    (0, _jquery2.default)('#friend-notifications p,#sec-friends footer div,#sec-friends footer aside ul li').remove();
 	};
 
 /***/ },
-/* 254 */
+/* 257 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -22718,13 +22888,13 @@
 	
 	var _socket = __webpack_require__(200);
 	
-	var _generator = __webpack_require__(255);
+	var _generator = __webpack_require__(254);
 	
 	var _generator2 = _interopRequireDefault(_generator);
 	
-	var _const = __webpack_require__(256);
+	var _const = __webpack_require__(258);
 	
-	var _common = __webpack_require__(253);
+	var _common = __webpack_require__(256);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -22768,7 +22938,7 @@
 	                        localStorage.setItem('rpg-password', password);
 	                        (0, _jquery2.default)('#sec-login,#sec-login *').removeClass('active');
 	                        loginHooks.forEach(function (fn) {
-	                            return fn();
+	                            return fn(Promise.resolve());
 	                        });
 	                        _context.next = 18;
 	                        break;
@@ -22791,102 +22961,77 @@
 	};
 	
 	// Attempt to log in in automatically if a login token exists already
-	(0, _generator2.default)(regeneratorRuntime.mark(function _callee2() {
-	    return regeneratorRuntime.wrap(function _callee2$(_context2) {
+	(0, _generator2.default)(regeneratorRuntime.mark(function _callee3() {
+	    var _this = this;
+	
+	    return regeneratorRuntime.wrap(function _callee3$(_context3) {
 	        while (1) {
-	            switch (_context2.prev = _context2.next) {
+	            switch (_context3.prev = _context3.next) {
 	                case 0:
-	                    _context2.prev = 0;
+	                    _context3.prev = 0;
+	                    return _context3.delegateYield(regeneratorRuntime.mark(function _callee2() {
+	                        var loggedIn;
+	                        return regeneratorRuntime.wrap(function _callee2$(_context2) {
+	                            while (1) {
+	                                switch (_context2.prev = _context2.next) {
+	                                    case 0:
+	                                        if (!(!localStorage.getItem('rpg-username') || !localStorage.getItem('rpg-password'))) {
+	                                            _context2.next = 2;
+	                                            break;
+	                                        }
 	
-	                    if (!(!localStorage.getItem('rpg-username') || !localStorage.getItem('rpg-password'))) {
-	                        _context2.next = 3;
-	                        break;
-	                    }
+	                                        throw 'No token';
 	
-	                    throw 'No token';
+	                                    case 2:
+	                                        // Assume they are logged in correctly
+	                                        (0, _jquery2.default)('#sec-login,#sec-login *').removeClass('active');
+	                                        // But check to make sure
+	                                        loggedIn = _socket.promisified.emit('login:login', {
+	                                            username: localStorage.getItem('rpg-username'),
+	                                            password: localStorage.getItem('rpg-password')
+	                                        });
 	
-	                case 3:
-	                    // Assume they are logged in correctly
-	                    (0, _jquery2.default)('#sec-login,#sec-login *').removeClass('active');
-	                    window.setTimeout(function () {
-	                        return loginHooks.forEach(function (fn) {
-	                            return fn();
-	                        });
-	                    }, 0);
-	                    // But check to make sure
-	                    _context2.next = 7;
-	                    return _socket.promisified.emit('login:login', {
-	                        username: localStorage.getItem('rpg-username'),
-	                        password: localStorage.getItem('rpg-password')
-	                    });
+	                                        window.setTimeout(function () {
+	                                            return loginHooks.forEach(function (fn) {
+	                                                return fn(loggedIn);
+	                                            });
+	                                        }, 0);
+	                                        _context2.next = 7;
+	                                        return loggedIn;
 	
-	                case 7:
-	                    _context2.next = 14;
+	                                    case 7:
+	                                    case 'end':
+	                                        return _context2.stop();
+	                                }
+	                            }
+	                        }, _callee2, _this);
+	                    })(), 't0', 2);
+	
+	                case 2:
+	                    _context3.next = 9;
 	                    break;
 	
-	                case 9:
-	                    _context2.prev = 9;
-	                    _context2.t0 = _context2['catch'](0);
+	                case 4:
+	                    _context3.prev = 4;
+	                    _context3.t1 = _context3['catch'](0);
 	
 	                    localStorage.removeItem('rpg-username');
 	                    localStorage.removeItem('rpg-password');
 	                    // Kick out may be a little delayed but good enough for now
 	                    (0, _common.reset)();
 	
-	                case 14:
+	                case 9:
 	                case 'end':
-	                    return _context2.stop();
+	                    return _context3.stop();
 	            }
 	        }
-	    }, _callee2, this, [[0, 9]]);
+	    }, _callee3, this, [[0, 4]]);
 	}));
 	
 	$form.children('button').click(submit);
 
 /***/ },
-/* 255 */
-/***/ function(module, exports) {
-
-	/*
-	    Automatically progresses Promise based generators as their values
-	    become available
-	*/
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	
-	exports.default = function (generator) {
-	    return new Promise(function (resolve, reject) {
-	        var run = generator();
-	
-	        // Run the next step of the generator
-	        var pass = function pass(args) {
-	            return run.next(args);
-	        };
-	        var fail = function fail(error) {
-	            return run.throw(error);
-	        };
-	
-	        // Prepare for the next result
-	        var next = function next(_ref) {
-	            var done = _ref.done;
-	            var value = _ref.value;
-	
-	            if (done) {
-	                return resolve(value);
-	            }
-	            value.then(pass, fail).then(next, reject);
-	        };
-	
-	        // Start
-	        next(run.next());
-	    });
-	};
-
-/***/ },
-/* 256 */
+/* 258 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -22899,662 +23044,7 @@
 	var VALID_EMAIL = exports.VALID_EMAIL = /[\d\w\-]+@[\d\w]+\.[\d\w]+/; // Incomplete, but fine for now
 
 /***/ },
-/* 257 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/*
-	    Manages the main menu, allowing users to start/continue games, manage
-	    settings, manage friends, view stats, and logout
-	*/
-	'use strict';
-	
-	var _jquery = __webpack_require__(199);
-	
-	var _jquery2 = _interopRequireDefault(_jquery);
-	
-	__webpack_require__(258);
-	
-	var _continueGame = __webpack_require__(259);
-	
-	__webpack_require__(261);
-	
-	__webpack_require__(262);
-	
-	__webpack_require__(266);
-	
-	var _socket = __webpack_require__(200);
-	
-	var _generator = __webpack_require__(255);
-	
-	var _generator2 = _interopRequireDefault(_generator);
-	
-	var _login = __webpack_require__(252);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	var ENTER_KEY = 13;
-	var $labels = (0, _jquery2.default)('#sec-main-menu p[data-for]');
-	var $links = (0, _jquery2.default)('#sec-main-menu p[data-action]');
-	
-	$labels.click(function () {
-	    // Change the currently active fieldset
-	    (0, _jquery2.default)('#sec-main-menu div.toggleable,#settings fieldset').removeClass('active');
-	    (0, _jquery2.default)('#change-password').addClass('active');
-	    (0, _jquery2.default)('#settings-error').text('');
-	    (0, _jquery2.default)('#settings p').removeClass('selected');
-	    (0, _jquery2.default)('#settings p[data-tab="change-password"]').addClass('selected');
-	    (0, _jquery2.default)('#' + (0, _jquery2.default)(this).attr('data-for')).addClass('active');
-	});
-	
-	// Loads the current games in progress from the server
-	(0, _login.onLogin)(function () {
-	    (0, _generator2.default)(regeneratorRuntime.mark(function _callee() {
-	        var games;
-	        return regeneratorRuntime.wrap(function _callee$(_context) {
-	            while (1) {
-	                switch (_context.prev = _context.next) {
-	                    case 0:
-	                        (0, _jquery2.default)('#sec-main-menu,#main-menu').addClass('active');
-	                        _context.next = 3;
-	                        return _socket.promisified.emit('main-menu:games-in-progress', localStorage.getItem('rpg-username'));
-	
-	                    case 3:
-	                        games = _context.sent;
-	
-	                        (0, _continueGame.createGameList)(games);
-	
-	                    case 5:
-	                    case 'end':
-	                        return _context.stop();
-	                }
-	            }
-	        }, _callee, this);
-	    }));
-	});
-	
-	// Add keyboard events to settings page
-	(0, _jquery2.default)('#settings fieldset').each(function () {
-	    (0, _jquery2.default)(this).children('input').each(function (i) {
-	        var _this = this;
-	
-	        // Move to the next box or submit on enter pressed
-	        var last = (0, _jquery2.default)(this).parent().children('input').length - 1;
-	        (0, _jquery2.default)(this).keydown(function (_ref) {
-	            var which = _ref.which;
-	
-	            if (which === ENTER_KEY) {
-	                if (i === last) {
-	                    (0, _jquery2.default)(_this).parent().children('button').click();
-	                } else {
-	                    (0, _jquery2.default)(_this).parent().children('input').eq(i + 1).focus();
-	                }
-	            }
-	        });
-	    });
-	});
-
-/***/ },
-/* 258 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/*
-	    Directs the player towards the game lobby
-	*/
-	'use strict';
-	
-	var _jquery = __webpack_require__(199);
-	
-	var _jquery2 = _interopRequireDefault(_jquery);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	(0, _jquery2.default)('#sec-main-menu p[data-action="new-game"]').click(function () {
-	    (0, _jquery2.default)('#sec-lobby').addClass('active');
-	    (0, _jquery2.default)('#sec-main-menu,#sec-main-menu *').removeClass('active');
-	});
-
-/***/ },
 /* 259 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/*
-	    Displays the list of currently active games, and allows players to resume
-	    them
-	*/
-	'use strict';
-	
-	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	exports.createGameList = undefined;
-	
-	var _jquery = __webpack_require__(199);
-	
-	var _jquery2 = _interopRequireDefault(_jquery);
-	
-	var _socket = __webpack_require__(200);
-	
-	var _generator = __webpack_require__(255);
-	
-	var _generator2 = _interopRequireDefault(_generator);
-	
-	var _gameData = __webpack_require__(260);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-	
-	// Formats an ISO date to be nice looking:
-	//      Jan 5, 2015 at 8:30 pm
-	var formatDate = function formatDate(datetime) {
-	    var _datetime$split = datetime.split(' ');
-	
-	    var _datetime$split2 = _slicedToArray(_datetime$split, 2);
-	
-	    var date = _datetime$split2[0];
-	    var time = _datetime$split2[1];
-	
-	    var _date$split$map = date.split('-').map(function (x) {
-	        return parseInt(x);
-	    });
-	
-	    var _date$split$map2 = _slicedToArray(_date$split$map, 3);
-	
-	    var year = _date$split$map2[0];
-	    var month = _date$split$map2[1];
-	    var day = _date$split$map2[2];
-	
-	    var _time$split$map = time.split(':').map(function (x) {
-	        return parseInt(x);
-	    });
-	
-	    var _time$split$map2 = _slicedToArray(_time$split$map, 3);
-	
-	    var hour = _time$split$map2[0];
-	    var minute = _time$split$map2[1];
-	    var second = _time$split$map2[2];
-	
-	    var monthName = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][month];
-	    var hour12 = hour % 12 + (hour % 12 === 0 ? 12 : 0);
-	    var ampm = hour >= 12 ? 'pm' : 'am';
-	
-	    return monthName + ' ' + day + ', ' + year + ' at ' + hour12 + ':' + minute + ' ' + ampm;
-	};
-	
-	var createGameList = exports.createGameList = function createGameList(games) {
-	    var $savedGames = (0, _jquery2.default)('#saved-games');
-	    if (games.length === 0) {
-	        $savedGames.text('You haven\'t started any games');
-	        return;
-	    }
-	    games.forEach(function (game, i) {
-	        var _$$addClass;
-	
-	        game = new _gameData.GameData(game);
-	        var results = game.state.map(function (side) {
-	            return (0, _jquery2.default)('<span></span>').addClass(side === game.me.side ? "victory" : "defeat");
-	        });
-	        $savedGames.append((0, _jquery2.default)('<div></div>').addClass('game-preview').attr('id', 'continue-game-' + i).click(function () {
-	            (0, _generator2.default)(regeneratorRuntime.mark(function _callee() {
-	                var _ref, _ref2, accept;
-	
-	                return regeneratorRuntime.wrap(function _callee$(_context) {
-	                    while (1) {
-	                        switch (_context.prev = _context.next) {
-	                            case 0:
-	                                _context.next = 2;
-	                                return _socket.promisified.emit('main-menu:request-continue', game.id);
-	
-	                            case 2:
-	                                _context.next = 4;
-	                                return _socket.promisified.once('main-menu:request-responded');
-	
-	                            case 4:
-	                                _ref = _context.sent;
-	                                _ref2 = _slicedToArray(_ref, 1);
-	                                accept = _ref2[0];
-	                                // TODO: Handle response
-	
-	                                if (accept) {} else {}
-	
-	                            case 8:
-	                            case 'end':
-	                                return _context.stop();
-	                        }
-	                    }
-	                }, _callee, this);
-	            }));
-	        }).append((0, _jquery2.default)('<p></p>').addClass('game-title').text(game.me.teamname + ' vs. ' + game.them.teamname), (0, _jquery2.default)('<p></p>').addClass('game-opponent').text(game.them.username), (0, _jquery2.default)('<p></p>').addClass('game-start-date').text('Game started: ').append((0, _jquery2.default)('<time></time>').attr('datetime', game.startDate).text(formatDate(game.startDate))), (0, _jquery2.default)('<p></p>').addClass('game-last-play-date').text('Last played: ').append((0, _jquery2.default)('<time></time>').attr('datetime', game.lastPlayDate).text(formatDate(game.lastPlayDate))), (_$$addClass = (0, _jquery2.default)('<div></div>').addClass('game-progress')).append.apply(_$$addClass, _toConsumableArray(results))));
-	    });
-	};
-
-/***/ },
-/* 260 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/*
-	    Provides better access to the game data than using the raw object
-	*/
-	'use strict';
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	exports.setGame = exports.game = exports.GameData = exports.PlayerData = undefined;
-	
-	var _generator = __webpack_require__(255);
-	
-	var _generator2 = _interopRequireDefault(_generator);
-	
-	var _socket = __webpack_require__(200);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	var RAW = Symbol('RAW');
-	var PLAYER = Symbol('PLAYER');
-	var USERNAME = Symbol('USERNAME');
-	var PlayerData = exports.PlayerData = function () {
-	    function PlayerData(raw) {
-	        var _this = this;
-	
-	        _classCallCheck(this, PlayerData);
-	
-	        this[RAW] = raw;
-	        _socket.promisified.emit('query:find-username', this[RAW]['user-id']).then(function (username) {
-	            return _this[USERNAME] = username;
-	        });
-	    }
-	
-	    _createClass(PlayerData, [{
-	        key: 'username',
-	        get: function get() {
-	            return this[USERNAME];
-	        }
-	    }]);
-	
-	    return PlayerData;
-	}();
-	
-	var GameData = exports.GameData = function () {
-	    function GameData(raw) {
-	        _classCallCheck(this, GameData);
-	
-	        this[RAW] = raw;
-	        this[PLAYER] = raw.player.map(function (player) {
-	            return new PlayerData(player);
-	        });
-	    }
-	
-	    _createClass(GameData, [{
-	        key: 'me',
-	        get: function get() {
-	            return this[PLAYER][0].username === localStorage.getItem('rpg-username') ? this[PLAYER][0] : this[PLAYER][1];
-	        }
-	    }, {
-	        key: 'them',
-	        get: function get() {
-	            return this[PLAYER][0].username !== localStorage.getItem('rpg-username') ? this[PLAYER][0] : this[PLAYER][1];
-	        }
-	    }, {
-	        key: 'state',
-	        get: function get() {
-	            return this[RAW].state;
-	        }
-	    }, {
-	        key: 'startDate',
-	        get: function get() {
-	            return this[RAW]['start-date'];
-	        }
-	    }, {
-	        key: 'lastPlayDate',
-	        get: function get() {
-	            return this[RAW]['last-play-date'];
-	        }
-	    }]);
-	
-	    return GameData;
-	}();
-	
-	var game = exports.game = undefined;
-	
-	var setGame = exports.setGame = function setGame(data) {
-	    exports.game = game = new GameData(data);
-	};
-
-/***/ },
-/* 261 */
-/***/ function(module, exports) {
-
-	"use strict";
-
-/***/ },
-/* 262 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/*
-	    Allows the player to change their settings
-	*/
-	'use strict';
-	
-	var _jquery = __webpack_require__(199);
-	
-	var _jquery2 = _interopRequireDefault(_jquery);
-	
-	__webpack_require__(263);
-	
-	__webpack_require__(264);
-	
-	__webpack_require__(265);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	var $tabs = (0, _jquery2.default)('#settings p[data-tab]');
-	$tabs.click(function () {
-	    $tabs.removeClass('selected');
-	    (0, _jquery2.default)(this).addClass('selected');
-	    (0, _jquery2.default)('#settings fieldset,#settings p').removeClass('active');
-	    (0, _jquery2.default)('#settings #' + (0, _jquery2.default)(this).attr('data-tab')).addClass('active').children('input').eq(0).focus();
-	});
-
-/***/ },
-/* 263 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/*
-	    Changes the player's password
-	*/
-	'use strict';
-	
-	var _jquery = __webpack_require__(199);
-	
-	var _jquery2 = _interopRequireDefault(_jquery);
-	
-	var _socket = __webpack_require__(200);
-	
-	var _generator = __webpack_require__(255);
-	
-	var _generator2 = _interopRequireDefault(_generator);
-	
-	var _const = __webpack_require__(256);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	var $form = (0, _jquery2.default)('fieldset#change-password');
-	
-	var validate = function validate(old, password, confirm) {
-	    return new Promise(function (resolve, reject) {
-	        // Don't bother sending guaranteed invalid data to the server
-	        if (password !== confirm) {
-	            return reject('Your passwords do not match.');
-	        }
-	        if (!_const.VALID_PASSWORD.test(password)) {
-	            return reject('That is not a valid password.');
-	        }
-	        if (!_const.VALID_PASSWORD.test(old)) {
-	            return reject('Your current password is incorrect');
-	        }
-	        resolve();
-	    });
-	};
-	
-	var submit = function submit() {
-	    (0, _jquery2.default)('#settings-error').text('');
-	    (0, _generator2.default)(regeneratorRuntime.mark(function _callee() {
-	        var old, password, confirm;
-	        return regeneratorRuntime.wrap(function _callee$(_context) {
-	            while (1) {
-	                switch (_context.prev = _context.next) {
-	                    case 0:
-	                        _context.prev = 0;
-	                        old = (0, _jquery2.default)('#change-password-old').val();
-	                        password = (0, _jquery2.default)('#change-password-new').val();
-	                        confirm = (0, _jquery2.default)('#change-password-confirm').val();
-	                        _context.next = 6;
-	                        return validate(old, password, confirm);
-	
-	                    case 6:
-	                        _context.next = 8;
-	                        return _socket.promisified.emit('main-menu:change-password', { old: old, password: password });
-	
-	                    case 8:
-	                        (0, _jquery2.default)('#settings-saved').addClass('active');
-	                        (0, _jquery2.default)('#change-password-old,#change-password-new,#change-password-confirm').val('');
-	                        (0, _jquery2.default)('#change-password').removeClass('active');
-	                        localStorage.setItem('rpg-password', password);
-	                        _context.next = 17;
-	                        break;
-	
-	                    case 14:
-	                        _context.prev = 14;
-	                        _context.t0 = _context['catch'](0);
-	
-	                        (0, _jquery2.default)('#settings-error').text(_context.t0);
-	
-	                    case 17:
-	                    case 'end':
-	                        return _context.stop();
-	                }
-	            }
-	        }, _callee, this, [[0, 14]]);
-	    }));
-	};
-	
-	$form.children('button').click(submit);
-
-/***/ },
-/* 264 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/*
-	    Changes the player's password
-	*/
-	'use strict';
-	
-	var _jquery = __webpack_require__(199);
-	
-	var _jquery2 = _interopRequireDefault(_jquery);
-	
-	var _socket = __webpack_require__(200);
-	
-	var _generator = __webpack_require__(255);
-	
-	var _generator2 = _interopRequireDefault(_generator);
-	
-	var _const = __webpack_require__(256);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	var $form = (0, _jquery2.default)('fieldset#change-username');
-	
-	var validate = function validate(username, confirm) {
-	    return new Promise(function (resolve, reject) {
-	        // Don't bother sending guaranteed invalid data to the server
-	        if (username !== confirm) {
-	            return reject('Your usernames do not match.');
-	        }
-	        if (!_const.VALID_USERNAME.test(username)) {
-	            return reject('That is not a valid username.');
-	        }
-	        resolve();
-	    });
-	};
-	
-	var submit = function submit() {
-	    (0, _jquery2.default)('#settings-error').text('');
-	    (0, _generator2.default)(regeneratorRuntime.mark(function _callee() {
-	        var username, confirm;
-	        return regeneratorRuntime.wrap(function _callee$(_context) {
-	            while (1) {
-	                switch (_context.prev = _context.next) {
-	                    case 0:
-	                        _context.prev = 0;
-	                        username = (0, _jquery2.default)('#change-username-new').val();
-	                        confirm = (0, _jquery2.default)('#change-username-confirm').val();
-	                        _context.next = 5;
-	                        return validate(username, confirm);
-	
-	                    case 5:
-	                        _context.next = 7;
-	                        return _socket.promisified.emit('main-menu:change-username', { username: username });
-	
-	                    case 7:
-	                        (0, _jquery2.default)('#settings-saved').addClass('active');
-	                        (0, _jquery2.default)('#change-username-new,#change-username-confirm').val('');
-	                        (0, _jquery2.default)('#change-username').removeClass('active');
-	                        localStorage.setItem('rpg-username', username);
-	                        _context.next = 16;
-	                        break;
-	
-	                    case 13:
-	                        _context.prev = 13;
-	                        _context.t0 = _context['catch'](0);
-	
-	                        (0, _jquery2.default)('#settings-error').text(_context.t0);
-	
-	                    case 16:
-	                    case 'end':
-	                        return _context.stop();
-	                }
-	            }
-	        }, _callee, this, [[0, 13]]);
-	    }));
-	};
-	
-	$form.children('button').click(submit);
-
-/***/ },
-/* 265 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/*
-	    Changes the player's password
-	*/
-	'use strict';
-	
-	var _jquery = __webpack_require__(199);
-	
-	var _jquery2 = _interopRequireDefault(_jquery);
-	
-	var _socket = __webpack_require__(200);
-	
-	var _generator = __webpack_require__(255);
-	
-	var _generator2 = _interopRequireDefault(_generator);
-	
-	var _const = __webpack_require__(256);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	var $form = (0, _jquery2.default)('fieldset#change-email');
-	
-	var validate = function validate(email, confirm) {
-	    return new Promise(function (resolve, reject) {
-	        // Don't bother sending guaranteed invalid data to the server
-	        if (email !== confirm) {
-	            return reject('Your emails do not match.');
-	        }
-	        if (!_const.VALID_EMAIL.test(email)) {
-	            return reject('That is not a valid email.');
-	        }
-	        resolve();
-	    });
-	};
-	
-	var submit = function submit() {
-	    (0, _jquery2.default)('#settings-error').text('');
-	    (0, _generator2.default)(regeneratorRuntime.mark(function _callee() {
-	        var email, confirm;
-	        return regeneratorRuntime.wrap(function _callee$(_context) {
-	            while (1) {
-	                switch (_context.prev = _context.next) {
-	                    case 0:
-	                        _context.prev = 0;
-	                        email = (0, _jquery2.default)('#change-email-new').val();
-	                        confirm = (0, _jquery2.default)('#change-email-confirm').val();
-	                        _context.next = 5;
-	                        return validate(email, confirm);
-	
-	                    case 5:
-	                        _context.next = 7;
-	                        return _socket.promisified.emit('main-menu:change-email', { email: email });
-	
-	                    case 7:
-	                        (0, _jquery2.default)('#settings-saved').addClass('active');
-	                        (0, _jquery2.default)('#change-email-new,#change-email-confirm').val('');
-	                        (0, _jquery2.default)('#change-email').removeClass('active');
-	                        _context.next = 15;
-	                        break;
-	
-	                    case 12:
-	                        _context.prev = 12;
-	                        _context.t0 = _context['catch'](0);
-	
-	                        (0, _jquery2.default)('#settings-error').text(_context.t0);
-	
-	                    case 15:
-	                    case 'end':
-	                        return _context.stop();
-	                }
-	            }
-	        }, _callee, this, [[0, 12]]);
-	    }));
-	};
-	
-	$form.children('button').click(submit);
-
-/***/ },
-/* 266 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/*
-	    Logs out the player, sending them back to the login page
-	*/
-	'use strict';
-	
-	var _jquery = __webpack_require__(199);
-	
-	var _jquery2 = _interopRequireDefault(_jquery);
-	
-	var _generator = __webpack_require__(255);
-	
-	var _generator2 = _interopRequireDefault(_generator);
-	
-	var _socket = __webpack_require__(200);
-	
-	var _login = __webpack_require__(252);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	(0, _jquery2.default)('#sec-main-menu p[data-action="logout"]').click(function () {
-	    (0, _generator2.default)(regeneratorRuntime.mark(function _callee() {
-	        return regeneratorRuntime.wrap(function _callee$(_context) {
-	            while (1) {
-	                switch (_context.prev = _context.next) {
-	                    case 0:
-	                        (0, _jquery2.default)('input').val('');
-	                        (0, _login.reset)();
-	                        localStorage.removeItem('rpg-username');
-	                        localStorage.removeItem('rpg-password');
-	                        _context.next = 6;
-	                        return _socket.promisified.emit('main-menu:logout');
-	
-	                    case 6:
-	                    case 'end':
-	                        return _context.stop();
-	                }
-	            }
-	        }, _callee, this);
-	    }));
-	});
-
-/***/ },
-/* 267 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -23568,13 +23058,13 @@
 	
 	var _socket = __webpack_require__(200);
 	
-	var _generator = __webpack_require__(255);
+	var _generator = __webpack_require__(254);
 	
 	var _generator2 = _interopRequireDefault(_generator);
 	
-	var _const = __webpack_require__(256);
+	var _const = __webpack_require__(258);
 	
-	var _common = __webpack_require__(253);
+	var _common = __webpack_require__(256);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -23694,7 +23184,7 @@
 	$form.children('button').click(submit);
 
 /***/ },
-/* 268 */
+/* 260 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -23708,13 +23198,13 @@
 	
 	var _socket = __webpack_require__(200);
 	
-	var _generator = __webpack_require__(255);
+	var _generator = __webpack_require__(254);
 	
 	var _generator2 = _interopRequireDefault(_generator);
 	
-	var _const = __webpack_require__(256);
+	var _const = __webpack_require__(258);
 	
-	var _common = __webpack_require__(253);
+	var _common = __webpack_require__(256);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -23775,7 +23265,7 @@
 	$form.children('button').click(submit);
 
 /***/ },
-/* 269 */
+/* 261 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -23785,7 +23275,7 @@
 	
 	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 	
-	var _url = __webpack_require__(270);
+	var _url = __webpack_require__(262);
 	
 	var _jquery = __webpack_require__(199);
 	
@@ -23793,11 +23283,11 @@
 	
 	var _socket = __webpack_require__(200);
 	
-	var _generator = __webpack_require__(255);
+	var _generator = __webpack_require__(254);
 	
 	var _generator2 = _interopRequireDefault(_generator);
 	
-	var _const = __webpack_require__(256);
+	var _const = __webpack_require__(258);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -23876,7 +23366,7 @@
 	}
 
 /***/ },
-/* 270 */
+/* 262 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// Copyright Joyent, Inc. and other Node contributors.
@@ -23900,7 +23390,7 @@
 	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 	// USE OR OTHER DEALINGS IN THE SOFTWARE.
 	
-	var punycode = __webpack_require__(271);
+	var punycode = __webpack_require__(263);
 	
 	exports.parse = urlParse;
 	exports.resolve = urlResolve;
@@ -23972,7 +23462,7 @@
 	      'gopher:': true,
 	      'file:': true
 	    },
-	    querystring = __webpack_require__(272);
+	    querystring = __webpack_require__(264);
 	
 	function urlParse(url, parseQueryString, slashesDenoteHost) {
 	  if (url && isObject(url) && url instanceof Url) return url;
@@ -24589,7 +24079,7 @@
 
 
 /***/ },
-/* 271 */
+/* 263 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module, global) {/*! https://mths.be/punycode v1.3.2 by @mathias */
@@ -25124,17 +24614,17 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(232)(module), (function() { return this; }())))
 
 /***/ },
-/* 272 */
+/* 264 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
-	exports.decode = exports.parse = __webpack_require__(273);
-	exports.encode = exports.stringify = __webpack_require__(274);
+	exports.decode = exports.parse = __webpack_require__(265);
+	exports.encode = exports.stringify = __webpack_require__(266);
 
 
 /***/ },
-/* 273 */
+/* 265 */
 /***/ function(module, exports) {
 
 	// Copyright Joyent, Inc. and other Node contributors.
@@ -25220,7 +24710,7 @@
 
 
 /***/ },
-/* 274 */
+/* 266 */
 /***/ function(module, exports) {
 
 	// Copyright Joyent, Inc. and other Node contributors.
@@ -25290,7 +24780,812 @@
 
 
 /***/ },
+/* 267 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+/***/ },
+/* 268 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/*
+	    Sends and receives friend requests
+	*/
+	'use strict';
+	
+	var _jquery = __webpack_require__(199);
+	
+	var _jquery2 = _interopRequireDefault(_jquery);
+	
+	var _socket = __webpack_require__(200);
+	
+	var _generator = __webpack_require__(254);
+	
+	var _generator2 = _interopRequireDefault(_generator);
+	
+	var _const = __webpack_require__(258);
+	
+	var _login = __webpack_require__(255);
+	
+	var _list = __webpack_require__(253);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var form = (0, _jquery2.default)('#friend-request-form');
+	
+	form.click(function () {
+	    (0, _jquery2.default)(this).removeClass('active').children('#friend-request-username').val('').parent().children('#friend-request-error').text('');
+	}).children('fieldset').click(function () {
+	    return false;
+	}).children('button').click(function () {
+	    (0, _generator2.default)(regeneratorRuntime.mark(function _callee() {
+	        var user;
+	        return regeneratorRuntime.wrap(function _callee$(_context) {
+	            while (1) {
+	                switch (_context.prev = _context.next) {
+	                    case 0:
+	                        _context.prev = 0;
+	                        user = (0, _jquery2.default)('#friend-request-username').val();
+	
+	                        if (_const.VALID_USERNAME.test(user)) {
+	                            _context.next = 4;
+	                            break;
+	                        }
+	
+	                        throw 'Invalid username';
+	
+	                    case 4:
+	                        _context.next = 6;
+	                        return _socket.promisified.emit('friends:send-request', user);
+	
+	                    case 6:
+	                        (0, _jquery2.default)('#friend-request-error').text('Friend request sent successfully.');
+	                        _context.next = 12;
+	                        break;
+	
+	                    case 9:
+	                        _context.prev = 9;
+	                        _context.t0 = _context['catch'](0);
+	
+	                        (0, _jquery2.default)('#friend-request-error').text('Could not add this user as a friend.');
+	
+	                    case 12:
+	                    case 'end':
+	                        return _context.stop();
+	                }
+	            }
+	        }, _callee, this, [[0, 9]]);
+	    }));
+	});
+	
+	(0, _jquery2.default)('#sec-friends main span.add').click(function () {
+	    form.addClass('active');
+	});
+	
+	var addFriendRequestNotification = function addFriendRequestNotification(who) {
+	    (0, _jquery2.default)('#friend-notifications').append((0, _jquery2.default)('<p></p>').text(who + ' would like to add you as a friend').append((0, _jquery2.default)('<button></button>').text('Accept').click(function () {
+	        (0, _generator2.default)(regeneratorRuntime.mark(function _callee2() {
+	            var online;
+	            return regeneratorRuntime.wrap(function _callee2$(_context2) {
+	                while (1) {
+	                    switch (_context2.prev = _context2.next) {
+	                        case 0:
+	                            (0, _jquery2.default)(this).parent().remove();
+	                            _context2.next = 3;
+	                            return _socket.promisified.emit('friends:respond-request', { nameA: who, response: true });
+	
+	                        case 3:
+	                            online = _context2.sent;
+	
+	                            (0, _list.addFriendToList)({ username: who, online: online });
+	
+	                        case 5:
+	                        case 'end':
+	                            return _context2.stop();
+	                    }
+	                }
+	            }, _callee2, this);
+	        }));
+	    }), (0, _jquery2.default)('<button></button>').text('Reject').click(function () {
+	        _socket.promisified.emit('friends:respond-request', { nameA: who, response: false });
+	        (0, _jquery2.default)(this).parent().remove();
+	    })));
+	};
+	
+	// Get any pending friend requests
+	(0, _login.onLogin)(function (loggedIn) {
+	    (0, _generator2.default)(regeneratorRuntime.mark(function _callee3() {
+	        var requests;
+	        return regeneratorRuntime.wrap(function _callee3$(_context3) {
+	            while (1) {
+	                switch (_context3.prev = _context3.next) {
+	                    case 0:
+	                        _context3.next = 2;
+	                        return loggedIn;
+	
+	                    case 2:
+	                        _context3.next = 4;
+	                        return _socket.promisified.emit('friends:pending-requests');
+	
+	                    case 4:
+	                        requests = _context3.sent;
+	
+	                        requests.forEach(addFriendRequestNotification);
+	
+	                    case 6:
+	                    case 'end':
+	                        return _context3.stop();
+	                }
+	            }
+	        }, _callee3, this);
+	    }));
+	});
+	// Receive any new friend requests
+	_socket.promisified.on('friends:request-received', addFriendRequestNotification);
+
+/***/ },
+/* 269 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/*
+	    Manages the main menu, allowing users to start/continue games, manage
+	    settings, manage friends, view stats, and logout
+	*/
+	'use strict';
+	
+	var _jquery = __webpack_require__(199);
+	
+	var _jquery2 = _interopRequireDefault(_jquery);
+	
+	__webpack_require__(270);
+	
+	var _continueGame = __webpack_require__(271);
+	
+	__webpack_require__(273);
+	
+	__webpack_require__(274);
+	
+	__webpack_require__(278);
+	
+	var _socket = __webpack_require__(200);
+	
+	var _generator = __webpack_require__(254);
+	
+	var _generator2 = _interopRequireDefault(_generator);
+	
+	var _login = __webpack_require__(255);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var ENTER_KEY = 13;
+	var $labels = (0, _jquery2.default)('#sec-main-menu p[data-for]');
+	var $links = (0, _jquery2.default)('#sec-main-menu p[data-action]');
+	
+	$labels.click(function () {
+	    // Change the currently active fieldset
+	    (0, _jquery2.default)('#sec-main-menu div.toggleable,#settings fieldset').removeClass('active');
+	    (0, _jquery2.default)('#change-password').addClass('active');
+	    (0, _jquery2.default)('#settings-error').text('');
+	    (0, _jquery2.default)('#settings p').removeClass('selected');
+	    (0, _jquery2.default)('#settings p[data-tab="change-password"]').addClass('selected');
+	    (0, _jquery2.default)('#' + (0, _jquery2.default)(this).attr('data-for')).addClass('active');
+	});
+	
+	// Show the menu
+	(0, _login.onLogin)(function () {
+	    (0, _jquery2.default)('#sec-main-menu,#main-menu').addClass('active');
+	});
+	
+	// Add keyboard events to settings page
+	(0, _jquery2.default)('#settings fieldset').each(function () {
+	    (0, _jquery2.default)(this).children('input').each(function (i) {
+	        var _this = this;
+	
+	        // Move to the next box or submit on enter pressed
+	        var last = (0, _jquery2.default)(this).parent().children('input').length - 1;
+	        (0, _jquery2.default)(this).keydown(function (_ref) {
+	            var which = _ref.which;
+	
+	            if (which === ENTER_KEY) {
+	                if (i === last) {
+	                    (0, _jquery2.default)(_this).parent().children('button').click();
+	                } else {
+	                    (0, _jquery2.default)(_this).parent().children('input').eq(i + 1).focus();
+	                }
+	            }
+	        });
+	    });
+	});
+
+/***/ },
+/* 270 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/*
+	    Directs the player towards the game lobby
+	*/
+	'use strict';
+	
+	var _jquery = __webpack_require__(199);
+	
+	var _jquery2 = _interopRequireDefault(_jquery);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	(0, _jquery2.default)('#sec-main-menu p[data-action="new-game"]').click(function () {
+	    (0, _jquery2.default)('#sec-lobby').addClass('active');
+	    (0, _jquery2.default)('#sec-main-menu,#sec-main-menu *').removeClass('active');
+	});
+
+/***/ },
+/* 271 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/*
+	    Displays the list of currently active games, and allows players to resume
+	    them
+	*/
+	'use strict';
+	
+	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+	
+	var _jquery = __webpack_require__(199);
+	
+	var _jquery2 = _interopRequireDefault(_jquery);
+	
+	var _socket = __webpack_require__(200);
+	
+	var _generator = __webpack_require__(254);
+	
+	var _generator2 = _interopRequireDefault(_generator);
+	
+	var _gameData = __webpack_require__(272);
+	
+	var _login = __webpack_require__(255);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+	
+	// Formats an ISO date to be nice looking:
+	//      Jan 5, 2015 at 8:30 pm
+	var formatDate = function formatDate(datetime) {
+	    var _datetime$split = datetime.split(' ');
+	
+	    var _datetime$split2 = _slicedToArray(_datetime$split, 2);
+	
+	    var date = _datetime$split2[0];
+	    var time = _datetime$split2[1];
+	
+	    var _date$split$map = date.split('-').map(function (x) {
+	        return parseInt(x);
+	    });
+	
+	    var _date$split$map2 = _slicedToArray(_date$split$map, 3);
+	
+	    var year = _date$split$map2[0];
+	    var month = _date$split$map2[1];
+	    var day = _date$split$map2[2];
+	
+	    var _time$split$map = time.split(':').map(function (x) {
+	        return parseInt(x);
+	    });
+	
+	    var _time$split$map2 = _slicedToArray(_time$split$map, 3);
+	
+	    var hour = _time$split$map2[0];
+	    var minute = _time$split$map2[1];
+	    var second = _time$split$map2[2];
+	
+	    var monthName = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][month];
+	    var hour12 = hour % 12 + (hour % 12 === 0 ? 12 : 0);
+	    var ampm = hour >= 12 ? 'pm' : 'am';
+	
+	    return monthName + ' ' + day + ', ' + year + ' at ' + hour12 + ':' + minute + ' ' + ampm;
+	};
+	
+	(0, _login.onLogin)(function (loggedIn) {
+	    (0, _generator2.default)(regeneratorRuntime.mark(function _callee2() {
+	        var games, $savedGames;
+	        return regeneratorRuntime.wrap(function _callee2$(_context2) {
+	            while (1) {
+	                switch (_context2.prev = _context2.next) {
+	                    case 0:
+	                        _context2.next = 2;
+	                        return loggedIn;
+	
+	                    case 2:
+	                        _context2.next = 4;
+	                        return _socket.promisified.emit('main-menu:games-in-progress');
+	
+	                    case 4:
+	                        games = _context2.sent;
+	                        $savedGames = (0, _jquery2.default)('#saved-games');
+	
+	                        if (!(games.length === 0)) {
+	                            _context2.next = 9;
+	                            break;
+	                        }
+	
+	                        $savedGames.text('You haven\'t started any games');
+	                        return _context2.abrupt('return');
+	
+	                    case 9:
+	                        games.forEach(function (game, i) {
+	                            var _$$addClass;
+	
+	                            game = new _gameData.GameData(game);
+	                            var results = game.state.map(function (side) {
+	                                return (0, _jquery2.default)('<span></span>').addClass(side === game.me.side ? "victory" : "defeat");
+	                            });
+	                            $savedGames.append((0, _jquery2.default)('<div></div>').addClass('game-preview').attr('id', 'continue-game-' + i).click(function () {
+	                                (0, _generator2.default)(regeneratorRuntime.mark(function _callee() {
+	                                    var _ref, _ref2, accept;
+	
+	                                    return regeneratorRuntime.wrap(function _callee$(_context) {
+	                                        while (1) {
+	                                            switch (_context.prev = _context.next) {
+	                                                case 0:
+	                                                    _context.next = 2;
+	                                                    return _socket.promisified.emit('main-menu:request-continue', game.id);
+	
+	                                                case 2:
+	                                                    _context.next = 4;
+	                                                    return _socket.promisified.once('main-menu:request-responded');
+	
+	                                                case 4:
+	                                                    _ref = _context.sent;
+	                                                    _ref2 = _slicedToArray(_ref, 1);
+	                                                    accept = _ref2[0];
+	                                                    // TODO: Handle response
+	
+	                                                    if (accept) {} else {}
+	
+	                                                case 8:
+	                                                case 'end':
+	                                                    return _context.stop();
+	                                            }
+	                                        }
+	                                    }, _callee, this);
+	                                }));
+	                            }).append((0, _jquery2.default)('<p></p>').addClass('game-title').text(game.me.teamname + ' vs. ' + game.them.teamname), (0, _jquery2.default)('<p></p>').addClass('game-opponent').text(game.them.username), (0, _jquery2.default)('<p></p>').addClass('game-start-date').text('Game started: ').append((0, _jquery2.default)('<time></time>').attr('datetime', game.startDate).text(formatDate(game.startDate))), (0, _jquery2.default)('<p></p>').addClass('game-last-play-date').text('Last played: ').append((0, _jquery2.default)('<time></time>').attr('datetime', game.lastPlayDate).text(formatDate(game.lastPlayDate))), (_$$addClass = (0, _jquery2.default)('<div></div>').addClass('game-progress')).append.apply(_$$addClass, _toConsumableArray(results))));
+	                        });
+	
+	                    case 10:
+	                    case 'end':
+	                        return _context2.stop();
+	                }
+	            }
+	        }, _callee2, this);
+	    }));
+	});
+
+/***/ },
+/* 272 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/*
+	    Provides better access to the game data than using the raw object
+	*/
+	'use strict';
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.setGame = exports.game = exports.GameData = exports.PlayerData = undefined;
+	
+	var _generator = __webpack_require__(254);
+	
+	var _generator2 = _interopRequireDefault(_generator);
+	
+	var _socket = __webpack_require__(200);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var RAW = Symbol('RAW');
+	var PLAYER = Symbol('PLAYER');
+	var USERNAME = Symbol('USERNAME');
+	var PlayerData = exports.PlayerData = function () {
+	    function PlayerData(raw) {
+	        var _this = this;
+	
+	        _classCallCheck(this, PlayerData);
+	
+	        this[RAW] = raw;
+	        _socket.promisified.emit('query:find-username', this[RAW]['user-id']).then(function (username) {
+	            return _this[USERNAME] = username;
+	        });
+	    }
+	
+	    _createClass(PlayerData, [{
+	        key: 'username',
+	        get: function get() {
+	            return this[USERNAME];
+	        }
+	    }]);
+	
+	    return PlayerData;
+	}();
+	
+	var GameData = exports.GameData = function () {
+	    function GameData(raw) {
+	        _classCallCheck(this, GameData);
+	
+	        this[RAW] = raw;
+	        this[PLAYER] = raw.player.map(function (player) {
+	            return new PlayerData(player);
+	        });
+	    }
+	
+	    _createClass(GameData, [{
+	        key: 'me',
+	        get: function get() {
+	            return this[PLAYER][0].username === localStorage.getItem('rpg-username') ? this[PLAYER][0] : this[PLAYER][1];
+	        }
+	    }, {
+	        key: 'them',
+	        get: function get() {
+	            return this[PLAYER][0].username !== localStorage.getItem('rpg-username') ? this[PLAYER][0] : this[PLAYER][1];
+	        }
+	    }, {
+	        key: 'state',
+	        get: function get() {
+	            return this[RAW].state;
+	        }
+	    }, {
+	        key: 'startDate',
+	        get: function get() {
+	            return this[RAW]['start-date'];
+	        }
+	    }, {
+	        key: 'lastPlayDate',
+	        get: function get() {
+	            return this[RAW]['last-play-date'];
+	        }
+	    }]);
+	
+	    return GameData;
+	}();
+	
+	var game = exports.game = undefined;
+	
+	var setGame = exports.setGame = function setGame(data) {
+	    exports.game = game = new GameData(data);
+	};
+
+/***/ },
+/* 273 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+/***/ },
+/* 274 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/*
+	    Allows the player to change their settings
+	*/
+	'use strict';
+	
+	var _jquery = __webpack_require__(199);
+	
+	var _jquery2 = _interopRequireDefault(_jquery);
+	
+	__webpack_require__(275);
+	
+	__webpack_require__(276);
+	
+	__webpack_require__(277);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var $tabs = (0, _jquery2.default)('#settings p[data-tab]');
+	$tabs.click(function () {
+	    $tabs.removeClass('selected');
+	    (0, _jquery2.default)(this).addClass('selected');
+	    (0, _jquery2.default)('#settings fieldset,#settings p').removeClass('active');
+	    (0, _jquery2.default)('#settings #' + (0, _jquery2.default)(this).attr('data-tab')).addClass('active').children('input').eq(0).focus();
+	});
+
+/***/ },
 /* 275 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/*
+	    Changes the player's password
+	*/
+	'use strict';
+	
+	var _jquery = __webpack_require__(199);
+	
+	var _jquery2 = _interopRequireDefault(_jquery);
+	
+	var _socket = __webpack_require__(200);
+	
+	var _generator = __webpack_require__(254);
+	
+	var _generator2 = _interopRequireDefault(_generator);
+	
+	var _const = __webpack_require__(258);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var $form = (0, _jquery2.default)('fieldset#change-password');
+	
+	var validate = function validate(old, password, confirm) {
+	    return new Promise(function (resolve, reject) {
+	        // Don't bother sending guaranteed invalid data to the server
+	        if (password !== confirm) {
+	            return reject('Your passwords do not match.');
+	        }
+	        if (!_const.VALID_PASSWORD.test(password)) {
+	            return reject('That is not a valid password.');
+	        }
+	        if (!_const.VALID_PASSWORD.test(old)) {
+	            return reject('Your current password is incorrect');
+	        }
+	        resolve();
+	    });
+	};
+	
+	var submit = function submit() {
+	    (0, _jquery2.default)('#settings-error').text('');
+	    (0, _generator2.default)(regeneratorRuntime.mark(function _callee() {
+	        var old, password, confirm;
+	        return regeneratorRuntime.wrap(function _callee$(_context) {
+	            while (1) {
+	                switch (_context.prev = _context.next) {
+	                    case 0:
+	                        _context.prev = 0;
+	                        old = (0, _jquery2.default)('#change-password-old').val();
+	                        password = (0, _jquery2.default)('#change-password-new').val();
+	                        confirm = (0, _jquery2.default)('#change-password-confirm').val();
+	                        _context.next = 6;
+	                        return validate(old, password, confirm);
+	
+	                    case 6:
+	                        _context.next = 8;
+	                        return _socket.promisified.emit('main-menu:change-password', { old: old, password: password });
+	
+	                    case 8:
+	                        (0, _jquery2.default)('#settings-saved').addClass('active');
+	                        (0, _jquery2.default)('#change-password-old,#change-password-new,#change-password-confirm').val('');
+	                        (0, _jquery2.default)('#change-password').removeClass('active');
+	                        localStorage.setItem('rpg-password', password);
+	                        _context.next = 17;
+	                        break;
+	
+	                    case 14:
+	                        _context.prev = 14;
+	                        _context.t0 = _context['catch'](0);
+	
+	                        (0, _jquery2.default)('#settings-error').text(_context.t0);
+	
+	                    case 17:
+	                    case 'end':
+	                        return _context.stop();
+	                }
+	            }
+	        }, _callee, this, [[0, 14]]);
+	    }));
+	};
+	
+	$form.children('button').click(submit);
+
+/***/ },
+/* 276 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/*
+	    Changes the player's password
+	*/
+	'use strict';
+	
+	var _jquery = __webpack_require__(199);
+	
+	var _jquery2 = _interopRequireDefault(_jquery);
+	
+	var _socket = __webpack_require__(200);
+	
+	var _generator = __webpack_require__(254);
+	
+	var _generator2 = _interopRequireDefault(_generator);
+	
+	var _const = __webpack_require__(258);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var $form = (0, _jquery2.default)('fieldset#change-username');
+	
+	var validate = function validate(username, confirm) {
+	    return new Promise(function (resolve, reject) {
+	        // Don't bother sending guaranteed invalid data to the server
+	        if (username !== confirm) {
+	            return reject('Your usernames do not match.');
+	        }
+	        if (!_const.VALID_USERNAME.test(username)) {
+	            return reject('That is not a valid username.');
+	        }
+	        resolve();
+	    });
+	};
+	
+	var submit = function submit() {
+	    (0, _jquery2.default)('#settings-error').text('');
+	    (0, _generator2.default)(regeneratorRuntime.mark(function _callee() {
+	        var username, confirm;
+	        return regeneratorRuntime.wrap(function _callee$(_context) {
+	            while (1) {
+	                switch (_context.prev = _context.next) {
+	                    case 0:
+	                        _context.prev = 0;
+	                        username = (0, _jquery2.default)('#change-username-new').val();
+	                        confirm = (0, _jquery2.default)('#change-username-confirm').val();
+	                        _context.next = 5;
+	                        return validate(username, confirm);
+	
+	                    case 5:
+	                        _context.next = 7;
+	                        return _socket.promisified.emit('main-menu:change-username', { username: username });
+	
+	                    case 7:
+	                        (0, _jquery2.default)('#settings-saved').addClass('active');
+	                        (0, _jquery2.default)('#change-username-new,#change-username-confirm').val('');
+	                        (0, _jquery2.default)('#change-username').removeClass('active');
+	                        localStorage.setItem('rpg-username', username);
+	                        _context.next = 16;
+	                        break;
+	
+	                    case 13:
+	                        _context.prev = 13;
+	                        _context.t0 = _context['catch'](0);
+	
+	                        (0, _jquery2.default)('#settings-error').text(_context.t0);
+	
+	                    case 16:
+	                    case 'end':
+	                        return _context.stop();
+	                }
+	            }
+	        }, _callee, this, [[0, 13]]);
+	    }));
+	};
+	
+	$form.children('button').click(submit);
+
+/***/ },
+/* 277 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/*
+	    Changes the player's password
+	*/
+	'use strict';
+	
+	var _jquery = __webpack_require__(199);
+	
+	var _jquery2 = _interopRequireDefault(_jquery);
+	
+	var _socket = __webpack_require__(200);
+	
+	var _generator = __webpack_require__(254);
+	
+	var _generator2 = _interopRequireDefault(_generator);
+	
+	var _const = __webpack_require__(258);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var $form = (0, _jquery2.default)('fieldset#change-email');
+	
+	var validate = function validate(email, confirm) {
+	    return new Promise(function (resolve, reject) {
+	        // Don't bother sending guaranteed invalid data to the server
+	        if (email !== confirm) {
+	            return reject('Your emails do not match.');
+	        }
+	        if (!_const.VALID_EMAIL.test(email)) {
+	            return reject('That is not a valid email.');
+	        }
+	        resolve();
+	    });
+	};
+	
+	var submit = function submit() {
+	    (0, _jquery2.default)('#settings-error').text('');
+	    (0, _generator2.default)(regeneratorRuntime.mark(function _callee() {
+	        var email, confirm;
+	        return regeneratorRuntime.wrap(function _callee$(_context) {
+	            while (1) {
+	                switch (_context.prev = _context.next) {
+	                    case 0:
+	                        _context.prev = 0;
+	                        email = (0, _jquery2.default)('#change-email-new').val();
+	                        confirm = (0, _jquery2.default)('#change-email-confirm').val();
+	                        _context.next = 5;
+	                        return validate(email, confirm);
+	
+	                    case 5:
+	                        _context.next = 7;
+	                        return _socket.promisified.emit('main-menu:change-email', { email: email });
+	
+	                    case 7:
+	                        (0, _jquery2.default)('#settings-saved').addClass('active');
+	                        (0, _jquery2.default)('#change-email-new,#change-email-confirm').val('');
+	                        (0, _jquery2.default)('#change-email').removeClass('active');
+	                        _context.next = 15;
+	                        break;
+	
+	                    case 12:
+	                        _context.prev = 12;
+	                        _context.t0 = _context['catch'](0);
+	
+	                        (0, _jquery2.default)('#settings-error').text(_context.t0);
+	
+	                    case 15:
+	                    case 'end':
+	                        return _context.stop();
+	                }
+	            }
+	        }, _callee, this, [[0, 12]]);
+	    }));
+	};
+	
+	$form.children('button').click(submit);
+
+/***/ },
+/* 278 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/*
+	    Logs out the player, sending them back to the login page
+	*/
+	'use strict';
+	
+	var _jquery = __webpack_require__(199);
+	
+	var _jquery2 = _interopRequireDefault(_jquery);
+	
+	var _generator = __webpack_require__(254);
+	
+	var _generator2 = _interopRequireDefault(_generator);
+	
+	var _socket = __webpack_require__(200);
+	
+	var _login = __webpack_require__(255);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	(0, _jquery2.default)('#sec-main-menu p[data-action="logout"]').click(function () {
+	    (0, _generator2.default)(regeneratorRuntime.mark(function _callee() {
+	        return regeneratorRuntime.wrap(function _callee$(_context) {
+	            while (1) {
+	                switch (_context.prev = _context.next) {
+	                    case 0:
+	                        (0, _jquery2.default)('input').val('');
+	                        (0, _login.reset)();
+	                        localStorage.removeItem('rpg-username');
+	                        localStorage.removeItem('rpg-password');
+	                        _context.next = 6;
+	                        return _socket.promisified.emit('main-menu:logout');
+	
+	                    case 6:
+	                    case 'end':
+	                        return _context.stop();
+	                }
+	            }
+	        }, _callee, this);
+	    }));
+	});
+
+/***/ },
+/* 279 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*

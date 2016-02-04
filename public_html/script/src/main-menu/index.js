@@ -30,13 +30,9 @@ $labels.click(function() {
     $(`#${$(this).attr('data-for')}`).addClass('active');
 });
 
-// Loads the current games in progress from the server
+// Show the menu
 onLogin(() => {
-    generate(function*() {
-        $('#sec-main-menu,#main-menu').addClass('active');
-        const games = yield socket.emit('main-menu:games-in-progress', localStorage.getItem('rpg-username'));
-        createGameList(games);
-    });
+    $('#sec-main-menu,#main-menu').addClass('active');
 });
 
 // Add keyboard events to settings page

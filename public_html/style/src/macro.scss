@@ -19,6 +19,8 @@ $textHover: lighten($textClickable, 30%);
 $onlineColor: rgb(29, 171, 42);
 $offlineColor: rgb(129, 129, 129);
 
+$whitebox: rgba(255, 255, 255, 0.85);
+
 @function borderize($c) {
     @return darken($c, 50%);
 }

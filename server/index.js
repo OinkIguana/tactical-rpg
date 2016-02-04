@@ -5,6 +5,7 @@ import socket_io from 'socket.io';
 import {PORT} from './config';
 
 import query from './query';
+import friends from './friends';
 import login from './login';
 import mainMenu from './main-menu';
 import {socketUser, removeUser} from './user';
@@ -34,6 +35,7 @@ io.on('connection', (socket) => {
         }
     });
     query(socket);
+    friends(socket);
     login(socket);
     mainMenu(socket);
 });

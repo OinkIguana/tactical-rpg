@@ -1,36 +1,22 @@
 <section id="sec-friends">
+    <div id="friend-request-form" class="toggleable">
+        <fieldset>
+            <legend>Add a friend</legend>
+            <aside id="friend-request-error"></aside>
+            <input type="text" id="friend-request-username" autocomplete="off" placeholder="Username">
+            <button>Send request</button>
+        </fieldset>
+    </div>
+    <div id="friend-notifications"></div>
     <footer>
-        <div data-who="OinkIguana">
-            <header>
-                <span class="user online">OinkIguana</span><span class="icon close"></span>
-            </header>
-            <main>
-
-            </main>
-        </div>
-        <div data-who="Confused Mandarin">
-            <header>
-                <span class="user">Confused Mandarin</span><span class="icon close"></span>
-            </header>
-            <main>
-                <p class="them">
-                    Hello
-                </p>
-                <p class="me">
-                    Hello
-                </p>
-            </main>
-        </div>
+        <!-- Chat boxes -->
         <aside>
             <header>
                 Friend list
             </header>
             <main>
-                <ul>
-                    <li><span class="user">OinkIguana</span></li>
-                    <li><span class="user">Confused Mandarin</span></li>
-                    <li><span class="user">Kittyalyst</span></li>
-                </ul>
+                <ul id="friend-list"></ul>
+                <span class="icon add"></span>
             </main>
         </aside>
     </footer>

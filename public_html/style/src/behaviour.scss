@@ -38,4 +38,5 @@ section.toggleable {
     display: inline-block;
     text-align: center;
     &.close::after { content: 'x'; }
+    &.add::after { content: '+'; }
 }

@@ -39,7 +39,7 @@ const submit = () => {
             localStorage.setItem('rpg-username', username);
             localStorage.setItem('rpg-password', password);
             $('#sec-login,#sec-login *').removeClass('active');
-            loginHooks.forEach((fn) => fn());
+            loginHooks.forEach((fn) => fn(Promise.resolve()));
         } catch(error) {
             localStorage.removeItem('rpg-username');
             localStorage.removeItem('rpg-password');
@@ -54,12 +54,13 @@ generate(function*() {
         if(!localStorage.getItem('rpg-username') || !localStorage.getItem('rpg-password')) { throw 'No token'; }
         // Assume they are logged in correctly
         $('#sec-login,#sec-login *').removeClass('active');
-        window.setTimeout(() => loginHooks.forEach((fn) => fn()), 0);
         // But check to make sure
-        yield socket.emit('login:login', {
+        const loggedIn = socket.emit('login:login', {
             username: localStorage.getItem('rpg-username'),
             password: localStorage.getItem('rpg-password'),
         });
+        window.setTimeout(() => loginHooks.forEach((fn) => fn(loggedIn)), 0);
+        yield loggedIn;
     } catch(error) {
         localStorage.removeItem('rpg-username');
         localStorage.removeItem('rpg-password');
