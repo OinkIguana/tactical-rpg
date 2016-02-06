@@ -4,9 +4,9 @@
 */
 'use strict';
 
-import {Drawable} from './drawable.js';
-import draw from '../draw.js';
-import {Rect} from '../util.js';
+import {Drawable} from './drawable';
+import draw from '../draw';
+import {Rect} from '../graphical-util';
 
 const   [SUBIMAGE_INDEX, SUBIMAGE_BOUNDS, IMAGE_SET] =
         [Symbol('SUBIMAGE_INDEX'), Symbol('SUBIMAGE_BOUNDS'), Symbol('IMAGE_SET')];
@@ -22,7 +22,7 @@ export const DrawableSprite = class extends Drawable {
         }
         this[IMAGE_SET] = imageSet;
         this[SUBIMAGE_INDEX] = 0;
-        this.frameDuration = frameDuration || 1; //TODO find a good default value
+        this.frameDuration = frameDuration || 5; //TODO find a good default value
         const imageRect = imageSetBounds || new Rect(0, 0, imageSet.width, imageSet.height);
         this.setupSubImageBounds(imageRect, subImageWidth, subImageHeight);
     }
@@ -38,8 +38,8 @@ export const DrawableSprite = class extends Drawable {
 
     get subImageBounds() { return this[SUBIMAGE_BOUNDS]; }
 
-    draw(xOffset = 0, yOffset = 0, shouldDrawChildren = true) {
-        super.draw(xOffset, yOffset, false);
+    draw(xOffset = 0, yOffset = 0) {
+        super.draw(xOffset, yOffset);
         if (this.shouldRedraw) {
             draw.transformed({translate: {x: xOffset, y: yOffset}}, () => {
                 draw.image(

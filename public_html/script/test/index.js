@@ -15,4 +15,6 @@ import './socket';
 import './draw';
 import './generator';
 import './util';
+import './graphical-util';
 import './drawable';
+import './grid+draggable';
