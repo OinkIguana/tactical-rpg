@@ -41,12 +41,12 @@ describe('root-drawable.js', () => {
         const grandchild = new Drawable({frame: new Rect(2,2,12,12)});
         child.addChild(grandchild);
         it('should return the RootDrawable if it\'s called on a child', () => {
-            grandchild.getRootDrawable().should.deep.equal(root);
-            child.getRootDrawable().should.deep.equal(root);
+            grandchild.rootDrawable.should.deep.equal(root);
+            child.rootDrawable.should.deep.equal(root);
         });
         it('should return undefined if it\'s called on a drawable not in the hierarchy', () => {
             child.removeFromParent();
-            should.not.exist(grandchild.getRootDrawable());
+            should.not.exist(grandchild.rootDrawable);
         });
     });
 });

@@ -25,7 +25,7 @@ export const DraggableGrid = class extends Draggable {
 
     onMouseUp(e) {
         if (this.isDragging === true && this.parent !== undefined) {
-            const gm = this.parent.getRootDrawable().gridManager;
+            const gm = this.parent.rootDrawable.gridManager;
             if (gm === undefined) {
                 throw new Error(
                     'DraggableGrid\'s parent doesn\'t have a grid manager',

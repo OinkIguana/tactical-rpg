@@ -90,10 +90,10 @@ export const Drawable = class {
         });
     }
 
-    getRootDrawable() { //gets the drawable that's directly on the canvas
+    get rootDrawable() { //gets the drawable that's directly on the canvas
                         //throws if the drawable isn't in the view heirarchy
         if (this[PARENT] !== undefined){
-            return this[PARENT].getRootDrawable();
+            return this[PARENT].rootDrawable;
         }
         else {
             return undefined;

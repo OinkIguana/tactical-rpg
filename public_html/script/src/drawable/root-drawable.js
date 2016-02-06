@@ -33,7 +33,7 @@ export const RootDrawable = class extends Drawable {
 
     get canvasID() { return this[CANVAS_ID]; }
 
-    getRootDrawable() { return this; }
+    get rootDrawable() { return this; }
 
     removeFromParent() {
         throw new Error(
