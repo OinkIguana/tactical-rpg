@@ -6,11 +6,11 @@ const should = should_();
 import {spy, stub} from 'sinon';
 
 import {Rect, Point, Size} from '../../src/graphical-util';
-import Grid from '../../src/grid+draggable/grid';
-import GridManager from '../../src/grid+draggable/grid-manager';
+import Grid from '../../src/grid/grid';
+import GridManager from '../../src/grid/grid-manager';
 import RootDrawable from '../../src/drawable/root-drawable';
-import Draggable from '../../src/grid+draggable/draggable';
-import DraggableGrid from '../../src/grid+draggable/draggable-grid';
+import Draggable from '../../src/draggable/draggable';
+import DraggableGrid from '../../src/draggable/draggable-grid';
 
 describe('draggable-grid.js', () => {
     describe('onMouseUp', () => {

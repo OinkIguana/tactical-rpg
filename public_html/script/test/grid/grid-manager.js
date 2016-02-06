@@ -6,8 +6,8 @@ const should = should_();
 import {spy, stub} from 'sinon';
 
 import {Rect, Point, Size} from '../../src/graphical-util';
-import Grid from '../../src/grid+draggable/grid';
-import GridManager from '../../src/grid+draggable/grid-manager';
+import Grid from '../../src/grid/grid';
+import GridManager from '../../src/grid/grid-manager';
 
 describe('grid-manager.js', () => {
     const gm = new GridManager('game');

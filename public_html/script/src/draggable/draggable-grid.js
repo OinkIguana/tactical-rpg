@@ -25,17 +25,16 @@ export const DraggableGrid = class extends Draggable {
 
     onMouseUp(e) {
         if (this.isDragging === true && this.parent !== undefined) {
-            let gm = this.parent.getRootDrawable().gridManager;
+            const gm = this.parent.getRootDrawable().gridManager;
             if (gm === undefined) {
                 throw new Error(
                     'DraggableGrid\'s parent doesn\'t have a grid manager',
                     'draggable-grid.js'
                 );
             }
-            let cellFrame = gm.cellForPointAndGrids(this.frame.center, this.grids);
+            const cellFrame = gm.cellForPointAndGrids(this.frame.center, this.grids);
             this.canDrag = false;
-            let dest = this[LAST_ORIGIN];
-            if (cellFrame !== undefined) { dest = cellFrame.origin; }
+            const dest = (cellFrame !== undefined) ? cellFrame.origin : this[LAST_ORIGIN];
             this.animateToPoint({pt: dest, speed: 4, completion: () => {
                 this.canDrag = true;
             }});

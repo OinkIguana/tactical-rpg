@@ -17,4 +17,5 @@ import './generator';
 import './util';
 import './graphical-util';
 import './drawable';
-import './grid+draggable';
+import './grid';
+import './draggable';

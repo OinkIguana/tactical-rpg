@@ -114,8 +114,7 @@ export const DrawableLabel = class extends Drawable {
         super.draw(xOffset, yOffset, false);
         if (this.shouldRedraw) {
             draw.setFont(this.font);
-            let yFactor = 1;
-            if (this.font.verticalAlign === VerticalAlign.bottom) { yFactor = -1; }
+            const yFactor = (this.font.verticalAlign === VerticalAlign.bottom) ? 1 : -1;
             const textPos = this.textStartFromAligns();
             for (let line of this[LINES]) {
                 draw.text(line, ...textPos);

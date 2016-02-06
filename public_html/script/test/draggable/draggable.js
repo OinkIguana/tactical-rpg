@@ -9,7 +9,7 @@ import $ from 'jquery';
 import {Rect, Point} from '../../src/graphical-util';
 import Drawable from '../../src/drawable/drawable';
 import RootDrawable from '../../src/drawable/root-drawable';
-import Draggable from '../../src/grid+draggable/draggable';
+import Draggable from '../../src/draggable/draggable';
 
 describe('draggable.js', () => {
     const draggable = new Draggable({frame: new Rect(20, 40, 50, 50)});

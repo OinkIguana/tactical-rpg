@@ -5,7 +5,7 @@
 
 import {Drawable} from './drawable';
 import {setCanvas} from '../canvas';
-import {GridManager} from '../grid+draggable/grid-manager';
+import {GridManager} from '../grid/grid-manager';
 
 const [CANVAS_ID, GRID_MANAGER] = [Symbol('CANVAS_ID'), Symbol('GRID_MANAGER')];
 
@@ -33,9 +33,7 @@ export const RootDrawable = class extends Drawable {
 
     get canvasID() { return this[CANVAS_ID]; }
 
-    getRootDrawable() {
-        return this;
-    }
+    getRootDrawable() { return this; }
 
     removeFromParent() {
         throw new Error(
@@ -45,8 +43,6 @@ export const RootDrawable = class extends Drawable {
     }
 
     draw(xOffset = 0, yOffset = 0) {
-    //    console.log(this);
-    //    console.log(this.canvasID);
         if (this.canvasID === undefined) {
             throw new Error(
                 'Trying to draw from a RootDrawable without a canvasID',

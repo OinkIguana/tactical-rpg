@@ -1,4 +1,6 @@
-/****************************************   graphic utils   ******************************************/
+/*
+    Util functions / classes for visual / graphic purposes
+*/
 'use strict';
 
 import {textWidth, setFont} from './draw.js';
@@ -7,6 +9,14 @@ export const Point = class { //a basic (x, y) coordinate
     constructor(x, y) {
         this.x = x;
         this.y = y;
+    }
+
+    distTo(...args) {
+        let pt = args[0];
+        if (args.length === 2) {
+            pt = new Point(args[0], args[1]);
+        }
+        return dist(this, pt);
     }
 
     [Symbol.iterator]() { return [this.x, this.y]; }
@@ -43,15 +53,23 @@ export const Rect = class { //graphical rect - origin is top left
 
     get bottom() { return this.y + this.height; }
 
-    set center(c) {
-        this.x = c.x - this.width / 2;
-        this.y = c.y - this.height / 2;
+    set center(...args) {
+        let pt = args[0];
+        if (args.length === 2) {
+            pt = new Point(args[0], args[1]);
+        }
+        this.x = pt.x - this.width / 2;
+        this.y = pt.y - this.height / 2;
     }
     get center() { return new Point(this.x + this.width / 2, this.y + this.height / 2); }
 
     set origin(...args) {
-        this.x = args[0].x;
-        this.y = args[0].y;
+        let pt = args[0];
+        if (args.length === 2) {
+            pt = new Point(args[0], args[1]);
+        }
+        this.x = pt.x;
+        this.y = pt.y;
     }
 
     get origin() { return new Point(this.x, this.y); }
@@ -65,8 +83,8 @@ export const Rect = class { //graphical rect - origin is top left
         if (args.length === 2) {
             pt = new Point(args[0], args[1]);
         }
-        return (pt.x >= this.x && pt.x <= this.right &&
-                pt.y >= this.y && pt.y <= this.bottom);
+        return (pt.x >= this.x && pt.x < this.right &&
+                pt.y >= this.y && pt.y < this.bottom);
     }
 };
 

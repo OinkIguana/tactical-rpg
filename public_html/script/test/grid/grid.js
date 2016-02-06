@@ -6,7 +6,7 @@ const should = should_();
 import {spy, stub} from 'sinon';
 
 import {Rect, Point, Size} from '../../src/graphical-util';
-import Grid from '../../src/grid+draggable/grid';
+import Grid from '../../src/grid/grid';
 
 describe('grid.js', () => {
     const grid = new Grid(new Rect(0, 0, 400, 200), new Size(40, 40));

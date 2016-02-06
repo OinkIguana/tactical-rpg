@@ -75,15 +75,19 @@ export const Drawable = class {
         this[MOVEMENT_VECTOR] = new Point(0, 0);
     }
 
-    animateToPoint({pt, speed, completion}) { //speed in pixels / frame
-        if (speed === undefined) { speed = 4; }
-        if (speed === 0) { return; }
-        if (completion !== undefined) { this[ANIM_COMPLETION] = completion; }
-        let distance = dist(pt, this.frame.origin);
-        let dx = speed / distance * (pt.x - this.frame.x);
-        let dy = speed / distance * (pt.y - this.frame.y);
-        this[DEST_POINT] = pt;
-        this[MOVEMENT_VECTOR] = new Point(dx, dy);
+    animateToPoint(opts) { //speed in pixels / frame
+        return new Promise((resolve, reject) => {
+            const speed = opts.speed || 4;
+            const pt = opts.pt;
+            const completion = opts.completion || (() => {});
+            if(pt === undefined) { return completion(), resolve(); }
+            const distance = dist(pt, this.frame.origin);
+            const dx = speed / distance * (pt.x - this.frame.x);
+            const dy = speed / distance * (pt.y - this.frame.y);
+            this[DEST_POINT] = pt;
+            this[MOVEMENT_VECTOR] = new Point(dx, dy);
+            this[ANIM_COMPLETION] = () => { resolve(); completion(); };
+        });
     }
 
     getRootDrawable() { //gets the drawable that's directly on the canvas
@@ -116,40 +120,6 @@ export const Drawable = class {
 
     get frame() {
         return this[FRAME];
-        /*const that = this;
-        if(window.Proxy !== undefined) {
-            return new Proxy(this[FRAME], {
-                get(target, property) { return target[property]; },
-                set(target, property, value) {
-                    that.shouldRedraw = true;
-                    target[property] = value;
-                }
-            });
-        } else {
-            return {
-                get x() { return that[FRAME].x; },
-                set x(v) {
-                    that.shouldRedraw = true;
-                    that[FRAME].x = v;
-                },
-                get y() { return that[FRAME].y; },
-                set y(v) {
-                    that.shouldRedraw = true;
-                    that[FRAME].y = v;
-                },
-                get width() { return that[FRAME].width; },
-                set width(v) {
-                    that.shouldRedraw = true;
-                    that[FRAME].width = v;
-                },
-                get height() { return that[FRAME].height; },
-                set height(v) {
-                    that.shouldRedraw = true;
-                    that[FRAME].height = v;
-                },
-                [Symbol.iterator]() { return that[FRAME][Symbol.iterator](); }
-            };
-        }*/
     }
     set frame(frame) {
         if (!(frame instanceof Rect)) {

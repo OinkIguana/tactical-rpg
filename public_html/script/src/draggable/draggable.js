@@ -12,7 +12,7 @@ import DrawableImage from '../drawable/drawable-image';
 import RootDrawable from '../drawable/root-drawable';
 import {Point} from '../graphical-util';
 
-const [IS_DRAGGING, TOUCH_OFFSET, JQCANVAS, ADD_MH, REM_MH] =
+const [IS_DRAGGING, TOUCH_OFFSET, $CANVAS, ADD_MOUSE_HANDLERS, REMOVE_MOUSE_HANDLERS] =
     [Symbol('IS_DRAGGING'), Symbol('JQCANVAS'), Symbol('ADD_MH'),
     Symbol('REM_MH'), Symbol('TOUCH_OFFSET')];
 
@@ -25,19 +25,19 @@ export const Draggable = class extends DrawableImage {
                 'draggable.js'
             );
         } else if (newParent === undefined) {
-            this[REM_MH]();
-            this[JQCANVAS] = undefined;
+            this[REMOVE_MOUSE_HANDLERS]();
+            this[$CANVAS] = undefined;
         } else if ( (newParent !== undefined && this.parent === undefined) ||
                     (this.parent !== undefined &&
                     this.parent.canvasID !== newParent.canvasID)) {
-            this[JQCANVAS] = $(`#${newParent.canvasID}`);
-            this[ADD_MH]();
+            this[$CANVAS] = $(`#${newParent.canvasID}`);
+            this[ADD_MOUSE_HANDLERS]();
         }
         this.canDrag = true;
         super.removeFromParent(newParent);
     }
 
-    get jqCanvas() { return this[JQCANVAS]; }
+    get jqCanvas() { return this[$CANVAS]; }
 
     get isDragging() { return this[IS_DRAGGING]; }
 
@@ -56,13 +56,13 @@ export const Draggable = class extends DrawableImage {
         }
     }
 
-    [REM_MH]() {
-        this.jqCanvas.unbind('mousedown', $.proxy(this.onMouseDown, this));
-        this.jqCanvas.unbind('mouseup', $.proxy(this.onMouseUp, this));
-        this.jqCanvas.unbind('mousemove', $.proxy(this.onMouseMove, this));
+    [REMOVE_MOUSE_HANDLERS]() {
+        this.jqCanvas.off('mousedown', $.proxy(this.onMouseDown, this));
+        this.jqCanvas.off('mouseup', $.proxy(this.onMouseUp, this));
+        this.jqCanvas.off('mousemove', $.proxy(this.onMouseMove, this));
     }
 
-    [ADD_MH]() {
+    [ADD_MOUSE_HANDLERS]() {
         this.jqCanvas.mousedown($.proxy(this.onMouseDown, this));
         this.jqCanvas.mouseup($.proxy(this.onMouseUp, this));
         this.jqCanvas.mousemove($.proxy(this.onMouseMove, this));

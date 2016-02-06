@@ -1,3 +1,7 @@
+/*
+    GridManager manages the grids added to a canvas. Add a GridManager to
+    a RootDrawable and then add grids to it.
+*/
 'use strict';
 
 import Grid from './grid';
@@ -19,7 +23,7 @@ export const GridManager = class {
                 'grid-manager.js'
             );
         }
-        let index = this[GRIDS].indexOf(grid);
+        const index = this[GRIDS].indexOf(grid);
         if (index !== -1) {
             throw new Error(
                 'Trying to add a grid to a grid manager it\'s already in',

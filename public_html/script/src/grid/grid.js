@@ -1,3 +1,6 @@
+/*
+    A data structure to represent a matrix of cells
+*/
 'use strict';
 
 import {Rect, Point, Size} from '../graphical-util';
@@ -18,15 +21,15 @@ export const Grid = class {
 
     frameForPoint(pt, minDist = 1000000000) {
         //returns an object containing the frame and its distance from pt
-        let initialX = this.frame.x + this.cellSpacing;
-        let xIncrement = this.cellSize.width + this.cellSpacing;
-        let initialY = this.frame.y + this.cellSpacing;
-        let yIncrement = this.cellSize.height + this.cellSpacing;
+        const initialX = this.frame.x + this.cellSpacing;
+        const xIncrement = this.cellSize.width + this.cellSpacing;
+        const initialY = this.frame.y + this.cellSpacing;
+        const yIncrement = this.cellSize.height + this.cellSpacing;
         let curPoint;
         for (let x = initialX; x < this.frame.right; x += xIncrement) {
             for (let y = initialY; y < this.frame.bottom; y += yIncrement) {
-                let cent = (new Rect(x, y, this.cellSize.width, this.cellSize.height)).center;
-                let dist =  (pt.x - cent.x) * (pt.x - cent.x) +
+                const cent = (new Rect(x, y, this.cellSize.width, this.cellSize.height)).center;
+                const dist =  (pt.x - cent.x) * (pt.x - cent.x) +
                             (pt.y - cent.y) * (pt.y - cent.y);
                 if (dist <= minDist) {
                     minDist = dist;
@@ -35,7 +38,7 @@ export const Grid = class {
             }
         }
         if (curPoint !== undefined) {
-            let retFrame = new Rect(0, 0, this.cellSize.width, this.cellSize.height);
+            const retFrame = new Rect(0, 0, this.cellSize.width, this.cellSize.height);
             retFrame.center = curPoint;
             return {frame: retFrame, dist: minDist};
         }

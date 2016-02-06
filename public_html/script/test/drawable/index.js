@@ -1,7 +1,7 @@
 'use strict';
 
-export * from './drawable';
-export * from './drawable-sprite';
-export * from './drawable-character';
-export * from './drawable-image';
-export * from './root-drawable';
+import './drawable';
+import './drawable-sprite';
+import './drawable-character';
+import './drawable-image';
+import './root-drawable';
