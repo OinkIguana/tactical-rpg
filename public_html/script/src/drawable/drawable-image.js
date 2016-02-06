@@ -5,9 +5,9 @@
 */
 'use strict';
 
-import {Drawable} from 'drawable.js';
-import draw from '../draw.js';
-import {aspectFillRect, aspectFitRect} from '../util.js';
+import {Drawable} from './drawable';
+import draw from '../draw';
+import {aspectFillRect, aspectFitRect} from '../graphical-util';
 
 const [BGIMAGE, IMG_FRAME, SCALE_MODE] =
         [Symbol('BGIMAGE'), Symbol('IMG_FRAME'), Symbol('SCALE_MODE')];
@@ -62,9 +62,10 @@ export const DrawableImage = class extends Drawable {
 
     get scaleMode() { return this[SCALE_MODE]; }
 
-    draw(xOffset = 0, yOffset = 0, shouldDrawChildren = true) {
-        super.draw(xOffset, yOffset, false);
+    draw(xOffset = 0, yOffset = 0) {
+        super.draw(xOffset, yOffset);
         if (this[BGIMAGE] !== undefined && this.shouldRedraw) {
+            let imgRect;
             switch (this[SCALE_MODE]) {
                 case ScaleMode.toFill:
                     if (this[IMG_FRAME] !== undefined) {
@@ -78,7 +79,7 @@ export const DrawableImage = class extends Drawable {
                     }
                     break;
                 case ScaleMode.aspectToFill:
-                    let imgRect = aspectFillRect(...this.frame.noPoint(), this[BGIMAGE].width / this[BGIMAGE].height);
+                    imgRect = aspectFillRect(...this.frame.noPoint(), this[BGIMAGE].width / this[BGIMAGE].height);
                     draw.transformed({translate: {x: xOffset, y: yOffset}}, () => {
                         new draw.Path()
                             .rect(...this.frame)
@@ -93,7 +94,7 @@ export const DrawableImage = class extends Drawable {
                     //             width: imgRect.width, height: this.frame.height});
                     break;
                 case ScaleMode.aspectToFit:
-                    let imgRect = aspectFitRect(...this.frame, this[BGIMAGE].width / this[BGIMAGE].height);
+                    imgRect = aspectFitRect(...this.frame, this[BGIMAGE].width / this[BGIMAGE].height);
                     draw.transformed({translate: {x: xOffset, y: yOffset}}, () => {
                         draw.image(this[BGIMAGE], ...imgRect);
                     });

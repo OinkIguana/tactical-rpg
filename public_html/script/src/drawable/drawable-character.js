@@ -5,7 +5,7 @@
 */
 'use strict';
 
-import {DrawableSprite} from './drawable-sprite.js';
+import {DrawableSprite} from './drawable-sprite';
 
 const [DIRECTION, SUBIMAGE_SIZE, IMAGESET_BOUNDS_LIST]
     = [Symbol('DIRECTION'), Symbol('SUBIMAGE_SIZE'), Symbol('IMAGESET_BOUNDS_LIST')];

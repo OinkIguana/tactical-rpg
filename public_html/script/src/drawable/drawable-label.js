@@ -5,9 +5,9 @@
 */
 'use strict';
 
-import {Drawable} from 'drawable.js';
-import draw from '../draw.js';
-import {linesFromString, Point} from '../util.js';
+import {Drawable} from 'drawable';
+import draw from '../draw';
+import {linesFromString, Point} from '../graphical-util';
 
 const [TEXT, LINES] = [Symbol('TEXT'), Symbol('LINES')];
 
@@ -114,10 +114,11 @@ export const DrawableLabel = class extends Drawable {
         super.draw(xOffset, yOffset, false);
         if (this.shouldRedraw) {
             draw.setFont(this.font);
+            const yFactor = (this.font.verticalAlign === VerticalAlign.bottom) ? 1 : -1;
             const textPos = this.textStartFromAligns();
             for (let line of this[LINES]) {
                 draw.text(line, ...textPos);
-                textPos.y += this.font.size + this.linePadding;
+                textPos.y += (this.font.size + this.linePadding) * yFactor;
             }
         }
     }

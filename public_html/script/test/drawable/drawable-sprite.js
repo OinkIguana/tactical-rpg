@@ -5,8 +5,8 @@ const should = should_();
 
 import $ from 'jquery';
 
-import {Rect} from '../../src/util.js';
-import DrawableSprite from '../../src/drawable/drawable-sprite.js';
+import {Rect} from '../../src/graphical-util';
+import DrawableSprite from '../../src/drawable/drawable-sprite';
 
 describe('drawable-sprite.js', () => {
     const sprite = new DrawableSprite({frame: new Rect(20, 20, 40, 30),

@@ -5,15 +5,18 @@
 */
 'use strict';
 
-import {range, Rect, Color} from '../util.js'; // You didn't implement Color...
-import draw from '../draw.js';
-import {canvas, context, setCanvas} from '../canvas.js';
+import {range} from '../util';
+import {Rect, Point, dist} from '../graphical-util';
+import draw from '../draw';
+import {canvas, context, setCanvas} from '../canvas';
 
 
-const [CHILDREN, PARENT, BGCOLOR, Z_INDEX, CANVAS_ID, FRAME]
+const [ CHILDREN, PARENT, BGCOLOR, Z_INDEX, FRAME, MOVEMENT_VECTOR,
+        DEST_POINT, ANIM_COMPLETION, ANIM_COMPLETE]
     = [Symbol('CHILDREN'), Symbol('PARENT'),
-       Symbol('BGCOLOR'), Symbol('Z_INDEX'), Symbol('CANVAS_ID'),
-       Symbol('FRAME')];
+       Symbol('BGCOLOR'), Symbol('Z_INDEX'),
+       Symbol('FRAME'), Symbol('MOVEMENT_VECTOR'),
+       Symbol('DEST_POINT'), Symbol('ANIM_COMPLETION'), Symbol('ANIM_COMPLETE')];
 
 export const Drawable = class {
     constructor({frame}) {
@@ -34,10 +37,20 @@ export const Drawable = class {
                 'Drawable.addChild is being passed an object that doesn\'t inherit from Drawable',
                 'drawable.js');
         }
+        child.removeFromParent(this);
         child[PARENT] = this;
         this[CHILDREN].push(child);
         this.shouldRedraw = true;
         this.sortChildren();
+    }
+
+    removeFromParent(newParent) { //call this BEFORE changing the parent
+                                //so the old parent can be accessed by this[PARENT]
+                                //if you call this passing a parent you should set
+                                //the parent immediately after
+        if (this[PARENT] !== undefined) {
+             this[PARENT].removeChild(this);
+        }
     }
 
     removeChild(child) {
@@ -56,19 +69,35 @@ export const Drawable = class {
         this.sortChildren();
     }
 
-    removeFromParent() {
-        if (this[PARENT] !== undefined) {
-            this[PARENT].removeChild(this);
+    [ANIM_COMPLETE]() {
+        this[ANIM_COMPLETION]();
+        this[ANIM_COMPLETION] = undefined;
+        this[MOVEMENT_VECTOR] = new Point(0, 0);
+    }
+
+    animateToPoint(opts) { //speed in pixels / frame
+        return new Promise((resolve, reject) => {
+            const speed = opts.speed || 4;
+            const pt = opts.pt;
+            const completion = opts.completion || (() => {});
+            if(pt === undefined) { return completion(), resolve(); }
+            const distance = dist(pt, this.frame.origin);
+            const dx = speed / distance * (pt.x - this.frame.x);
+            const dy = speed / distance * (pt.y - this.frame.y);
+            this[DEST_POINT] = pt;
+            this[MOVEMENT_VECTOR] = new Point(dx, dy);
+            this[ANIM_COMPLETION] = () => { resolve(); completion(); };
+        });
+    }
+
+    get rootDrawable() { //gets the drawable that's directly on the canvas
+                        //throws if the drawable isn't in the view heirarchy
+        if (this[PARENT] !== undefined){
+            return this[PARENT].rootDrawable;
         }
-    }
-
-    addToCanvas(canvasID) {
-        this[CANVAS_ID] = canvasID;
-        //this.draw(); TODO do we need this or should we keep it out?
-    }
-
-    get canvasID() {
-        return this[CANVAS_ID];
+        else {
+            return undefined;
+        }
     }
 
     get children() { return this[CHILDREN]; }
@@ -90,40 +119,7 @@ export const Drawable = class {
     }
 
     get frame() {
-        const that = this;
-        if(window.Proxy !== undefined) {
-            return new Proxy(this[FRAME], {
-                get(target, property) { return target[property]; },
-                set(target, property, value) {
-                    that.shouldRedraw = true;
-                    target[property] = value;
-                }
-            });
-        } else {
-            return {
-                get x() { return that[FRAME].x; },
-                set x(v) {
-                    that.shouldRedraw = true;
-                    that[FRAME].x = v;
-                },
-                get y() { return that[FRAME].y; },
-                set y(v) {
-                    that.shouldRedraw = true;
-                    that[FRAME].y = v;
-                },
-                get width() { return that[FRAME].width; },
-                set width(v) {
-                    that.shouldRedraw = true;
-                    that[FRAME].width = v;
-                },
-                get height() { return that[FRAME].height; },
-                set height(v) {
-                    that.shouldRedraw = true;
-                    that[FRAME].height = v;
-                },
-                [Symbol.iterator]() { return that[FRAME][Symbol.iterator](); }
-            };
-        }
+        return this[FRAME];
     }
     set frame(frame) {
         if (!(frame instanceof Rect)) {
@@ -150,8 +146,14 @@ export const Drawable = class {
                 'Trying to draw a Drawable that isn\'t in the draw hierarchy (not "on the screen")',
                 'drawable.js');
         }
-        else if (this.canvasID !== undefined) {
-            setCanvas(this.canvasID);
+        if (this[MOVEMENT_VECTOR] !== undefined && this[MOVEMENT_VECTOR].x !== 0 && this[MOVEMENT_VECTOR].y !== 0) {
+            this.frame.x += this[MOVEMENT_VECTOR].x;
+            this.frame.y += this[MOVEMENT_VECTOR].y;
+            if (Math.abs(this.frame.x - this[DEST_POINT].x) < //if the point is closer now than it would be next frame
+                Math.abs(this.frame.x + this[MOVEMENT_VECTOR].x - this[DEST_POINT].x)) {
+                    this.frame.origin = this[DEST_POINT];
+                    this[ANIM_COMPLETE]();
+                }
         }
         if (this.shouldRedraw) {
             if(this[BGCOLOR] !== 'transparent') {
@@ -168,7 +170,7 @@ export const Drawable = class {
 
     drawChildren(xOffset, yOffset) {
         for (let child of this[CHILDREN]) {
-            child.draw(xOffset + this[FRAME].x, yOffset + this[FRAME].y, true);
+            child.draw(xOffset + this[FRAME].x, yOffset + this[FRAME].y);
         }
     }
 };

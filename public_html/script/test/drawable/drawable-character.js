@@ -5,8 +5,8 @@ const should = should_();
 
 import $ from 'jquery';
 
-import {Rect} from '../../src/util.js';
-import {DrawableCharacter, Direction} from '../../src/drawable/drawable-character.js';
+import {Rect} from '../../src/graphical-util';
+import {DrawableCharacter, Direction} from '../../src/drawable/drawable-character';
 
 describe('drawable-character.js', () => {
     const character = new DrawableCharacter({
@@ -27,7 +27,7 @@ describe('drawable-character.js', () => {
 
     describe('set direction', () => {
         it('should throw a TypeError if direction is not in the Direction enum', () => {
-            (() => character.direction = 5).should.throw(TypeError);
+            (() => {character.direction = 5;}).should.throw(TypeError);
         });
         it('should modify DrawableSprite[SUBIMAGE_BOUNDS] correctly', () => {
             character.direction = Direction.down;

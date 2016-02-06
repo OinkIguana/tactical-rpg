@@ -15,8 +15,10 @@ export const setCanvas = (id) => {
     canvas = $(`canvas#${id}`);
     if(canvas.length === 1) {
         context = canvas[0].getContext('2d');
+        return true;
     } else {
         canvas = context = undefined;
+        return false;
     }
 };
 export default {canvas, context, setCanvas};
