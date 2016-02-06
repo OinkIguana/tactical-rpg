@@ -18,17 +18,8 @@ describe('drawable-image.js', () => {
         bgImage: new Image(800, 800),
         imageFrame: new Rect(40, 60, 100, 80)
     });
-    const root = new RootDrawable({frame: new Rect(0, 0, 300, 45), canvasID: 1});
+    const root = new RootDrawable({frame: new Rect(0, 0, 300, 45), canvasID: 'game'});
     root.addChild(dImage);
-    let fns;
-    before(() => {
-        fns = {
-            image: stub(draw, 'image')
-        };
-    });
-    after(() => {
-        fns.image.restore();
-    });
     describe('new DrawableImage', () => {
         it('should return a valid DrawableImage', () => {
             dImage.should.be.an.instanceof(DrawableImage);
@@ -40,11 +31,13 @@ describe('drawable-image.js', () => {
     });
 
     describe('draw', () => {
-        it('should draw an image', () => {
-            dImage.draw(30, 30);
+        it('should draw an image', (done) => {
+            const fn = spy(draw, 'image');
+            root.draw(30, 30);
             setTimeout(() => {
-                fns.image.should.have.been.called;
-                fns.image.args[0].should.deep.equal(dImage.backgroundImage);
+                fn.should.have.been.called;
+                fn.restore();
+                done();
             }, 0);
         });
     });

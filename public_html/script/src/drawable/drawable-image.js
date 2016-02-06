@@ -64,7 +64,7 @@ export const DrawableImage = class extends Drawable {
 
     draw(xOffset = 0, yOffset = 0) {
         super.draw(xOffset, yOffset);
-        if (this[BGIMAGE] !== undefined && this.shouldRedraw) {
+        if (this[BGIMAGE] !== undefined) {
             let imgRect;
             switch (this[SCALE_MODE]) {
                 case ScaleMode.toFill:
