@@ -4,17 +4,30 @@
 'use strict';
 
 import generate from '../generator';
-import {socketUser, removeUser, addUser, userID} from '../user';
+import {socketUser, removeUser, addUser, userID, userSocket} from '../user';
 import {gamesInProgress, changePassword, changeUsername, changeEmail} from './database';
+import {myFriends} from '../friends/database';
 
 export default (socket) => {
-    socket.on('disconnect', () => {
-        removeUser(socketUser(socket));
-    });
-    socket.on('main-menu:logout', (nil, res) => {
-        removeUser(socketUser(socket));
-        res();
-    });
+    const logout = (nil, res) => {
+        const username = socketUser(socket);
+        const id = userID(username);
+        removeUser(username);
+        typeof res === 'function' && res();
+        generate(function*() {
+            const friends = yield myFriends(id);
+            friends.forEach((friend) => {
+                const friendSocket = userSocket(friend);
+                if(friendSocket !== undefined) {
+                    friendSocket.emit('friends:state-change', {username: username, online: false});
+                }
+            });
+        });
+    };
+
+    socket.on('disconnect', logout);
+    socket.on('main-menu:logout', logout);
+
     socket.on('main-menu:games-in-progress', (nil, res) => {
         generate(function*() {
             try {

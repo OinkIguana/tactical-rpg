@@ -16,6 +16,7 @@ export const addFriendToList = (friend) => {
                 .append(
                     $('<span></span>')
                         .addClass(`user ${friend.online ? 'online' : 'offline'}`)
+                        .attr('data-who', friend.username)
                         .text(friend.username))
                 .click(function() {
                     $('#sec-friends footer')
@@ -30,6 +31,7 @@ export const addFriendToList = (friend) => {
                                         .append(
                                             $('<span></span>')
                                                 .addClass($(this).children('span').attr('class'))
+                                                .attr('data-who', friend.username)
                                                 .text(friend.username),
                                             $('<span></span>')
                                                 .addClass('icon close')
@@ -54,4 +56,10 @@ onLogin((loggedIn) => {
 socket.on('friends:request-confirmed', (who) => {
     // Assume online, since they just confirmed it now
     addFriendToList({username: who, online: true});
+});
+
+socket.on('friends:state-change', ({username, online}) => {
+    $(`.user[data-who=${username}]`)
+        .removeClass('online', 'offline')
+        .addClass(online ? 'online' : 'offline');
 });

@@ -22627,10 +22627,10 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	var addFriendToList = exports.addFriendToList = function addFriendToList(friend) {
-	    (0, _jquery2.default)('#friend-list').append((0, _jquery2.default)('<li></li>').append((0, _jquery2.default)('<span></span>').addClass('user ' + (friend.online ? 'online' : 'offline')).text(friend.username)).click(function () {
+	    (0, _jquery2.default)('#friend-list').append((0, _jquery2.default)('<li></li>').append((0, _jquery2.default)('<span></span>').addClass('user ' + (friend.online ? 'online' : 'offline')).attr('data-who', friend.username).text(friend.username)).click(function () {
 	        (0, _jquery2.default)('#sec-friends footer').prepend((0, _jquery2.default)('<div></div>').attr('data-who', friend.username).append((0, _jquery2.default)('<header></header>').click(function () {
 	            (0, _jquery2.default)(this).parent().toggleClass('open');
-	        }).append((0, _jquery2.default)('<span></span>').addClass((0, _jquery2.default)(this).children('span').attr('class')).text(friend.username), (0, _jquery2.default)('<span></span>').addClass('icon close').click(function () {
+	        }).append((0, _jquery2.default)('<span></span>').addClass((0, _jquery2.default)(this).children('span').attr('class')).attr('data-who', friend.username).text(friend.username), (0, _jquery2.default)('<span></span>').addClass('icon close').click(function () {
 	            (0, _jquery2.default)(this).parents('div[data-who]').remove();
 	        })), (0, _jquery2.default)('<main></main>')));
 	    }));
@@ -22709,6 +22709,13 @@
 	_socket.promisified.on('friends:request-confirmed', function (who) {
 	    // Assume online, since they just confirmed it now
 	    addFriendToList({ username: who, online: true });
+	});
+	
+	_socket.promisified.on('friends:state-change', function (_ref) {
+	    var username = _ref.username;
+	    var online = _ref.online;
+	
+	    (0, _jquery2.default)('.user[data-who=' + username + ']').removeClass('online', 'offline').addClass(online ? 'online' : 'offline');
 	});
 
 /***/ },

@@ -28,12 +28,6 @@ const io = socket_io(server);
 io.on('connection', (socket) => {
     // Error catch
     socket.on('error', console.error);
-    socket.on('disconnect', () => {
-        const user = socketUser(socket);
-        if(user !== undefined) {
-            removeUser(user);
-        }
-    });
     query(socket);
     friends(socket);
     login(socket);
