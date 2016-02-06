@@ -87,4 +87,17 @@ export default (socket) => {
             }
         });
     });
+
+    socket.on('friends:chat-message', ({username, message}, res) => {
+        const friendSocket = userSocket(username);
+        if(friendSocket !== undefined) {
+            friendSocket.emit('friends:chat-message', {
+                username: socketUser(socket),
+                message: message
+            });
+            res(null);
+        } else {
+            res('Friend is not online');
+        }
+    });
 };

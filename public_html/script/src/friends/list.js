@@ -8,6 +8,7 @@ import $ from 'jquery';
 import {promisified as socket} from '../socket';
 import generate from '../generator';
 import {onLogin} from '../login';
+import {addChatBox} from './chat';
 
 export const addFriendToList = (friend) => {
     $('#friend-list')
@@ -15,31 +16,10 @@ export const addFriendToList = (friend) => {
             $('<li></li>')
                 .append(
                     $('<span></span>')
-                        .addClass(`user ${friend.online ? 'online' : 'offline'}`)
+                        .addClass(`user ${friend.online ? 'on' : 'off'}line`)
                         .attr('data-who', friend.username)
                         .text(friend.username))
-                .click(function() {
-                    $('#sec-friends footer')
-                        .prepend(
-                            $('<div></div>')
-                                .attr('data-who', friend.username)
-                                .append(
-                                    $('<header></header>')
-                                        .click(function() {
-                                            $(this).parent().toggleClass('open');
-                                        })
-                                        .append(
-                                            $('<span></span>')
-                                                .addClass($(this).children('span').attr('class'))
-                                                .attr('data-who', friend.username)
-                                                .text(friend.username),
-                                            $('<span></span>')
-                                                .addClass('icon close')
-                                                .click(function() {
-                                                    $(this).parents('div[data-who]').remove();
-                                                })),
-                                    $('<main></main>')));
-                }));
+                .click(() => addChatBox(friend)));
 };
 
 // Populate the friend list
