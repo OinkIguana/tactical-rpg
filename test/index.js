@@ -14,5 +14,6 @@ import './database';
 import './user';
 
 import './query';
+import './friends';
 import './login';
 import './main-menu';

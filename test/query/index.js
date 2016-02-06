@@ -60,7 +60,7 @@ const events = {
 
 describe('query', () => {
     before(() => {
-        // Initialize the fake socket with the login events
+        // Initialize the fake socket with the query events
         query(socket);
     });
     describe('should create a handler for each of:', () => {

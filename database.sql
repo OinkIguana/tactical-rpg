@@ -32,6 +32,15 @@ SET ROLE rpg;
 --                 FROM generate_series(1, CEIL($1 / 32.)::INTEGER)), $1));
 -- $$;
 
+CREATE OR REPLACE FUNCTION raise_exception(text)
+    RETURNS VOID
+    LANGUAGE PLPGSQL
+    AS $$
+    BEGIN
+      RAISE EXCEPTION '%', $1;
+    END;
+$$;
+
 ---------------------------------- User Data -----------------------------------
 
 
@@ -69,24 +78,28 @@ INSERT INTO accounts
 CREATE TABLE friends (
     user_a INT NOT NULL REFERENCES accounts (user_id) ON DELETE CASCADE,
     user_b INT NOT NULL REFERENCES accounts (user_id) ON DELETE CASCADE,
+    request_confirmed BOOLEAN NOT NULL DEFAULT (FALSE),
     CONSTRAINT cannot_befriend_yourself CHECK (user_a <> user_b) -- No self-friending
 );
-CREATE INDEX friends_user_a_index ON friends (user_a);
-CREATE INDEX friends_user_b_index ON friends (user_b);
+CREATE INDEX friends_user_a_index ON friends (request_confirmed, user_a, user_b);
+CREATE INDEX friends_user_b_index ON friends (request_confirmed, user_b, user_a);
+CREATE UNIQUE INDEX friends_only_once ON friends (LEAST(user_a, user_b), GREATEST(user_a, user_b));
 
 -- Game data
 CREATE TABLE games (
     game_id SERIAL PRIMARY KEY,
+    finished BOOLEAN NOT NULL DEFAULT (FALSE),
     game_data JSON NOT NULL
 );
-CREATE INDEX games_user_index ON games (game_id);
+CREATE INDEX games_game_index ON games (game_id);
 
 -- Link accounts to games
 CREATE TABLE game_players (
     user_a INT NOT NULL REFERENCES accounts (user_id) ON DELETE CASCADE,
     user_b INT NOT NULL REFERENCES accounts (user_id) ON DELETE CASCADE,
     game_id INT UNIQUE NOT NULL REFERENCES games (game_id) ON DELETE CASCADE,
+    request_confirmed BOOLEAN NOT NULL DEFAULT (FALSE),
     CONSTRAINT cannot_play_against_yourself CHECK (user_a <> user_b) -- No playing against yourself
 );
-CREATE INDEX game_player_user_a_index ON game_players (user_a);
-CREATE INDEX game_player_user_b_index ON game_players (user_b);
+CREATE INDEX game_player_user_a_index ON game_players (request_confirmed, user_a, user_b);
+CREATE INDEX game_player_user_b_index ON game_players (request_confirmed, user_b, user_a);

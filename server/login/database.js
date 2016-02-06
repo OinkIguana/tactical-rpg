@@ -18,6 +18,7 @@ export const login = (username, password) => {
         const [{user_id, salt, password: hashed}] = yield query(`SELECT user_id, salt, password FROM accounts WHERE username = '${username}'`);
         if(hashed === (yield hash(password, salt))) {
             yield query(`UPDATE accounts SET active_date = NOW() WHERE user_id = ${user_id}`);
+            return user_id;
         } else {
             throw new Error('Invalid password');
         }

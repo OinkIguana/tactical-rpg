@@ -6,15 +6,28 @@
 import {login, createNewUser, clearPassword, resetPassword} from './database';
 import generate from '../generator';
 import sendEmail from '../email';
-import {addUser} from '../user';
+import {addUser, userSocket} from '../user';
+import {myFriends} from '../friends/database';
 
 export default (socket) => {
     socket.on('login:login', ({username, password}, res) => {
         generate(function*() {
             try {
-                yield login(username, password);
-                addUser(username, socket);
+                const id = yield login(username, password);
+                addUser(username, {
+                    socket: socket,
+                    userID: id
+                });
                 res(null);
+                try {
+                    const friends = yield myFriends(id);
+                    friends.forEach((friend) => {
+                        const friendSocket = userSocket(friend);
+                        if(friendSocket !== undefined) {
+                            friendSocket.emit('friends:state-change', {username: username, online: true});
+                        }
+                    });
+                } catch(error) { /* Suppress this one */ }
             } catch(error) {
                 res('Your username or password is incorrect');
             }

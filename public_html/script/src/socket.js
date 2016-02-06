@@ -30,9 +30,9 @@ export const promisified = {
         });
     },
     // Non-promisifiable functions just pass through
-    get on() { return socket.on; },
-    get removeListener() { return socket.removeListener; },
-    get removeAllListeners() { return socket.removeAllListeners; }
+    on(...args) { return socket.on(...args); },
+    removeListener(...args) { return socket.removeListener(...args); },
+    removeAllListeners(...args) { return socket.removeAllListeners(...args); }
 };
 
 export default socket;

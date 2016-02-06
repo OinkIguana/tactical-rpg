@@ -10,6 +10,7 @@ import './forgot-password';
 import './reset-password';
 
 export * from './common';
+export {onLogin} from './login';
 
 const $labels = $('#sec-login p');
 const ENTER_KEY = 13;

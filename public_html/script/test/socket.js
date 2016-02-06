@@ -1,6 +1,6 @@
 'use strict';
 
-import {stub} from 'sinon';
+import {spy, stub} from 'sinon';
 import {should as should_} from 'chai';
 const should = should_();
 
@@ -25,14 +25,25 @@ describe('socket.js', () => {
             socket.once.should.have.been.calledOnce;
             socket.once.restore();
         });
-        it('should have the default on method', () => {
-            promisified.on.should.deep.equal(socket.on);
+        it('should pass through to the default on method', () => {
+            stub(socket, 'on');
+            const cb = spy();
+            promisified.on('test', cb);
+            socket.on.should.have.been.calledWith('test', cb);
+            socket.on.restore();
         });
-        it('should have the default removeListener method', () => {
-            promisified.removeListener.should.deep.equal(socket.removeListener);
+        it('should pass through to the default removeListener method', () => {
+            stub(socket, 'removeListener');
+            const cb = spy();
+            promisified.removeListener('test', cb);
+            socket.removeListener.should.have.been.calledWith('test', cb);
+            socket.removeListener.restore();
         });
-        it('should have the default removeAllListeners method', () => {
-            promisified.removeAllListeners.should.deep.equal(socket.removeAllListeners);
+        it('should pass through to the default removeAllListeners method', () => {
+            stub(socket, 'removeAllListeners');
+            promisified.removeAllListeners('test');
+            socket.removeAllListeners.should.have.been.calledWith('test');
+            socket.removeAllListeners.restore();
         });
     });
 });
