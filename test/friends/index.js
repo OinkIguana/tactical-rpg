@@ -11,7 +11,7 @@ const [USER, PASS, EMAIL, VALIDATION_KEY] = [':)', ':)', 'a@b.c', 'TESTING_VALID
 const [BAD_USER, BAD_PASS, BAD_EMAIL, BAD_VALIDATION_KEY] = [':(', ':(', 'd@e.f', 'null'];
 const [NEW_USER, NEW_PASS, NEW_EMAIL] = [':|', ':)', 'e@f.g'];
 
-const socket = { on: stub(), id: SOCKET_ID };
+const socket = { on: stub(), emit: stub(), id: SOCKET_ID };
 
 const events = {
     'friends:all-friends': [{
@@ -209,6 +209,55 @@ const events = {
                 it('should call response with an error', () => {
                     response.should.have.been.calledOnce;
                     response.args[0][0].should.be.a('string');
+                });
+            });
+        }
+    }],
+    'friends:chat-message': [{
+        args: {username: USER, message: 'Hello!'},
+        tests(response) {
+            describe('when the user is not logged in', () => {
+                it('should call response with an error', () => {
+                    response.should.have.been.calledOnce;
+                    response.args[0][0].should.be.a('string');
+                });
+            });
+        }
+    }, {
+        args: {username: NEW_USER, message: 'Hello!'},
+        before() {
+            user.addUser(USER, {socket: socket, id: 1});
+        },
+        after() {
+            user.removeUser(USER);
+        },
+        tests(response) {
+            describe('when the user is logged in and the second user is offline', () => {
+                it('should call response with no errors', () => {
+                    response.should.have.been.calledOnce;
+                    response.args[0][0].should.be.a('string');
+                });
+            });
+        }
+    }, {
+        args: {username: NEW_USER, message: 'Hello!'},
+        before() {
+            user.addUser(USER, {socket: socket, id: 1});
+            user.addUser(NEW_USER, {socket: socket, id: 2});
+        },
+        after() {
+            user.removeUser(USER);
+            user.removeUser(NEW_USER);
+        },
+        tests(response) {
+            describe('when the user is logged in and the second user is online', () => {
+                it('should call response with no errors', () => {
+                    response.should.have.been.calledOnce;
+                    should.not.exist(response.args[0][0]);
+                });
+                it('should emit back to the other socket', () => {
+                    socket.emit.should.have.been.calledOnce;
+                    socket.emit.should.have.been.calledWith('friends:chat-message', {username: USER, message: 'Hello!'});
                 });
             });
         }
