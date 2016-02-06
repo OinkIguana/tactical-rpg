@@ -118,39 +118,18 @@ describe('draw.js', () => {
             draw.textWidth('Hello World').should.be.a('number');
         });
     });
-    describe('image({image[, sx, sy, sw, sh], x, y[, w, h]})', () => {
+    describe('image(img[, sx, sy, swidth, sheight], x, y[, w, h])', () => {
         it('should draw the image', () => {
             const img = new Image(40, 50);
             draw.image({img: img, swidth: 32, sheight: 32, x: 0, y: 0, width: 32, height: 32});
             draw.image({img: img, sx: 10, sy: 10, x: 0, y: 0, width: 32, height: 32});
-            draw.image({img: img, x: 20, y: 20});
+            draw.image(img, 20, 20);
             ctx.drawImage.should.have.been.calledThrice;
             ctx.drawImage.should.have.been.calledWith(img, 0, 0, 32, 32, 0, 0, 32, 32);
             ctx.drawImage.should.have.been.calledWith(img, 10, 10, 32, 32, 0, 0, 32, 32);
-            ctx.drawImage.should.have.been.calledWith(img, 0, 0, img.width, img.height, 20, 20, img.width, img.height);
+            ctx.drawImage.should.have.been.calledWith(img, 20, 20);
         });
     });
-    // describe('sprite(spr, subimage, x, y[, w, h])', () => {
-    //     it('should draw the sprite with the correct subimage', () => {
-    //         const img = new Image();
-    //         const spr = new Sprite(img, 32, 32, [[0,0], [32, 0]]);
-    //         draw.sprite(spr, 1, 0, 0);
-    //         draw.sprite(spr, 0, 0, 0);
-    //         ctx.drawImage.should.have.been.calledWith(img, 0, 0, 32, 32, 0, 0, 32, 32);
-    //         ctx.drawImage.should.have.been.calledWith(img, 32, 0, 32, 32, 0, 0, 32, 32);
-    //     });
-    //     it('should not draw if the sprite has no image', () => {
-    //         const spr = new Sprite();
-    //         draw.sprite(spr, 1, 0, 0);
-    //         ctx.drawImage.should.have.not.been.called;
-    //     });
-    //     it('should draw the image stretched if dimensions are passed', () => {
-    //         const img = new Image();
-    //         const spr = new Sprite(img, 32, 32, [[0,0], [32, 0]]);
-    //         draw.sprite(spr, 1, 0, 0, 64, 64);
-    //         ctx.drawImage.should.have.been.calledWith(img, 32, 0, 32, 32, 0, 0, 64, 64);
-    //     });
-    // });
     describe('pixelData(pd, x, y)', () => {
         it('should be an alias for pd.draw(x, y)', () => {
             const pd = new draw.PixelData(32, 32);

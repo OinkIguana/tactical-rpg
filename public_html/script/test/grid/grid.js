@@ -25,7 +25,6 @@ describe('grid.js', () => {
     });
     describe('frameForPoint', () => {
         it('should return undefined if there\'s no cell close enough', () => {
-            console.log(grid);
             should.not.exist(grid.frameForPoint(new Point(500, 100), 0));
         });
         it('should return an object containing a cell frame in it otherwise', () => {

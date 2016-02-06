@@ -56,16 +56,17 @@ describe('drawable.js', () => {
         });
     });
     describe('draw', () => {
-        it('should call draw on children with correct offset', () => {
+        it('should call draw on children with correct offset', (done) => {
             let fn = spy(drawable.draw);
             root.draw(1, 2);
             setTimeout(() => {
                 fn.should.have.been.calledWith(21, 22);
+                done();
             }, 0);
         });
     });
     describe('animateToPoint', () => {
-        it('should move the drawable correctly in a draw() call', () => {
+        it('should move the drawable correctly in a draw() call', (done) => {
             const pt = drawable.frame.origin;
             drawable.animateToPoint({pt: new Point(360, 450)});
             drawable.frame.origin.should.deep.equal(pt);
@@ -78,9 +79,10 @@ describe('drawable.js', () => {
                     root.draw();
                 }
                 drawable.frame.origin.should.deep.equal(new Point(25, -60));
+                done();
             }, 0);
         });
-        it("should detect end of animation and correctly handle it", () => {
+        it("should detect end of animation and correctly handle it", (done) => {
             const x = spy();
             drawable.frame.origin = new Point(0, 0);
             drawable.animateToPoint({pt: new Point(-1, 1), speed: 4, completion: x});
@@ -88,6 +90,7 @@ describe('drawable.js', () => {
                 root.draw();
                 drawable.frame.origin.should.deep.equal(new Point(-1, 1));
                 x.should.have.been.calledOnce;
+                done();
             }, 0);
         });
     });
@@ -95,9 +98,10 @@ describe('drawable.js', () => {
         it("should call removeFromParent on the child passing itself", () => {
             const parent = new Drawable({frame: new Rect(20, 20, 400, 300)});
             const child = new Drawable({frame: new Rect(20, 20, 40, 30)});
-            let fn = spy(child, 'removeFromParent');
+            const fn = spy(child, 'removeFromParent');
             parent.addChild(child);
             fn.should.have.been.calledWith(parent);
+            fn.restore();
         });
     });
     /*describe('removeChild', () => {

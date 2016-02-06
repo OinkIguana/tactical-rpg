@@ -40,11 +40,12 @@ describe('drawable-image.js', () => {
     });
 
     describe('draw', () => {
-        it('should draw an image', () => {
+        it('should draw an image', (done) => {
             dImage.draw(30, 30);
             setTimeout(() => {
                 fns.image.should.have.been.called;
                 fns.image.args[0].should.deep.equal(dImage.backgroundImage);
+                done();
             }, 0);
         });
     });
