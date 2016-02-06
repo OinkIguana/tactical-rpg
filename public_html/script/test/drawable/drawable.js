@@ -13,17 +13,10 @@ import RootDrawable from '../../src/drawable/root-drawable';
 import draw from '../../src/draw';
 
 describe('drawable.js', () => {
-
-    let fns = {
-            image: stub(draw, 'image')
-        };
+    
     const root = new RootDrawable({frame: new Rect(20, 20, 400, 300), canvasID: 'game'});
     const drawable = new Drawable({frame: new Rect(20, 20, 400, 300)});
     root.addChild(drawable);
-
-    after(() => {
-        fns.image.restore();
-    });
 
     describe('new Drawable({frame})', () => {
         it('should throw a TypeError is frame is not a Rect', () => {
@@ -57,7 +50,7 @@ describe('drawable.js', () => {
     });
     describe('draw', () => {
         it('should call draw on children with correct offset', (done) => {
-            let fn = spy(drawable.draw);
+            let fn = spy(drawable, 'draw');
             root.draw(1, 2);
             setTimeout(() => {
                 fn.should.have.been.calledWith(21, 22);
@@ -78,16 +71,18 @@ describe('drawable.js', () => {
                 for (let i = 0; i < 5; i++) {
                     root.draw();
                 }
-                drawable.frame.origin.should.deep.equal(new Point(25, -60));
-                done();
+                setTimeout(() => {
+                    drawable.frame.origin.should.deep.equal(new Point(25, -60));
+                    done();
+                }, 0);
             }, 0);
         });
         it("should detect end of animation and correctly handle it", (done) => {
             const x = spy();
             drawable.frame.origin = new Point(0, 0);
             drawable.animateToPoint({pt: new Point(-1, 1), speed: 4, completion: x});
+            root.draw();
             setTimeout(() => {
-                root.draw();
                 drawable.frame.origin.should.deep.equal(new Point(-1, 1));
                 x.should.have.been.calledOnce;
                 done();

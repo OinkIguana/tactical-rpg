@@ -74,7 +74,8 @@ export const Rect = class { //graphical rect - origin is top left
 
     get origin() { return new Point(this.x, this.y); }
 
-    [Symbol.iterator]() { return [this.x, this.y, this.width, this.height]; }
+    *[Symbol.iterator]() { yield* [this.x, this.y, this.width, this.height]; }
+
     noPoint() {
         return new Rect(0, 0, this.width, this.height);
     }
