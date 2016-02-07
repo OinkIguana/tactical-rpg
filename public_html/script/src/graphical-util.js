@@ -19,7 +19,7 @@ export const Point = class { //a basic (x, y) coordinate
         return dist(this, pt);
     }
 
-    [Symbol.iterator]() { return [this.x, this.y]; }
+    *[Symbol.iterator]() { yield* [this.x, this.y]; }
 };
 
 export const Size = class {
@@ -28,7 +28,7 @@ export const Size = class {
         this.height = height;
     }
 
-    [Symbol.iterator]() { return [this.width, this.height]; }
+    *[Symbol.iterator]() { yield* [this.width, this.height]; }
 };
 
 export const Rect = class { //graphical rect - origin is top left

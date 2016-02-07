@@ -26,7 +26,6 @@ describe('drawable-image.js', () => {
         });
         it('should set scaleMode to ScaleMode.toFill if an imageFrame is passed', () => {
             (dImage.scaleMode === ScaleMode.toFill).should.be.ok;
-            //dImage.scaleMode.should.equal(ScaleMode.toFill);
         });
     });
 
