@@ -5,33 +5,18 @@
 import $ from 'jquery';
 import {promisified as socket} from '../socket';
 import generate from '../generator';
-import {status} from './common';
+import status from './status';
+import initialize from './init';
 
-export const initialize = () => {
-    generate(function*() {
-        try {
-            const me = localStorage.getItem('rpg-username');
-            const side = Math.floor(Math.random() * 2);
-            status.players = [side ? undefined : me, side ? me : undefined];
-            status.id = yield socket.emit('lobby:new-game', side);
-        } catch(e) {
-            $('#lobby-error').text(e);
-        }
-    });
-};
+import './swap';
+import './invite';
+import './ready';
 
-$('#lobby-swap')
+$('#sec-lobby p[data-action="main-menu"]')
     .click(() => {
-        generate(function*() {
-            try {
-                status.ready = false;
-                const swap = yield socket.emit('lobby:swap');
-                if(!swap) { throw 'Swap rejected'; }
-                status.players = [status.players[1], status.players[0]];
-            } catch(e) {
-                $('#lobby-error').text('Swap rejected');
-            }
-        });
+        socket.emit('lobby:leave-lobby');
+        $('#sec-lobby').removeClass('active');
+        $('#sec-main-menu,#main-menu').addClass('active');
     });
 
 $('#lobby-ready')
@@ -44,4 +29,4 @@ $('#lobby-ready')
         });
     });
 
-export default {initialize};
+export default initialize;

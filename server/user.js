@@ -7,6 +7,7 @@ const users = {};
 
 export const addUser = (user, data) => {
     users[user] = data;
+    users[user].lobbyID = null;
 };
 
 export const removeUser = (user) => {
@@ -34,5 +35,9 @@ export const idUser = (userID) => {
         }
     }
 };
-
-export default {socketUser, userSocket, addUser, removeUser};
+export const userLobby = (user, id) => {
+    if(!users[user]) { return undefined; }
+    if(id !== undefined) { users[user].lobbyID = id; }
+    return users[user].lobbyID;
+};
+export default {socketUser, userSocket, addUser, removeUser, idUser, userID, userLobby};

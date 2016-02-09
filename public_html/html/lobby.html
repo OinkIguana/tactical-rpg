@@ -36,12 +36,21 @@
                 </p>
             </article>
         </div>
-        <button id="lobby-swap">Swap</button>
-        <button id="lobby-ready">Ready</button>
+        <button id="lobby-swap" class="toggleable">Swap</button>
+        <button id="lobby-accept-swap" class="half toggleable">Accept Swap</button><button id="lobby-reject-swap" class="half toggleable">Reject Swap</button>
+        <button id="lobby-ready" class="toggleable">Ready</button>
     </main>
     <aside>
-        <button id="invite-to-game">Invite a friend</button>
-        <button id="auto-match">Auto-match opponent</button>
+        <button id="invite-to-game" class="toggleable">Invite a friend</button>
+        <button id="auto-match" class="toggleable">Auto-match opponent</button>
         <p id="lobby-error"></p>
     </aside>
+    <div id="lobby-request-form" class="toggleable">
+        <fieldset>
+            <legend>Invite a friend</legend>
+            <aside id="lobby-request-error"></aside>
+            <input type="text" id="lobby-request-username" autocomplete="off" placeholder="Username">
+            <button>Invite</button>
+        </fieldset>
+    </div>
 </section>

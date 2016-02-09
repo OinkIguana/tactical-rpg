@@ -15,6 +15,7 @@ export const PlayerData = class {
             .then((username) => this[USERNAME] = username);
     }
     get username() {
+        // If checked too early, this may be undefined
         return this[USERNAME];
     }
 };
