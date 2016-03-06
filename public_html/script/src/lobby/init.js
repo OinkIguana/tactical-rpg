@@ -9,13 +9,13 @@ import {promisified as socket} from '../socket';
 export default (lobby) => {
     generate(function*() {
         try {
+            $('#lobby-swap').addClass('active');
+            $('#lobby-accept-swap,#lobby-reject-swap').removeClass('active');
+            $('#auto-match').text('Auto-match opponent');
             if(lobby === undefined) {
                 const me = localStorage.getItem('rpg-username');
                 const side = Math.floor(Math.random() * 2);
                 status.players = [side ? undefined : me, side ? me : undefined];
-                $('#lobby-swap').addClass('active');
-                $('#lobby-accept-swap,#lobby-reject-swap').removeClass('active');
-                $('#auto-match').text('Auto-match opponent');
                 status.id = yield socket.emit('lobby:new-game', side);
             } else {
                 setStatus(lobby);

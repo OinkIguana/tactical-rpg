@@ -19,12 +19,12 @@ const updateView = () => {
     if(players[0] && players[1]) {
         $('#invite-to-game,#auto-match')
             .removeClass('active');
-        $('#ready')
+        $('#lobby-ready')
             .addClass('active');
     } else {
         $('#invite-to-game,#auto-match')
             .addClass('active');
-        $('#ready')
+        $('#lobby-ready')
             .removeClass('active');
     }
     // READINESS

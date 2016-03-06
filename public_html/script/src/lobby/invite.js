@@ -15,23 +15,35 @@ $('#invite-to-game')
         $('#lobby-request-form')
             .addClass('active');
     });
-$('#lobby-request-form fieldset button')
-    .click(() => {
-        generate(function*() {
-            try {
-                const user = $('#lobby-request-username').val();
-                if(!VALID_USERNAME.test(user)) { throw 'Invalid username'; }
-                yield socket.emit('lobby:invite-request', user);
-                $('#lobby-request-error')
-                    .text('Invite sent successfully.');
-            } catch(e) {
-                $('#lobby-request-error')
-                    .text('Could not invite this player.');
-            }
-        });
-    });
+$('#lobby-request-form').click(function() {
+        $(this)
+            .removeClass('active')
+            .children('#lobby-request-username')
+                .val('')
+                .parent()
+            .children('#lobby-request-error')
+                .text('');
+    })
+    .children('fieldset')
+        .click(() => {return false;})
+        .children('button')
+            .click(() => {
+                generate(function*() {
+                    try {
+                        const user = $('#lobby-request-username').val();
+                        if(!VALID_USERNAME.test(user)) { throw 'Invalid username'; }
+                        yield socket.emit('lobby:invite-request', user);
+                        $('#lobby-request-error')
+                            .text('Invite sent successfully.');
+                    } catch(e) {
+                        $('#lobby-request-error')
+                            .text('Could not invite this player.');
+                    }
+                });
+            });
 
-socket.on('lobby:invite', (who) => {
+socket.on('lobby:invite', ({who, id}, res) => {
+    res(null);
     $('#friend-notifications')
         .append(
             $('<p></p>')
@@ -40,19 +52,25 @@ socket.on('lobby:invite', (who) => {
                     $('<button></button>')
                         .text('Accept')
                         .click(function() {
+                            $(this).parent().remove();
                             generate(function*() {
-                                $(this).parent().remove();
-                                const lobby = yield socket.emit('lobby:respond-request', {nameA: who, response: true});
-                                $('#sec-lobby').addClass('active');
-                                $('#sec-main-menu,#sec-main-menu *').removeClass('active');
-                                initialize(lobby);
+                                try {
+                                    const me = localStorage.getItem('rpg-username');
+                                    const lobby = yield socket.emit(`lobby:invite-respond-${id}-${me}`, true);
+                                    $('#sec-lobby').addClass('active');
+                                    $('#sec-main-menu,#sec-main-menu *').removeClass('active');
+                                    initialize(lobby);
+                                } catch(e) {
+                                    // Show error
+                                }
                             });
                         }),
                     $('<button></button>')
                         .text('Reject')
                         .click(function() {
                             $(this).parent().remove();
-                            socket.emit('lobby:respond-request', {nameA: who, response: false});
+                            const me = localStorage.getItem('rpg-username');
+                            socket.emit(`lobby:respond-request-${id}-${me}`, true);
                         }))
             );
 });

@@ -48,6 +48,47 @@ export default (socket) => {
     socket.on('lobby:leave-lobby', leaveLobby);
     socket.on('disconnect', leaveLobby);
 
+    socket.on('lobby:invite-request', (who, res) => {
+        const me = socketUser(socket);
+        if(!me) { return res('Not logged in'); }
+        const id = userLobby(me);
+        if(!lobby[id]) { return res('Not in a lobby'); }
+        if(lobby[id].players[0] !== undefined && lobby[id].players[1] !== undefined) {
+            return res('Lobby is full');
+        }
+        const them = userSocket(who);
+        if(them) {
+            them.emit('lobby:invite', {who: me, id: id}, (error) => {
+                if(error) {
+                    res('Could not invite');
+                } else {
+                    res(null);
+                }
+            });
+            them.once(`lobby:invite-respond-${id}-${who}`, (accept, res) => {
+                if(accept) {
+                    if(lobby[id].players[0] !== undefined && lobby[id].players[1] !== undefined) {
+                        return res('Lobby is full');
+                    } else if(userLobby(who)) {
+                        return res('You are already in a lobby');
+                    } else {
+                        if(lobby[id].players[0] === undefined) {
+                            lobby[id].players[0] = who;
+                        } else {
+                            lobby[id].players[1] = who;
+                        }
+                        userLobby(who, id);
+                        res(null, lobby[id]);
+                        socket.emit('lobby:update', lobby[id]);
+                    }
+                }
+                res(null);
+            });
+        } else {
+            res('Opponent is not online');
+        }
+    });
+
     socket.on('lobby:swap-request', (nil, res) => {
         const me = socketUser(socket);
         const id = userLobby(me);
