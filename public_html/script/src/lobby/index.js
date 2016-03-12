@@ -19,14 +19,4 @@ $('#sec-lobby p[data-action="main-menu"]')
         $('#sec-main-menu,#main-menu').addClass('active');
     });
 
-$('#lobby-ready')
-    .click(() => {
-        generate(function*() {
-            try {
-                status.ready = false;
-                yield socket.emit('lobby:ready');
-            } catch(e) { /* What could really go wrong with this one */ }
-        });
-    });
-
 export default initialize;

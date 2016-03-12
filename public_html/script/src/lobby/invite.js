@@ -62,6 +62,16 @@ socket.on('lobby:invite', ({who, id}, res) => {
                                     initialize(lobby);
                                 } catch(e) {
                                     // Show error
+                                    $('#friend-notifications')
+                                        .append($('<p></p>')
+                                            .text('Could not join the lobby'))
+                                            .append(
+                                                $('<button></button>')
+                                                    .text('Dismiss')
+                                                    .click(function() {
+                                                        $(this).parent().remove();
+                                                    })
+                                            );
                                 }
                             });
                         }),

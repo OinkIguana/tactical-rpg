@@ -1,3 +1,6 @@
+/*
+    Initialize the lobby page whenever a game is joined
+*/
 'use strict';
 
 import $ from 'jquery';
@@ -11,9 +14,14 @@ export default (lobby) => {
         try {
             $('#lobby-swap').addClass('active');
             $('#lobby-accept-swap,#lobby-reject-swap').removeClass('active');
+            $('#lobby-error').text('');
+            $('#lobby-request-form').removeClass('active');
             $('#auto-match').text('Auto-match opponent');
             if(lobby === undefined) {
-                const me = localStorage.getItem('rpg-username');
+                const me = {
+                    name: localStorage.getItem('rpg-username'),
+                    ready: false
+                };
                 const side = Math.floor(Math.random() * 2);
                 status.players = [side ? undefined : me, side ? me : undefined];
                 status.id = yield socket.emit('lobby:new-game', side);

@@ -11,11 +11,9 @@ $('#lobby-swap')
     .click(() => {
         generate(function*() {
             try {
-                status.ready = false;
                 $('#lobby-swap').removeClass('active');
                 const swap = yield socket.emit('lobby:swap-request');
                 if(!swap) { throw 'Swap rejected'; }
-                status.players = [status.players[1], status.players[0]];
             } catch(e) {
                 $('#lobby-error').text('Swap rejected');
             } finally {
@@ -33,7 +31,6 @@ socket.on('lobby:swap-request', (res) => {
             $('#lobby-accept-swap,#lobby-reject-swap')
                 .off('click')
                 .removeClass('active');
-            status.players = [status.players[1], status.players[0]];
             res(null, true);
         });
     $('#lobby-reject-swap')
