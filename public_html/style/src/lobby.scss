@@ -1,3 +1,176 @@
 #sec-lobby {
-    .ready { background-color: green; }
+    background-image: url(../../image/src/dark_wood.png);
+
+    p[data-action] {
+        cursor: pointer;
+        display: inline-block;
+        padding: 6px;
+
+        color: $textClickable;
+        &:hover {
+            color: $textHover;
+        }
+
+        background-color: $whitebox;
+        box-shadow: 0 0 5px 5px $whitebox;
+        border-bottom-right-radius: 15px;
+    }
+    div.container {
+        margin: 0 auto;
+        width: 1200px;
+        text-align: center;
+        background-color: $whitebox;
+        padding: 20px;
+        &>h1 {
+            text-align: center;
+            font-size: 26pt;
+            font-family: '8bitOperator';
+            width: 1000px;
+        }
+        &>main {
+            position: relative;
+            box-sizing: border-box;
+            display: inline-block;
+            width: 1000px;
+            vertical-align: top;
+
+            div {
+                position: relative;
+                box-sizing: border-box;
+                display: inline-block;
+                margin: 10px;
+                width: 480px;
+                padding: 16px;
+
+                &#lobby-left::after {
+                    content: '';
+                    position: absolute;
+                    top: 35px;
+                    bottom: 35px;
+                    right: -10px;
+                    border-right: 1px solid;
+                }
+
+                &.ready h1::after {
+                    position: absolute;
+                    right: 16px;
+                    content: '✔';
+                    color: green;
+                }
+
+                header {
+                    position: relative;
+                    text-align: center;
+                    padding: 10px;
+                    &::after {
+                        content: "";
+                        position: absolute;
+                        bottom: 0;
+                        left: 0;
+                        width: 80%;
+                        margin: 0 10%;
+                        height: 1px;
+                        border-bottom: 1px solid black;
+                    }
+                    h1 {
+                        font-size: x-large;
+                    }
+                    h2 {
+                        font-size: large;
+                    }
+                }
+                p {
+                    padding: 10px;
+                    text-align: justify;
+                }
+            }
+            button {
+                &.active:not(#lobby-ready) { display: inline-block; }
+                margin: 0 auto;
+                width: 125px;
+                &#lobby-swap, &#lobby-ready {
+                    width: 250px;
+                }
+            }
+        }
+        &>aside {
+            box-sizing: border-box;
+            display: inline-block;
+            width: 200px;
+            button {
+                width: 100%;
+            }
+        }
+    }
+    div#lobby-request-form {
+        position: absolute;
+        top: 0;
+        left: 0;
+
+        width: 100%;
+        height: 100%;
+        background-color: rgba(60, 60, 60, 0.7);
+        pointer-events: auto;
+        cursor: pointer;
+        * { cursor: auto; }
+
+        fieldset {
+            position: relative;
+            box-sizing: border-box;
+            padding: 20px;
+            padding-top: 40px;
+
+            margin: 200px auto;
+            width: 500px;
+
+            background-color: $whitebox;
+            box-shadow: 0 0 5px 5px $whitebox;
+            pointer-events: auto;
+
+            legend {
+                position: absolute;
+                top: 4px;
+                left: 0;
+                display: block;
+                width: 100%;
+                text-align: center;
+                font-size: larger;
+            }
+        }
+        aside {
+            position: absolute;
+            top: 32px;
+            z-index: 1;
+
+            font-size: smaller;
+        }
+        input {
+            box-sizing: border-box;
+            display: inline-block;
+            width: 100%;
+            padding: 10px 10px 5px 5px;
+            margin: 10px 0;
+
+            border-width: 0 0 1px 1px;
+            border-style: solid;
+            border-color: borderize($inputColor);
+
+            background-color: $inputColor;
+            &:focus {
+                border-color: borderize($inputFocus);
+                background-color: $inputFocus;
+            }
+        }
+
+    }
+    button {
+        padding: 5px 10px;
+        border: 1px solid borderize($buttonColor);
+        border-radius: 3px;
+        background-color: $buttonColor;
+        &:hover {
+            border-color: borderize($buttonHover);
+            background-color: $buttonHover;
+        }
+    }
 }

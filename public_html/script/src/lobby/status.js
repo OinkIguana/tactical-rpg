@@ -5,6 +5,7 @@
 
 import $ from 'jquery';
 import {promisified as socket} from '../socket';
+import showMessage from './message';
 
 let _players = [];
 let _id = '';
@@ -14,19 +15,21 @@ const updateView = () => {
         .text(_players[0] && _players[0].name || 'No opponent');
     $(`#sec-lobby #lobby-right header h2`)
         .text(_players[1] && _players[1].name || 'No opponent');
-    // Disable invite buttons
+    // Enable/disable swap/invite buttons
     if(_players[0] && _players[1]) {
         $('#invite-to-game,#auto-match')
             .removeClass('active');
         $('#lobby-ready')
             .addClass('active');
     } else {
-        $('#invite-to-game,#auto-match')
-            .addClass('active');
-        $('#lobby-ready')
+        $('#lobby-reject-swap,#lobby-accept-swap')
+            .off('click')
+        .add('#lobby-ready')
             .removeClass('active');
+        $('#invite-to-game,#auto-match,#lobby-swap')
+            .addClass('active');
     }
-    // READINESS
+    // Readiness
     if(_players[0] && _players[0].ready) {
         $('#sec-lobby #lobby-left').addClass('ready');
     } else {
@@ -40,7 +43,16 @@ const updateView = () => {
 };
 
 export const setStatus = (status) => {
+    const before = [..._players];
     _players = status.players;
+    if(!(before[0] === _players[1] && before[1] === _players[0])) {
+        const me = localStorage.getItem('rpg-username');
+        if(!(before[0] && before[1]) && (_players[0] && _players[1])) {
+            showMessage(`${_players[(_players[0].name === me) ? 1 : 0].name} has joined`);
+        } else if((before[0] && before[1]) && !(_players[0] && _players[1])) {
+            showMessage(`${before[(before[0].name === me) ? 1 : 0].name} has left`);
+        }
+    }
     _id = status.id;
     updateView();
 };

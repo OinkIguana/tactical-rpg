@@ -9,6 +9,8 @@ import generate from '../generator';
 import {setStatus, status} from './status';
 import {promisified as socket} from '../socket';
 
+import showMessage from './message';
+
 export default (lobby) => {
     generate(function*() {
         try {
@@ -29,7 +31,7 @@ export default (lobby) => {
                 setStatus(lobby);
             }
         } catch(e) {
-            $('#lobby-error').text(e);
+            showMessage(e);
         }
     });
 };

@@ -126,11 +126,12 @@ export default (socket) => {
         if(!me) { return res('Not logged in'); }
         const id = userLobby(me);
         if(!lobby[id]) { return res('Not in a lobby'); }
-        unready(id);
         if(lobby[id].players[0] === undefined || lobby[id].players[1] === undefined) {
             lobby[id].players = [lobby[id].players[1], lobby[id].players[0]];
+            unready(id);
             res(null, true);
         } else {
+            unready(id);
             const otherSocket = lobby[id].players[0].name === me
                                     ? userSocket(lobby[id].players[1].name)
                                     : userSocket(lobby[id].players[0].name);

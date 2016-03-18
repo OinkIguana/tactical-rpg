@@ -17,6 +17,10 @@ $('#sec-lobby p[data-action="main-menu"]')
         socket.emit('lobby:leave-lobby');
         $('#sec-lobby').removeClass('active');
         $('#sec-main-menu,#main-menu').addClass('active');
+        $('#lobby-swap').addClass('active');
+        $('#lobby-accept-swap,#lobby-reject-swap')
+            .off('click')
+            .removeClass('active');
     });
 
 export default initialize;

@@ -7,15 +7,32 @@ import {promisified as socket} from '../socket';
 import generate from '../generator';
 import status from './status';
 
+import showMessage from './message';
+
+let swap;
+const respondSwap = (res) => {
+    $('#lobby-swap').addClass('active');
+    $('#lobby-accept-swap,#lobby-reject-swap')
+        .off('click')
+        .removeClass('active');
+    if(swap) {
+        swap(null, res);
+        swap = undefined;
+    }
+};
+
 $('#lobby-swap')
     .click(() => {
         generate(function*() {
             try {
                 $('#lobby-swap').removeClass('active');
-                const swap = yield socket.emit('lobby:swap-request');
-                if(!swap) { throw 'Swap rejected'; }
+                const accepted = yield socket.emit('lobby:swap-request');
+                if(!accepted) { throw 'Swap rejected'; }
+                if(status.players.count == 2) {
+                    showMessage('Swap accepted');
+                }
             } catch(e) {
-                $('#lobby-error').text('Swap rejected');
+                showMessage('Swap rejected');
             } finally {
                 $('#lobby-swap').addClass('active');
             }
@@ -23,22 +40,11 @@ $('#lobby-swap')
     });
 
 socket.on('lobby:swap-request', (res) => {
+    swap = res;
     $('#lobby-swap,#lobby-accept-swap,#lobby-reject-swap')
         .toggleClass('active');
     $('#lobby-accept-swap')
-        .one('click', () => {
-            $('#lobby-swap').addClass('active');
-            $('#lobby-accept-swap,#lobby-reject-swap')
-                .off('click')
-                .removeClass('active');
-            res(null, true);
-        });
+        .one('click', () => respondSwap(true));
     $('#lobby-reject-swap')
-        .one('click', () => {
-            $('#lobby-swap').addClass('active');
-            $('#lobby-accept-swap,#lobby-reject-swap')
-                .off('click')
-                .removeClass('active');
-            res(null, false);
-        });
+        .one('click', () => respondSwap(false));
 });

@@ -16,6 +16,8 @@ section#sec-friends {
         height: 100%;
         background-color: rgba(60, 60, 60, 0.7);
         pointer-events: auto;
+        cursor: pointer;
+        * { cursor: auto; }
 
         fieldset {
             position: relative;
