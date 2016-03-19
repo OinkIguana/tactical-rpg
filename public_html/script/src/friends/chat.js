@@ -1,3 +1,6 @@
+/*
+    Handles chat messages and the chat boxes
+*/
 'use strict';
 import $ from 'jquery';
 import {promisified as socket} from '../socket';

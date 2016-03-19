@@ -17,3 +17,4 @@ import './query';
 import './friends';
 import './login';
 import './main-menu';
+import './lobby';

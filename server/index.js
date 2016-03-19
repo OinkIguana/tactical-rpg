@@ -8,6 +8,7 @@ import query from './query';
 import friends from './friends';
 import login from './login';
 import mainMenu from './main-menu';
+import lobby from './lobby';
 import {socketUser, removeUser} from './user';
 
 const app = express();
@@ -31,5 +32,6 @@ io.on('connection', (socket) => {
     query(socket);
     friends(socket);
     login(socket);
+    lobby(socket);
     mainMenu(socket);
 });

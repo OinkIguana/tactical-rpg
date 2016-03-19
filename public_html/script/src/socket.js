@@ -5,9 +5,11 @@
 import io from 'socket.io-client';
 
 const socket = io();
+socket.io.timeout(20000);
 
 export const promisified = {
     emit(event, data) {
+        console.log(event, data);
         return new Promise((resolve, reject) => {
             socket.emit(event, data, (error, value) => {
                 if(!!error) {

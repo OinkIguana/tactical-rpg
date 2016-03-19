@@ -7,7 +7,6 @@ import $ from 'jquery';
 
 import './chat';
 import './list';
-import './invite';
 import './request';
 
 $('footer')
