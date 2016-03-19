@@ -35,6 +35,7 @@ export default (socket) => {
     socket.on('lobby:new-game', (side, res) => {
         const id = uuid();
         const me = socketUser(socket);
+        if(!me) { return res('Not signed in'); }
         userLobby(me, id);
         const obj = { name: me, ready: false };
         lobby[id] = {
